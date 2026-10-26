@@ -218,6 +218,8 @@ void AiController::thinkCommander(GroupBrain& g) {
         if (dh > 0) dawn = std::max(dawn, clamp(0.6 + dh, 0.0, 1.0));
     }
     double spent = 1.0 - std::max(a.ammo * 0.8, a.torpedoFraction);
+    // A picket that is being hit has been found: its reporting station is compromised for good.
+    if (g.mission.type == MissionType::Picket && a.recentHits > 0) g.missionDone = true;
 
     std::vector<OptionScore> opts;
     {
@@ -225,6 +227,11 @@ void AiController::thinkCommander(GroupBrain& g) {
         o.add("no_threat", proximity, respond(Curve::Quadratic, proximity, true));
         o.add("mission_pending", g.missionDone ? 0.0 : 1.0, g.missionDone ? 0.35 : 0.9);
         o.add("dawn", dawn, 1.0 - 0.5 * dawn);
+        // An enemy within reach of our weapons demands an answer: fight, attack or get out, not carry on.
+        double close = 0.0;
+        for (auto& t : a.threats)
+            if (t.fireable && t.age < 120.0) close = std::max(close, 1.0 - clamp((t.distance - std::max(gunR, torR)) / (2.0 * std::max(gunR, torR)), 0.0, 1.0));
+        if (close > 0) o.add("enemy_close", close, 1.0 - 0.35 * close);
         opts.push_back(o);
     }
     if (contacts) {
@@ -279,6 +286,8 @@ void AiController::thinkCommander(GroupBrain& g) {
                                  : 0.0;
         double damage = respond(Curve::Quadratic, 1.0 - a.health);
         double reason = std::max({danger, damage, dawn, contacts ? spent * 0.9 : spent * 0.5, g.missionDone && !contacts ? 0.6 : 0.0});
+        // A picket that has found the enemy and is being hit has done its job.
+        if (g.mission.type == MissionType::Picket && a.recentHits > 0) reason = std::max(reason, 0.8);
         o.add("reason", reason, reason);
         // Pickets stay on station to report unless actually under fire.
         if (g.mission.type == MissionType::Picket && !a.underFire) o.add("picket_duty", 1.0, 0.6);
@@ -496,8 +505,9 @@ void AiController::runTorpedoAttack(GroupBrain& g, sim::Group& grp, sim::Ship& g
             Vec2 fp = tgt->pos + tgt->vel * (lead * 0.6) + bearingVector(tCourse + side * 55.0) * Rl;
             grp.course = bearingTo(guide.pos, fp);
             grp.speedKn = attackSpeed;
-            // Under fire there is no time to reach the ideal position: launch from longer range.
-            if (dist <= Rl * (g.last.underFire ? 1.6 : 1.15)) {
+            // Taking hits there is no time to reach the ideal position: launch from longer range. Enemy gun
+            // flashes alone (shooting at someone else) do not count.
+            if (dist <= Rl * (g.last.recentHits > 0 ? 1.6 : 1.15)) {
                 g.launchRange = dist * 1.1;
                 double c1 = wrap360(B + 90.0), c2 = wrap360(B - 90.0);
                 g.turnAwayCourse = std::fabs(angleDiff(guide.heading, c1)) < std::fabs(angleDiff(guide.heading, c2)) ? c1 : c2;
@@ -622,6 +632,26 @@ int AiController::torpedoSetting(const sim::Ship& s, double run) const {
     }
     return 0;
 }
+
+namespace {
+const sim::TorpedoDef* loadedTorpedo(const sim::Ship& s) {
+    for (auto& tm : s.torpedoMounts)
+        if (tm.loaded > 0 && tm.operational() && tm.def->torpedo && !tm.def->torpedo->settings.empty()) return tm.def->torpedo;
+    return nullptr;
+}
+
+// Length of the torpedo run to a target at p moving with v at the given setting (and the launch course);
+// -1 if the target is out of that setting's reach.
+double torpedoRun(const sim::TorpedoDef& td, int setting, const Vec2& from, const Vec2& p, const Vec2& v, double* course = nullptr) {
+    const auto& st = td.settings[size_t(clamp(setting, 0, int(td.settings.size()) - 1))];
+    double tt;
+    Vec2 aim;
+    if (!solveIntercept(from, st.speedKn * 0.514444, p, v, tt, aim)) return -1.0;
+    if (course) *course = bearingTo(from, aim);
+    double run = distance(from, aim);
+    return run <= st.range * 0.85 ? run : -1.0;
+}
+}  // namespace
 
 bool torpedoFanEndangers(const Vec2& launcher, double course, double spreadDeg, double run, double speed, const sim::Ship& o) {
     double half = spreadDeg * 0.5 + 4.0;  // gyro and launch-angle errors widen the fan
@@ -867,6 +897,8 @@ void AiController::captainTorpedoes(CaptainBrain& c, sim::Ship& s, GroupBrain* g
     double rangeLimit = d.torpedoRange(view_.night()) * (attackRun ? 1.35 : 1.0);
     // Ships further down the column are farther from the target than the guide that set the launch range.
     if (attackRun) rangeLimit = std::max(rangeLimit, g->launchRange * 1.3);
+    const sim::TorpedoDef* td = loadedTorpedo(s);
+    if (!td) return;
     uint32_t best = 0;
     double bestV = 0;
     std::vector<sim::Ship*> self{&s};
@@ -877,6 +909,9 @@ void AiController::captainTorpedoes(CaptainBrain& c, sim::Ship& s, GroupBrain* g
         Vec2 p = t.predict(now);
         double dist = distance(s.pos, p);
         if (dist > rangeLimit) continue;
+        // Our own torpedo must reach it: the group's launch range is set by the doctrine, not by the
+        // shortest-ranged torpedo of its ships, and a target moving away lengthens the run.
+        if (torpedoRun(*td, int(td->settings.size()) - 1, s.pos, p, t.vel) < 0) continue;
         // A deliberate attack run accepts a poorer solution: the spread covers the error. A director that has
         // been following the target knows its course and speed far better than the plot.
         double velSigma = t.velSigma, posSigma = t.posSigma;
@@ -902,8 +937,12 @@ void AiController::captainTorpedoes(CaptainBrain& c, sim::Ship& s, GroupBrain* g
     const sim::Track* tr = view_.contact(best);
     Vec2 p = tr->predict(now);
     double dist = distance(s.pos, p);
+    // The fastest setting with range to spare; failing that, the fastest one that still gets there.
+    int setting = torpedoSetting(s, dist * 1.3);
+    double course = bearingTo(s.pos, p);
+    while (torpedoRun(*td, setting, s.pos, p, tr->vel, &course) < 0 && setting + 1 < int(td->settings.size())) ++setting;
     // Only tubes that bear on the launch course take part in the spread.
-    double rel = wrap180(bearingTo(s.pos, p) - s.heading);
+    double rel = wrap180(course - s.heading);
     int bearing = 0;
     for (auto& tm : s.torpedoMounts)
         if (tm.operational() && tm.loaded > 0 && sim::inArc(rel, tm.def->arcMin - 20.0, tm.def->arcMax + 20.0, tm.def->mirrored))
@@ -917,8 +956,6 @@ void AiController::captainTorpedoes(CaptainBrain& c, sim::Ship& s, GroupBrain* g
     double crossing = length(tr->vel) > 1.0 ? std::fabs(std::sin((tr->courseEstimate() - bearingTo(s.pos, p)) * kDegToRad)) : 1.0;
     double spacing = d.torpedoSpacingLengths * tlen * std::max(0.4, crossing);
     double spread = clamp((n - 1) * spacing / std::max(1000.0, dist) * kRadToDeg, 1.0, 14.0);
-    int setting = torpedoSetting(s, dist * 1.3);
-    double course = bearingTo(s.pos, p);
     if (friendlyInTorpedoPath(s, course, spread, setting)) {
         if (!c.torpedoedTracks.count(best)) record(DecisionLevel::Captain, s.name, "ai.d.torpedo_hold_friendly", "", {s.name});
         c.torpedoedTracks[best] = now - 240.0;  // re-check in a minute

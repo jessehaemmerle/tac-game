@@ -173,6 +173,45 @@ TEST_CASE("damage: one Type 93 sinks a destroyer, a heavy cruiser survives one")
     CHECK(ca.dmg.flooding > 500.0);
 }
 
+TEST_CASE("damage: a battleship keeps steaming after a torpedo amidships, a destroyer's single engine room does not") {
+    Torpedo t;
+    t.def = db().torpedo("ijn_type93");
+    t.firer = kNoEntity;
+    int ddStopped = 0;
+    for (uint64_t seed = 1; seed <= 8; ++seed) {
+        Fixture f(10.0, seed);
+        Ship& bb = f.add("usn_bb_north_carolina", Side::Allies, {0, 0}, 0, 0);
+        Ship& dd = f.add("usn_dd_benson", Side::Allies, {5000, 0}, 0, 0);
+        damage::torpedoHit(f.w, bb, t, {0.0, 16.0});
+        damage::torpedoHit(f.w, dd, t, {0.0, 5.0});
+        CHECK(bb.dmg.propulsion > 0.5);  // unit machinery on four shafts
+        CHECK(bb.maxSpeedNow() > bb.cls->maxSpeed() * 0.45);
+        ddStopped += dd.dmg.propulsion < 0.3;
+    }
+    CHECK(ddStopped >= 2);
+}
+
+TEST_CASE("damage: 5-inch shells through the side above the belt do not reach a battleship's magazines") {
+    Fixture f(10.0, 3);
+    Ship& bb = f.add("usn_bb_north_carolina", Side::Allies, {0, 0}, 0, 0);
+    const GunDef* gun = db().gun("ijn_127_50");
+    REQUIRE(gun);
+    Shell sh;
+    sh.gun = gun;
+    sh.shell = &gun->shells.front();
+    sh.vel = {700.0, 0.0, -40.0};
+    sh.side = Side::Axis;
+    // Abreast of the forward turrets, between the top of the belt and the main deck.
+    double x = bb.cls->mounts.front().x;
+    for (int i = 0; i < 300 && !bb.dmg.sunk; ++i) {
+        damage::HitInfo hit;
+        hit.local = {x + (i % 7) - 3.0, bb.cls->beam * 0.5, 4.0};
+        hit.face = damage::HitFace::Side;
+        damage::shellHit(f.w, bb, sh, hit);
+    }
+    CHECK_FALSE(bb.dmg.magazineExploded);
+}
+
 TEST_CASE("determinism: identical seeds give identical battles") {
     auto simulate = [](uint64_t seed) {
         Fixture f(1.0, seed);

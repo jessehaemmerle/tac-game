@@ -20,7 +20,7 @@
     "parts": [
       { "type": "deckhouse", "f": 0.47, "len": 34, "wid": 15, "h": 2.8, "levels": 3 },
       { "type": "bridge", "f": 0.40, "len": 8, "wid": 15, "h": 2.6, "levels": 1, "style": "merchant" },
-      { "type": "funnel", "f": 0.50, "len": 7, "wid": 5.5, "h": 9, "rake": 6 },
+      { "type": "funnel", "f": 0.50, "z": 8.4, "len": 7, "wid": 5.5, "h": 9, "rake": 6 },
       { "type": "mast", "f": 0.22, "h": 22, "rake": 4, "style": "derrick" },
       { "type": "mast", "f": 0.75, "h": 20, "rake": 4, "style": "derrick" },
       { "type": "boat", "f": 0.45, "y": 7.2, "z": 5.8, "len": 11 }, { "type": "boat", "f": 0.53, "y": 7.2, "z": 5.8, "len": 11 },

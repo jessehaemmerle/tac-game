@@ -1,0 +1,449 @@
+{
+  "id": "first_guadalcanal",
+  "theater": "pacific",
+  "location": {
+    "lat": -9.25,
+    "lon": 159.93
+  },
+  "terrain": "terrain/ironbottom_sound.json",
+  "date": {
+    "year": 1942,
+    "month": 11,
+    "day": 13,
+    "hour": 1.42,
+    "utc_offset": 11
+  },
+  "weather": {
+    "cloud_cover": 0.85,
+    "visibility_km": 8,
+    "sea_state": 1,
+    "wind_dir": 120,
+    "wind_kn": 6,
+    "squalls": 3,
+    "squall_intensity": 0.6
+  },
+  "player_sides": [
+    "allies",
+    "axis"
+  ],
+  "default_player": "allies",
+  "time_limit_s": 7200,
+  "groups": [
+    {
+      "id": "callaghan",
+      "name": "group.first_guadalcanal.callaghan",
+      "side": "allies",
+      "doctrine": "usn_1942",
+      "formation": "column",
+      "spacing": 640,
+      "crew": "regular",
+      "position": {
+        "lat": -9.335,
+        "lon": 160.02
+      },
+      "course": 285,
+      "speed_kn": 18,
+      "ships": [
+        {
+          "class": "usn_cl_atlanta",
+          "name": "Atlanta"
+        },
+        {
+          "class": "usn_ca_new_orleans",
+          "name": "San Francisco"
+        },
+        {
+          "class": "usn_ca_portland",
+          "name": "Portland"
+        },
+        {
+          "class": "usn_cl_st_louis",
+          "name": "Helena",
+          "sensors": [
+            "usn_lookouts",
+            "usn_sg",
+            "usn_sc"
+          ]
+        },
+        {
+          "class": "usn_cl_atlanta",
+          "name": "Juneau"
+        }
+      ],
+      "mission": {
+        "type": "patrol",
+        "speed_kn": 18,
+        "attack_speed_kn": 23,
+        "loop": false,
+        "waypoints": [
+          {
+            "lat": -9.3,
+            "lon": 159.93
+          },
+          {
+            "lat": -9.24,
+            "lon": 159.85
+          },
+          {
+            "lat": -9.2,
+            "lon": 159.78
+          }
+        ]
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "callaghan_van",
+      "name": "group.first_guadalcanal.callaghan_van",
+      "side": "allies",
+      "doctrine": "usn_1942",
+      "formation": "column",
+      "spacing": 500,
+      "crew": "regular",
+      "position": {
+        "lat": -9.33,
+        "lon": 159.995
+      },
+      "course": 285,
+      "speed_kn": 18,
+      "ships": [
+        {
+          "class": "usn_dd_mahan",
+          "name": "Cushing"
+        },
+        {
+          "class": "usn_dd_benson",
+          "name": "Laffey"
+        },
+        {
+          "class": "usn_dd_bagley",
+          "name": "Sterett"
+        },
+        {
+          "class": "usn_dd_fletcher",
+          "name": "O'Bannon",
+          "sensors": [
+            "usn_lookouts",
+            "usn_sg",
+            "usn_sc"
+          ]
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "callaghan",
+        "speed_kn": 18,
+        "attack_speed_kn": 32,
+        "escort_offset_m": 2600
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "callaghan_rear",
+      "name": "group.first_guadalcanal.callaghan_rear",
+      "side": "allies",
+      "doctrine": "usn_1942",
+      "formation": "column",
+      "spacing": 500,
+      "crew": "regular",
+      "position": {
+        "lat": -9.345,
+        "lon": 160.06
+      },
+      "course": 285,
+      "speed_kn": 18,
+      "ships": [
+        {
+          "class": "usn_dd_benson",
+          "name": "Aaron Ward"
+        },
+        {
+          "class": "usn_dd_benson",
+          "name": "Barton"
+        },
+        {
+          "class": "usn_dd_benson",
+          "name": "Monssen"
+        },
+        {
+          "class": "usn_dd_fletcher",
+          "name": "Fletcher",
+          "sensors": [
+            "usn_lookouts",
+            "usn_sg",
+            "usn_sc"
+          ]
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "callaghan",
+        "speed_kn": 18,
+        "attack_speed_kn": 32,
+        "escort_offset_m": -3400
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "abe",
+      "name": "group.first_guadalcanal.abe",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "column",
+      "spacing": 1000,
+      "crew": "veteran",
+      "position": {
+        "lat": -9.18,
+        "lon": 159.86
+      },
+      "course": 135,
+      "speed_kn": 18,
+      "ships": [
+        {
+          "class": "ijn_bb_kongo",
+          "name": "Hiei"
+        },
+        {
+          "class": "ijn_bb_kongo",
+          "name": "Kirishima"
+        }
+      ],
+      "mission": {
+        "type": "attack",
+        "speed_kn": 18,
+        "attack_speed_kn": 26,
+        "withdraw_at_hour": 3.0,
+        "waypoints": [
+          {
+            "lat": -9.27,
+            "lon": 159.95
+          }
+        ],
+        "objective": {
+          "lat": -9.36,
+          "lon": 160.0
+        },
+        "radius": 5000,
+        "exit": [
+          {
+            "lat": -9.25,
+            "lon": 159.9
+          },
+          {
+            "lat": -9.08,
+            "lon": 159.85
+          },
+          {
+            "lat": -8.9,
+            "lon": 159.75
+          }
+        ]
+      },
+      "readiness": 0.9
+    },
+    {
+      "id": "abe_screen",
+      "name": "group.first_guadalcanal.abe_screen",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "line_abreast",
+      "spacing": 1600,
+      "crew": "veteran",
+      "position": {
+        "lat": -9.17,
+        "lon": 159.85
+      },
+      "course": 135,
+      "speed_kn": 18,
+      "ships": [
+        {
+          "class": "ijn_cl_nagara",
+          "name": "Nagara"
+        },
+        {
+          "class": "ijn_dd_akizuki",
+          "name": "Teruzuki"
+        },
+        {
+          "class": "ijn_dd_kagero",
+          "name": "Yukikaze"
+        },
+        {
+          "class": "ijn_dd_kagero",
+          "name": "Amatsukaze"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "abe",
+        "speed_kn": 18,
+        "attack_speed_kn": 33,
+        "escort_offset_m": 1800
+      },
+      "readiness": 0.9
+    },
+    {
+      "id": "abe_van",
+      "name": "group.first_guadalcanal.abe_van",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "line_abreast",
+      "spacing": 1500,
+      "crew": "veteran",
+      "position": {
+        "lat": -9.14,
+        "lon": 159.82
+      },
+      "course": 135,
+      "speed_kn": 18,
+      "ships": [
+        {
+          "class": "ijn_dd_shiratsuyu",
+          "name": "Yudachi"
+        },
+        {
+          "class": "ijn_dd_shiratsuyu",
+          "name": "Harusame"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "abe",
+        "speed_kn": 18,
+        "attack_speed_kn": 34,
+        "escort_offset_m": 7500
+      },
+      "readiness": 0.9
+    },
+    {
+      "id": "abe_right",
+      "name": "group.first_guadalcanal.abe_right",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "column",
+      "spacing": 600,
+      "crew": "veteran",
+      "position": {
+        "lat": -9.15,
+        "lon": 159.84
+      },
+      "course": 135,
+      "speed_kn": 18,
+      "ships": [
+        {
+          "class": "ijn_dd_akatsuki",
+          "name": "Akatsuki"
+        },
+        {
+          "class": "ijn_dd_akatsuki",
+          "name": "Ikazuchi"
+        },
+        {
+          "class": "ijn_dd_akatsuki",
+          "name": "Inazuma"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "abe",
+        "speed_kn": 18,
+        "attack_speed_kn": 34,
+        "escort_offset_m": 4200
+      },
+      "readiness": 0.9
+    },
+    {
+      "id": "abe_rear",
+      "name": "group.first_guadalcanal.abe_rear",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "column",
+      "spacing": 600,
+      "crew": "veteran",
+      "position": {
+        "lat": -9.13,
+        "lon": 159.79
+      },
+      "course": 135,
+      "speed_kn": 18,
+      "ships": [
+        {
+          "class": "ijn_dd_shiratsuyu",
+          "name": "Murasame"
+        },
+        {
+          "class": "ijn_dd_shiratsuyu",
+          "name": "Samidare"
+        },
+        {
+          "class": "ijn_dd_asashio",
+          "name": "Asagumo"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "abe",
+        "speed_kn": 18,
+        "attack_speed_kn": 34,
+        "escort_offset_m": -5000
+      },
+      "readiness": 0.9
+    }
+  ],
+  "objectives": [
+    {
+      "id": "airfield",
+      "side": "allies",
+      "type": "prevent_bombard",
+      "group": "abe",
+      "area": {
+        "lat": -9.36,
+        "lon": 160.0
+      },
+      "radius": 7000,
+      "value": 600,
+      "points": 250
+    },
+    {
+      "id": "sink",
+      "side": "allies",
+      "type": "destroy_tonnage",
+      "value": 20000,
+      "points": 100
+    },
+    {
+      "id": "preserve",
+      "side": "allies",
+      "type": "preserve",
+      "value": 0.5,
+      "points": 100
+    },
+    {
+      "id": "bombard",
+      "side": "axis",
+      "type": "bombard",
+      "group": "abe",
+      "area": {
+        "lat": -9.36,
+        "lon": 160.0
+      },
+      "radius": 7000,
+      "value": 600,
+      "points": 250
+    },
+    {
+      "id": "sink",
+      "side": "axis",
+      "type": "destroy_tonnage",
+      "value": 12000,
+      "points": 100
+    },
+    {
+      "id": "preserve",
+      "side": "axis",
+      "type": "preserve",
+      "value": 0.6,
+      "points": 100
+    }
+  ]
+}

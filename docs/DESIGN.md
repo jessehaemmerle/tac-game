@@ -52,13 +52,19 @@ MinGW). Die Oberfläche spricht Renderer, Audio und Fenster nur über die Schnit
 - **Feuerleitung**: Jeder Richtungsgeber verfolgt sein Ziel selbst (Messungen per Radar oder
   Optik, Alpha-Beta-Filter), rechnet Vorhalt und Flugzeit, schießt Salven, beobachtet die
   Aufschläge und korrigiert (Gabelbildung, Deckung). Streuung hängt von Geschütz, Besatzung,
-  Schäden, Bewegung des eigenen Schiffs und Licht ab.
+  Schäden, Bewegung des eigenen Schiffs und Licht ab. Blindes Radarschießen (Ziel nur auf dem
+  Schirm, nicht im Glas) streut mit wachsender Entfernung stärker, und die Aufschläge sind auf dem
+  Radarschirm seltener und ungenauer zu beobachten – so trafen 1942 Radarsalven auf 15 km bei
+  Nacht kaum, auf 8 km mit Sicht dagegen verheerend.
 - **Ballistik**: numerisch integrierte Flugbahnen mit Luftwiderstand (G7-Näherung) und
   Luftdichte nach Höhe; Durchschlag gegen Gürtel-, Deck- und Turmpanzer abhängig von
   Auftreffwinkel und Geschwindigkeit; Wirkung nach Granatart und Sprengladung.
 - **Schäden**: Strukturfestigkeit, Wassereinbruch und Leckwehr, Krängung und Trimm, Brände mit
-  Ausbreitung, Munitionskammern (Explosion oder Fluten), Ausfall von Antrieb, Ruder, Brücke,
-  Stromversorgung, Scheinwerfern, Radar; Sinken, Auseinanderbrechen, Kentern.
+  Ausbreitung in Nachbarabschnitte (größere Schiffe haben mehr Brandabwehrtrupps), Munitionskammern (Explosion oder Fluten), Ausfall von Antrieb, Ruder, Brücke,
+  Stromversorgung, Scheinwerfern, Radar; Sinken, Auseinanderbrechen, Kentern. Großschiffe mit
+  vier Wellen und getrennten Maschinenräumen verlieren durch einen Treffer nur einen Teil ihrer
+  Antriebsleistung; Granaten, die über dem Gürtel die dünne Bordwand durchschlagen, erreichen
+  die Munitionskammern eines gepanzerten Schiffs nicht (das Panzerdeck liegt dazwischen).
 - **Torpedos**: Laufstufen (Geschwindigkeit/Reichweite), Tiefenlauf, Versager, Fächer;
   Ausweichen durch Kämmen der Laufbahnen.
 
@@ -71,8 +77,9 @@ Alternativen und Überlegungen landet im **Entscheidungsprotokoll** und ist im K
 1. **Befehlshaber** je Verband (alle 12–16 s): Lagebeurteilung (`Assessment`) aus dem eigenen
    Lagebild – Kräfteverhältnis, Nähe, Bedrohung, eigene Schäden, Munition und Torpedos, Licht,
    Morgendämmerung, ob man entdeckt ist. Haltungen: Auftrag, Aufklären, Gefecht, Torpedoangriff,
-   Beschatten, Rückzug, Sammeln. Befehle wirken erst nach einem doktrinabhängigen
-   Befehlsverzug.
+   Beschatten, Rückzug, Sammeln. Ein Gegner in Waffenreichweite drängt den bloßen Auftrag
+   zurück; ein Vorposten, der Treffer erhält, gilt als entdeckt und kehrt nicht auf seine Station
+   zurück. Befehle wirken erst nach einem doktrinabhängigen Befehlsverzug.
 2. **Verband**: setzt die Haltung um – Auftrag (Wegpunkte, Patrouille, Geleit mit Station voraus
    oder achteraus, Angriff auf ein Zielgebiet), Gefechtskurs mit Breitseite und Kreuzen des T,
    Torpedoangriff in Phasen (Anlauf → Abschussposition → Abdrehen → Laufzeit abwarten →
@@ -81,7 +88,10 @@ Alternativen und Überlegungen landet im **Entscheidungsprotokoll** und ist im K
 3. **Kommandant** je Schiff: Station halten, Land und eigenen Schiffen ausweichen, Torpedo-
    laufbahnen kämmen, beschädigt abdrehen, Richtungsgeber-Ziele, Scheinwerfer und Leucht-
    granaten, Torpedofächer (mit Prüfung, dass der Fächer über die ganze Laufstrecke kein eigenes
-   Schiff gefährdet).
+   Schiff gefährdet, und Wahl der Laufstufe nach dem Treffpunkt – Ziele außer Reichweite des
+   eigenen Torpedos, etwa des kurzen Type 90, werden gar nicht erst angegriffen). Aus größerer
+   Entfernung schießt ein Verband nur, wenn er selbst Treffer erhält, nicht schon, weil der
+   Gegner irgendwo feuert.
 
 **Fairness**: Die KI liest ausschließlich ihr Lagebild (`SideView`), nie die Wahrheit. Das
 Schwierigkeitsniveau ändert Reaktionszeit und Taktikqualität, nie die Informationslage.

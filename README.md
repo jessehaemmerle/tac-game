@@ -12,8 +12,10 @@ only knows what its own lookouts and radars report.*
 
 ## Inhalt
 
-- **Drei historische Missionen** im Ironbottom Sound, jede aus beiden Seiten spielbar:
-  Savo Island (8./9. Aug. 1942), Cape Esperance (11./12. Okt. 1942), Tassafaronga (30. Nov. 1942).
+- **Fünf historische Missionen** im Ironbottom Sound, jede aus beiden Seiten spielbar:
+  Savo Island (8./9. Aug. 1942), Cape Esperance (11./12. Okt. 1942), Erste und Zweite
+  Seeschlacht von Guadalcanal (13. und 14./15. Nov. 1942, mit Beschießungsauftrag gegen
+  Henderson Field), Tassafaronga (30. Nov. 1942).
   Briefing mit Lage, Auftrag, Aufklärung, astronomisch berechneten Lichtverhältnissen und Geschichte.
 - **Szenario-Editor** für eigene Gefechte (Verbände, Wegpunkte, Aufträge, Doktrin, Zeit und Wetter).
 - **Simulation**: Außenballistik und Panzerdurchschlag, Feuerleitung mit Richtungsgeber-Verfolgung
@@ -32,7 +34,7 @@ only knows what its own lookouts and radars report.*
   **Waffenvorführung** (Türme schwenken, Salven mit Rückstoß je Rohr, Mündungsfeuer und
   Pulverrauch, Torpedoausstoß, Katapultstart des Bordflugzeugs), Bestreichungswinkel,
   Durchschlagstabelle gegen gewählte Gegnerklassen, Panzerung, Torpedos, Sensoren und Geschichte
-  für 21 Schiffsklassen.
+  für 31 Schiffsklassen.
 - **Schiffsmodelle**: prozedural aus den Klassendaten, je Marine im eigenen Stil – Rumpf mit
   Panzergürtel bzw. Wulst, Schanzkleid, Wellenbrecher, Anker und Kette, Wellen, Schrauben und
   Ruder; Brücken und Pagodenmasten mit Fensterbändern, Nocken und Splitterschutz; Schornsteine

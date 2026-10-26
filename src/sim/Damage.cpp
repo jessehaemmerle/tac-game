@@ -3,6 +3,8 @@
 #include "sim/Ballistics.h"
 #include "sim/World.h"
 
+#include <algorithm>
+
 namespace it::sim::damage {
 namespace {
 
@@ -37,6 +39,10 @@ void systemHit(World& w, Ship& s, double& health, double severity, const char* k
         w.emit(e);
     }
 }
+
+// Share of the machinery one hit can knock out: big ships have several engine and boiler rooms
+// on separate shafts (unit system), a destroyer can be stopped by a single hit.
+double machineryShare(const ShipClassDef& c) { return c.shafts >= 4 ? 0.45 : (c.shafts == 3 ? 0.65 : 1.0); }
 
 void startFire(World& w, Ship& s, double f, double intensity) {
     for (auto& fire : s.dmg.fires)
@@ -110,10 +116,11 @@ void damageNear(World& w, Ship& s, const Vec3& p, double radius, double severity
     }
     double f = fOf(s, p.x);
     if (inside && f > 0.35 && f < 0.65 && p.z < c.model.freeboardMid) {
-        systemHit(w, s, s.dmg.propulsion, severity * 0.35, "system.propulsion");
-        systemHit(w, s, s.dmg.power, severity * 0.3, "system.power");  // generators, switchboards
+        systemHit(w, s, s.dmg.propulsion, severity * 0.35 * machineryShare(c), "system.propulsion");
+        systemHit(w, s, s.dmg.power, severity * 0.3 * machineryShare(c), "system.power");  // generators, switchboards
     }
-    if (inside && p.z < c.model.freeboardMid + 3.0) s.dmg.power = std::max(0.0, s.dmg.power - severity * 0.04);  // cut cables
+    if (inside && p.z < c.model.freeboardMid + 3.0)
+        s.dmg.power = std::max(0.0, s.dmg.power - severity * 0.04 * machineryShare(c));  // cut cables
     if (inside && f > 0.88 && p.z < 1.0) {
         systemHit(w, s, s.dmg.steering, severity * 0.6, "system.steering");
         if (s.dmg.steering < 0.3 && !s.dmg.rudderJammed && w.rng().chance(0.5)) {
@@ -227,7 +234,7 @@ void shellHit(World& w, Ship& s, const Shell& sh, const HitInfo& hit) {
 
     // ---- armour encountered
     double plate = 0;
-    bool high = false;
+    bool high = false, beltZone = false;
     if (hit.mount >= 0) {
         const auto& m = *s.mounts[size_t(hit.mount)].def;
         plate = hit.face == HitFace::Deck ? std::max(c.armor.turretRoof, m.armorFace * 0.4) : m.armorFace;
@@ -238,7 +245,7 @@ void shellHit(World& w, Ship& s, const Shell& sh, const HitInfo& hit) {
     } else if (hit.face == HitFace::Deck) {
         plate = citadel ? std::max(12.0, c.armor.deck) : 12.0;
     } else {
-        bool beltZone = citadel && hit.local.z > -2.0 && hit.local.z < 2.6;
+        beltZone = citadel && hit.local.z > -2.0 && hit.local.z < 2.6;
         plate = beltZone ? std::max(16.0, nearMagazine ? c.armor.beltMagazine : c.armor.belt) : 16.0;
     }
 
@@ -281,7 +288,9 @@ void shellHit(World& w, Ship& s, const Shell& sh, const HitInfo& hit) {
         s.dmg.floodRate += 0.6 * area * std::sqrt(2.0 * kGravity * 2.5) * 1.025;
         s.dmg.list += (hit.local.y >= 0 ? 1.0 : -1.0) * area * 2.0;
     }
-    if (inside && nearMagazine && hit.local.z < c.model.freeboardMid && g.caliberMm >= 120) {
+    // A shell through the thin side above the belt meets the armoured deck before it gets near a magazine.
+    bool magazineReach = inside && (hit.face != HitFace::Side || beltZone || c.armor.deck < 50.0);
+    if (magazineReach && nearMagazine && hit.local.z < c.model.freeboardMid && g.caliberMm >= 120) {
         double p = 0.004 + 0.002 * sd.bursterKg;
         if (s.cls->size() == SizeClass::Small) p *= 1.5;
         if (w.rng().chance(p)) magazineExplosion(w, s);
@@ -328,8 +337,9 @@ void torpedoHit(World& w, Ship& s, const Torpedo& t, const Vec2& local) {
     damageNear(w, s, p, 10.0 + kg / 40.0, 1.0, true, false);
     double f = fOf(s, local.x);
     if (f > 0.35 && f < 0.65) {
-        systemHit(w, s, s.dmg.propulsion, 0.5, "system.propulsion");
-        systemHit(w, s, s.dmg.power, 0.45, "system.power");
+        double share = machineryShare(c) * (1.0 - 0.5 * prot);  // the side protection system absorbs much of it
+        systemHit(w, s, s.dmg.propulsion, 0.5 * share, "system.propulsion");
+        systemHit(w, s, s.dmg.power, 0.45 * share, "system.power");
     }
     if (f > 0.85) systemHit(w, s, s.dmg.steering, 0.8, "system.steering");
     if (w.rng().chance(0.3)) startFire(w, s, f, 0.4);
@@ -387,22 +397,28 @@ void update(World& w, Ship& s, double dt) {
     // secondary damage may append to d.fires while we iterate.
     std::vector<Fire> spread;
     const size_t fireCount = d.fires.size();
+    // Capital ships: more fire parties, a structure that suffers relatively less from each fire, and
+    // magazines deep behind the armour (cruisers and smaller ships are unaffected).
+    double big = s.displacement() / 15000.0;
+    double partyFactor = std::max(1.0, std::pow(big, 0.7));
+    double structureFactor = std::min(1.0, std::pow(1.0 / std::max(big, 1e-3), 0.8));
+    double magazineFactor = c.armor.belt >= 200.0 ? 0.3 : 1.0;
     for (size_t i = 0; i < fireCount && i < d.fires.size(); ++i) {
         double growth = 0.006 * (c.aviationFuel ? 1.3 : 1.0);
-        double fight = 0.008 * dc * (1.0 - 0.5 * d.fires[i].intensity);
+        double fight = 0.008 * dc * partyFactor * (1.0 - 0.5 * d.fires[i].intensity);
         d.fires[i].intensity = clamp(d.fires[i].intensity + (growth - fight) * dt * w.rng().uniform(0.5, 1.5), 0.0, 1.0);
         const Fire fire = d.fires[i];
         if (fire.intensity > 0.6 && w.rng().chance(0.002 * dt))
             spread.push_back({clamp(fire.f + w.rng().uniform(-0.08, 0.08), 0.02, 0.98), 0.2});
         d.crewLoss = std::min(1.0, d.crewLoss + fire.intensity * 0.00003 * dt);
-        if (fire.intensity > 0.5) d.power = std::max(0.0, d.power - (fire.intensity - 0.5) * 0.002 * dt);  // burning cables
-        d.hullIntegrity -= fire.intensity * 0.00002 * dt;
+        if (fire.intensity > 0.5) d.power = std::max(0.0, d.power - (fire.intensity - 0.5) * 0.002 * dt * machineryShare(c));  // burning cables
+        d.hullIntegrity -= fire.intensity * 0.00002 * dt * structureFactor;
         if (fire.intensity > 0.5 && w.rng().chance(0.004 * dt)) {
             double lx = (0.5 - fire.f) * c.length;
             damageNear(w, s, {lx, 0, c.model.freeboardMid}, 8.0, 0.25, true, true);
         }
         // Fire reaching a magazine (flooding the magazines is the usual counter-measure).
-        if (fire.intensity > 0.85 && w.rng().chance(0.00012 * dt)) {
+        if (fire.intensity > 0.85 && w.rng().chance(0.00012 * dt * magazineFactor)) {
             for (auto& m : s.mounts)
                 if (m.def->gun && m.def->gun->caliberMm >= 150 && std::fabs((0.5 - fire.f) * c.length - m.def->x) < 0.05 * c.length) {
                     if (dc > 0.5) {
@@ -415,7 +431,12 @@ void update(World& w, Ship& s, double dt) {
                 }
         }
     }
-    d.fires.insert(d.fires.end(), spread.begin(), spread.end());
+    // A fire spreading into a burning section feeds that fire instead of starting another one.
+    for (auto& sp : spread) {
+        auto near = std::find_if(d.fires.begin(), d.fires.end(), [&](const Fire& f) { return std::fabs(f.f - sp.f) < 0.06; });
+        if (near != d.fires.end()) near->intensity = std::min(1.0, near->intensity + sp.intensity * 0.6);
+        else d.fires.push_back(sp);
+    }
     size_t before = d.fires.size();
     d.fires.erase(std::remove_if(d.fires.begin(), d.fires.end(), [](const Fire& f) { return f.intensity < 0.02; }), d.fires.end());
     if (before > 0 && d.fires.empty()) {

@@ -67,9 +67,12 @@ int main(int argc, char** argv) {
         int ships = 0;
         std::map<std::string, int> sunkShips;
     } agg[2];
-    std::map<std::string, int> decisions[2];
+    std::map<std::string, int> decisions[2], objectivesMet[2];
     double totalTime = 0;
     int torpHits[2] = {0, 0}, torpFired[2] = {0, 0}, shellHits[2] = {0, 0}, shells[2] = {0, 0};
+    // Main-battery gunnery (calibre >= 200 mm) and the range of its hits, kept apart from the light guns.
+    int heavyFired[2] = {0, 0}, heavyHits[2] = {0, 0};
+    double heavyHitRange[2] = {0, 0};
 
     for (int r = 0; r < runs; ++r) {
         game::Session session(db, lib);
@@ -94,12 +97,24 @@ int main(int argc, char** argv) {
                     if (!s->alive()) continue;
                     double lat, lon;
                     w.terrain().toGeo(s->pos, lat, lon);
-                    std::printf("     %-16s %-5s hdg %3.0f %4.1fkn flot %.2f fires %zu  %s\n", s->name.c_str(),
-                                s->side == sim::Side::Allies ? "ALL" : "AXIS", s->heading, s->speedKn(), s->flotation(),
-                                s->dmg.fires.size(), s->dmg.sinking ? "SINKING" : "");
+                    std::printf("     %-16s %-5s hdg %3.0f %4.1fkn flot %.2f hull %.2f prop %.2f power %.2f fires %zu (%.1f) hits %d  %s\n",
+                                s->name.c_str(), s->side == sim::Side::Allies ? "ALL" : "AXIS", s->heading, s->speedKn(), s->flotation(),
+                                s->dmg.hullIntegrity, s->dmg.propulsion, s->dmg.power, s->dmg.fires.size(), s->dmg.totalFireIntensity(),
+                                s->dmg.hitsTaken, s->dmg.sinking ? "SINKING" : "");
                 }
             }
             for (auto& e : events) {
+                if (int si = sim::sideIndex(e.side); si < 2 && e.value >= 200.0) {
+                    if (e.type == sim::EventType::GunFired) {
+                        const sim::Ship* f = w.ship(e.a);
+                        size_t mi = size_t(e.value2);
+                        heavyFired[si] += f && mi < f->mounts.size() ? f->mounts[mi].def->barrels : 1;
+                    } else if (e.type == sim::EventType::ShellHit) {
+                        const sim::Ship *f = w.ship(e.a), *t = w.ship(e.b);
+                        ++heavyHits[si];
+                        if (f && t) heavyHitRange[si] += distance(f->pos, t->pos);
+                    }
+                }
                 if (showEvents) {
                     auto name = [&](sim::EntityId id) { const sim::Ship* s = w.ship(id); return s ? s->name.c_str() : "?"; };
                     const char* side = e.side == sim::Side::Allies ? "ALL" : "AXIS";
@@ -154,6 +169,8 @@ int main(int argc, char** argv) {
         std::printf("run %2d seed %llu: %5.0f s (%s) | Allies lost %2d ships %6.0f t | Axis lost %2d ships %6.0f t\n", r,
                     (unsigned long long)opt.seed, w.time(), session.endReason().c_str(), ra.shipsLost, ra.tonnageLost, rx.shipsLost,
                     rx.tonnageLost);
+        for (auto* res : {&ra, &rx})
+            for (auto& o : res->objectivesMet) objectivesMet[res == &ra ? 0 : 1][o]++;
         if (showLog)
             for (int si = 0; si < 2; ++si)
                 if (auto* a = session.ai(sim::Side(si)))
@@ -176,7 +193,12 @@ int main(int argc, char** argv) {
         std::printf("%-6s avg tonnage lost %7.0f, sunk %7.0f, points %6.1f | torpedoes %d fired / %d hits | shells %d / %d hits (%.1f%%)\n",
                     names[si], agg[si].lost / runs, agg[si].sunk / runs, agg[si].points / runs, torpFired[si], torpHits[si], shells[si],
                     shellHits[si], shells[si] ? 100.0 * shellHits[si] / shells[si] : 0.0);
-        std::printf("       ships lost (count over runs):");
+        if (heavyFired[si])
+            std::printf("       heavy guns: %d fired / %d hits (%.1f%%), mean hit range %.1f km\n", heavyFired[si], heavyHits[si],
+                        100.0 * heavyHits[si] / heavyFired[si], heavyHits[si] ? heavyHitRange[si] / heavyHits[si] / 1000.0 : 0.0);
+        std::printf("       objectives met (runs):");
+        for (auto& [o, c] : objectivesMet[si]) std::printf(" %s:%d", o.c_str() + o.rfind('.') + 1, c);
+        std::printf("\n       ships lost (count over runs):");
         for (auto& [n, c] : agg[si].sunkShips) std::printf(" %s:%d", n.c_str(), c);
         std::printf("\n       decisions:");
         for (auto& [k, c] : decisions[si]) std::printf(" %s:%d", k.c_str(), c);

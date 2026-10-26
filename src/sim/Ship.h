@@ -54,6 +54,7 @@ struct DirectorState {
     bool straddled = false;     // range found: switch from ladder (wait for fall of shot) to rapid fire
     double lastSalvoTof = 0;
     bool radarRanging = false;
+    bool opticalLayer = false;  // the director can see the target (lay on it, watch the fall of shot)
     bool radarFitted = true;    // per-ship refit state (period variants without FC radar)
     bool illuminate = false;    // secondary directors: fire starshells over the target instead of shells
     bool operational() const { return health > 0.3; }

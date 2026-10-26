@@ -1,0 +1,439 @@
+{
+  "id": "second_guadalcanal",
+  "theater": "pacific",
+  "location": {
+    "lat": -9.2,
+    "lon": 159.85
+  },
+  "terrain": "terrain/ironbottom_sound.json",
+  "date": {
+    "year": 1942,
+    "month": 11,
+    "day": 14,
+    "hour": 22.92,
+    "utc_offset": 11
+  },
+  "weather": {
+    "cloud_cover": 0.3,
+    "visibility_km": 12,
+    "sea_state": 1,
+    "wind_dir": 110,
+    "wind_kn": 7,
+    "squalls": 1,
+    "squall_intensity": 0.3
+  },
+  "player_sides": [
+    "allies",
+    "axis"
+  ],
+  "default_player": "allies",
+  "time_limit_s": 9000,
+  "groups": [
+    {
+      "id": "lee",
+      "name": "group.second_guadalcanal.lee",
+      "side": "allies",
+      "doctrine": "usn_1942_late",
+      "formation": "column",
+      "spacing": 1500,
+      "crew": "regular",
+      "position": {
+        "lat": -9.2,
+        "lon": 159.89
+      },
+      "course": 270,
+      "speed_kn": 17,
+      "ships": [
+        {
+          "class": "usn_bb_north_carolina",
+          "name": "Washington"
+        },
+        {
+          "class": "usn_bb_south_dakota",
+          "name": "South Dakota"
+        }
+      ],
+      "mission": {
+        "type": "patrol",
+        "speed_kn": 17,
+        "attack_speed_kn": 26,
+        "loop": true,
+        "waypoints": [
+          {
+            "lat": -9.2,
+            "lon": 159.74
+          },
+          {
+            "lat": -9.25,
+            "lon": 159.84
+          },
+          {
+            "lat": -9.22,
+            "lon": 159.9
+          }
+        ]
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "lee_van",
+      "name": "group.second_guadalcanal.lee_van",
+      "side": "allies",
+      "doctrine": "usn_1942_late",
+      "formation": "column",
+      "spacing": 550,
+      "crew": "regular",
+      "position": {
+        "lat": -9.2,
+        "lon": 159.85
+      },
+      "course": 270,
+      "speed_kn": 17,
+      "ships": [
+        {
+          "class": "usn_dd_benson",
+          "name": "Walke"
+        },
+        {
+          "class": "usn_dd_bagley",
+          "name": "Benham"
+        },
+        {
+          "class": "usn_dd_mahan",
+          "name": "Preston"
+        },
+        {
+          "class": "usn_dd_benson",
+          "name": "Gwin"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "lee",
+        "speed_kn": 17,
+        "attack_speed_kn": 32,
+        "escort_offset_m": 4500
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "kondo",
+      "name": "group.second_guadalcanal.kondo",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "column",
+      "spacing": 900,
+      "crew": "veteran",
+      "position": {
+        "lat": -8.97,
+        "lon": 159.72
+      },
+      "course": 170,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "ijn_ca_takao",
+          "name": "Atago"
+        },
+        {
+          "class": "ijn_ca_takao",
+          "name": "Takao"
+        },
+        {
+          "class": "ijn_bb_kongo",
+          "name": "Kirishima"
+        }
+      ],
+      "mission": {
+        "type": "attack",
+        "speed_kn": 20,
+        "attack_speed_kn": 26,
+        "withdraw_at_hour": 1.5,
+        "waypoints": [
+          {
+            "lat": -9.06,
+            "lon": 159.74
+          },
+          {
+            "lat": -9.2,
+            "lon": 159.8
+          },
+          {
+            "lat": -9.27,
+            "lon": 159.9
+          }
+        ],
+        "objective": {
+          "lat": -9.36,
+          "lon": 160.0
+        },
+        "radius": 5000,
+        "exit": [
+          {
+            "lat": -9.2,
+            "lon": 159.95
+          },
+          {
+            "lat": -9.0,
+            "lon": 159.9
+          },
+          {
+            "lat": -8.88,
+            "lon": 159.8
+          }
+        ]
+      },
+      "readiness": 0.9
+    },
+    {
+      "id": "kondo_screen",
+      "name": "group.second_guadalcanal.kondo_screen",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "line_abreast",
+      "spacing": 2200,
+      "crew": "veteran",
+      "position": {
+        "lat": -8.955,
+        "lon": 159.725
+      },
+      "course": 170,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "ijn_dd_asashio",
+          "name": "Asagumo"
+        },
+        {
+          "class": "ijn_dd_akizuki",
+          "name": "Teruzuki"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "kondo",
+        "speed_kn": 20,
+        "attack_speed_kn": 34,
+        "escort_offset_m": 2000
+      },
+      "readiness": 0.9
+    },
+    {
+      "id": "sendai",
+      "name": "group.second_guadalcanal.sendai",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "column",
+      "spacing": 800,
+      "crew": "veteran",
+      "position": {
+        "lat": -9.05,
+        "lon": 159.93
+      },
+      "course": 205,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "ijn_cl_sendai",
+          "name": "Sendai"
+        },
+        {
+          "class": "ijn_dd_fubuki",
+          "name": "Shikinami"
+        },
+        {
+          "class": "ijn_dd_fubuki",
+          "name": "Uranami"
+        }
+      ],
+      "mission": {
+        "type": "picket",
+        "speed_kn": 20,
+        "attack_speed_kn": 30,
+        "loop": true,
+        "waypoints": [
+          {
+            "lat": -9.1,
+            "lon": 159.92
+          },
+          {
+            "lat": -9.07,
+            "lon": 159.87
+          },
+          {
+            "lat": -9.02,
+            "lon": 159.9
+          }
+        ],
+        "exit": [
+          {
+            "lat": -9.0,
+            "lon": 159.95
+          },
+          {
+            "lat": -8.88,
+            "lon": 159.85
+          }
+        ]
+      },
+      "readiness": 0.9
+    },
+    {
+      "id": "nagara",
+      "name": "group.second_guadalcanal.nagara",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "column",
+      "spacing": 700,
+      "crew": "veteran",
+      "position": {
+        "lat": -9.06,
+        "lon": 159.7
+      },
+      "course": 160,
+      "speed_kn": 22,
+      "ships": [
+        {
+          "class": "ijn_cl_nagara",
+          "name": "Nagara"
+        },
+        {
+          "class": "ijn_dd_fubuki",
+          "name": "Shirayuki"
+        },
+        {
+          "class": "ijn_dd_fubuki",
+          "name": "Hatsuyuki"
+        },
+        {
+          "class": "ijn_dd_shiratsuyu",
+          "name": "Samidare"
+        },
+        {
+          "class": "ijn_dd_akatsuki",
+          "name": "Inazuma"
+        }
+      ],
+      "mission": {
+        "type": "attack",
+        "speed_kn": 22,
+        "attack_speed_kn": 32,
+        "waypoints": [
+          {
+            "lat": -9.125,
+            "lon": 159.762
+          },
+          {
+            "lat": -9.172,
+            "lon": 159.8
+          },
+          {
+            "lat": -9.25,
+            "lon": 159.88
+          }
+        ],
+        "objective": {
+          "lat": -9.36,
+          "lon": 160.0
+        },
+        "radius": 6000,
+        "exit": [
+          {
+            "lat": -9.15,
+            "lon": 159.75
+          },
+          {
+            "lat": -8.9,
+            "lon": 159.65
+          }
+        ]
+      },
+      "readiness": 0.9
+    },
+    {
+      "id": "ayanami",
+      "name": "group.second_guadalcanal.ayanami",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "column",
+      "spacing": 700,
+      "crew": "veteran",
+      "position": {
+        "lat": -9.1,
+        "lon": 159.72
+      },
+      "course": 150,
+      "speed_kn": 22,
+      "ships": [
+        {
+          "class": "ijn_dd_fubuki",
+          "name": "Ayanami"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "nagara",
+        "speed_kn": 22,
+        "attack_speed_kn": 34,
+        "escort_offset_m": 4000
+      },
+      "readiness": 0.9
+    }
+  ],
+  "objectives": [
+    {
+      "id": "airfield",
+      "side": "allies",
+      "type": "prevent_bombard",
+      "group": "kondo",
+      "area": {
+        "lat": -9.36,
+        "lon": 160.0
+      },
+      "radius": 7000,
+      "value": 600,
+      "points": 250
+    },
+    {
+      "id": "sink",
+      "side": "allies",
+      "type": "destroy_tonnage",
+      "value": 20000,
+      "points": 100
+    },
+    {
+      "id": "preserve",
+      "side": "allies",
+      "type": "preserve",
+      "value": 0.5,
+      "points": 100
+    },
+    {
+      "id": "bombard",
+      "side": "axis",
+      "type": "bombard",
+      "group": "kondo",
+      "area": {
+        "lat": -9.36,
+        "lon": 160.0
+      },
+      "radius": 7000,
+      "value": 600,
+      "points": 250
+    },
+    {
+      "id": "sink",
+      "side": "axis",
+      "type": "destroy_tonnage",
+      "value": 30000,
+      "points": 150
+    },
+    {
+      "id": "preserve",
+      "side": "axis",
+      "type": "preserve",
+      "value": 0.6,
+      "points": 100
+    }
+  ]
+}

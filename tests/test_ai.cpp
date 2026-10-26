@@ -146,6 +146,39 @@ TEST_CASE("captains comb torpedo tracks they have been warned about") {
     CHECK(off < 50.0);
 }
 
+TEST_CASE("a picket that has been hit leaves its station for good") {
+    Battle b(23.0, 4);
+    int pk = b.group("ijn", Side::Axis, {"ijn_cl_sendai", "ijn_dd_fubuki"}, {0, 0}, 0, 20, CrewQuality::Veteran);
+    ai::AiController axis(b.w, Side::Axis, doctrines());
+    ai::Mission m;
+    m.type = ai::MissionType::Picket;
+    m.waypoints = {{0, 6000}, {6000, 6000}, {6000, 0}, {0, 0}};
+    m.loop = true;
+    m.speedKn = 20;
+    m.exitRoute = {{-20000, -20000}};
+    axis.setMission(pk, m, "ijn_1942");
+    b.run({&axis}, 60);
+    CHECK(axis.brain(pk)->posture == ai::Posture::Mission);
+    // A shell from an unseen enemy lands on the cruiser.
+    Event e;
+    e.type = EventType::ShellHit;
+    e.time = b.w.time();
+    e.b = b.w.group(pk)->members[0];
+    e.side = Side::Allies;
+    e.pos = {b.w.ship(e.b)->pos, 3.0};
+    e.value = 406.0;
+    axis.observe(e);
+    b.run({&axis}, 90);
+    CHECK(decided(axis.log(), "ai.o.withdraw"));
+    // Long after the hit has been forgotten it still does not go back.
+    bool returned = false;
+    for (int i = 0; i < 10; ++i) {
+        b.run({&axis}, 60);
+        returned |= axis.brain(pk)->posture == ai::Posture::Mission;
+    }
+    CHECK_FALSE(returned);
+}
+
 TEST_CASE("a lone destroyer withdraws from an identified cruiser force in daylight") {
     Battle b(10.0, 9);
     int dd = b.group("usn", Side::Allies, {"usn_dd_bagley"}, {0, 0}, 0, 20);

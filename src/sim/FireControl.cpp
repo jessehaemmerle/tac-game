@@ -86,11 +86,15 @@ SalvoError salvoError(World& w, const Ship& s, const DirectorState& d, double ra
     double base = 0.006 + 0.010 * (1.0 - d.quality);              // fraction of range
     bool nightOptical = !d.radarRanging && w.env().ambientLight() < 0.3;
     if (nightOptical) base *= 1.8;  // night, optical ranging on a dark shape or a glare
+    // Blind radar fire (1942 sets): the range is good, but the layers follow a pip on a scope and
+    // the director cannot correct the line; the errors grow with the range.
+    bool radarBlind = d.radarRanging && !d.opticalLayer;
+    if (radarBlind) base *= 1.0 + 2.0 * smoothstep(2000.0, 14000.0, range);
     if (s.cls->size() == SizeClass::Small) base *= 1.35;            // lively destroyer platforms
     base *= 1.0 + 0.12 * std::max(0.0, w.env().weather().seaState - 2.0);
     base /= std::max(0.45, crew);
     // Deflection errors grow at night: the director layer has only a silhouette or a searchlight beam to lay on.
-    return {w.rng().normal() * base * range, w.rng().normal() * base * (nightOptical ? 0.65 : 0.35) * range};
+    return {w.rng().normal() * base * range, w.rng().normal() * base * (nightOptical ? 0.65 : radarBlind ? 0.5 : 0.35) * range};
 }
 
 void fireMount(World& w, Ship& s, DirectorState& d, MountState& m, const Aim& aim, uint32_t salvoId, EntityId target, bool starshell,
@@ -210,6 +214,7 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
             }
             d.tracking = true;
             d.radarRanging = radarOk;
+            d.opticalLayer = opticalOk;
             d.lastMeasure = now;
             d.rangeSigma = rangeSig;
         } else {
@@ -379,12 +384,15 @@ void salvoLanded(World& w, Salvo& sv) {
     }
     double crew = crewRate(*firer);
     double light = w.illuminationOn(*tgt);
-    double pObserve = d.radarRanging ? 0.9 : clamp(std::pow(clamp(light, 0.0, 1.0), 0.4) * 1.6, 0.05, 1.0);
+    double range = distance(firer->pos, tgt->pos);
+    // Splashes on the radar scope merge with the target pip and with each other at long range; without
+    // a sight of the target there is no way to tell them apart.
+    double blind = d.radarRanging && !d.opticalLayer ? smoothstep(4000.0, 16000.0, range) : 0.0;
+    double pObserve = d.radarRanging ? 0.9 * (1.0 - 0.65 * blind) : clamp(std::pow(clamp(light, 0.0, 1.0), 0.4) * 1.6, 0.05, 1.0);
     if (sv.hits > 0) pObserve = std::max(pObserve, 0.8);
     if (!w.rng().chance(pObserve * clamp(crew, 0.4, 1.0))) return;
-    double range = distance(firer->pos, tgt->pos);
     double meanR = sv.sumRangeErr / sv.landed, meanD = sv.sumDeflErr / sv.landed;
-    double noise = (d.radarRanging ? 30.0 : 60.0) + 0.004 * range;
+    double noise = (d.radarRanging ? 30.0 : 60.0) + (0.004 + 0.012 * blind) * range;
     double obsR = meanR + w.rng().normal() * noise, obsD = meanD + w.rng().normal() * noise * 0.5;
     if (sv.hits > 0) obsR *= 0.5;  // hits confirm the range
     if (sv.overs > 0 && sv.shorts > 0) d.straddled = true;

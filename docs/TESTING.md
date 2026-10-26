@@ -40,11 +40,14 @@ build/linux-release/irontide_headless --data data --scenario tassafaronga --runs
   --log      Entscheidungsprotokoll aller Ebenen (mit Alternativen der Befehlshaber)
   --events   Kontakte, erste Salve je Schiff, Torpedoabschüsse, Treffer mit Entfernung,
              Beleuchtung und Brandzustand des Ziels
-  --trace 60 Positionsliste aller Schiffe alle 60 s
+  --trace 60 Zustand aller Schiffe alle 60 s (Kurs, Fahrt, Auftrieb, Struktur, Antrieb, Strom,
+             Brände, Treffer)
   --skill 0.7  KI-Können
 ```
 
 Die Zusammenfassung zeigt je Seite Tonnageverluste, Punkte, Torpedo- und Granattrefferquoten,
+die Trefferquote der schweren Artillerie (ab 200 mm) mit mittlerer Trefferentfernung, die
+Zahl der Läufe, in denen jedes Missionsziel erreicht wurde,
 versenkte Schiffe über alle Läufe und die Häufigkeit jeder Entscheidung. Damit werden
 KI-Änderungen bewertet: Ein Lauf vorher und nachher über dieselben Seeds zeigt, ob sich
 Verhalten und Ergebnis in die gewünschte Richtung bewegen, und `--events` erklärt Ausreißer
