@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "core/Log.h"
+#include "sim/FireControl.h"
 
 namespace it::ai {
 
@@ -366,13 +367,19 @@ void AiController::runGroup(GroupBrain& g) {
             break;
     }
     // Fire discipline: stay dark while the torpedoes run (IJN), and do not betray the force to minor
-    // contacts while closing the real objective — unless we have already been discovered.
+    // contacts while closing the real objective unless already discovered. A destroyer force keeps its
+    // guns silent even under fire - muzzle flashes would give away every ship, not only the one being shot
+    // at (Tanaka at Tassafaronga) - while cruisers answer with their main battery.
     bool stealthy = d.torpedoFirst || d.nightPreference > 0.7;
     bool approach = g.posture == Posture::Mission || g.posture == Posture::Investigate || g.posture == Posture::Shadow ||
                     g.posture == Posture::Regroup;
-    g.holdFire = !g.last.underFire && !g.last.detectedByEnemy &&
-                 ((g.posture == Posture::TorpedoAttack && d.holdFireUntilTorpedoImpact && (g.phase != TorpPhase::Wait || now < g.impactTime + 20.0)) ||
-                  (approach && stealthy && g.last.night));
+    bool torpedoRun = g.posture == Posture::TorpedoAttack && d.holdFireUntilTorpedoImpact &&
+                      (g.phase != TorpPhase::Wait || now < g.impactTime + 20.0);
+    bool destroyers = true;
+    for (auto* s : members(grp))
+        if (s->operational() && s->cls->size() != sim::SizeClass::Small) destroyers = false;
+    g.holdFire = (torpedoRun && destroyers && g.last.night) ||
+                 (!g.last.underFire && !g.last.detectedByEnemy && (torpedoRun || (approach && stealthy && g.last.night)));
     // Aircraft flares over the enemy (Chokai's floatplanes at Savo Island).
     if (d.useAircraftFlares && g.last.night && !g.flaresLaunched &&
         (g.posture == Posture::Engage || g.posture == Posture::TorpedoAttack)) {
@@ -489,7 +496,9 @@ void AiController::runTorpedoAttack(GroupBrain& g, sim::Group& grp, sim::Ship& g
             Vec2 fp = tgt->pos + tgt->vel * (lead * 0.6) + bearingVector(tCourse + side * 55.0) * Rl;
             grp.course = bearingTo(guide.pos, fp);
             grp.speedKn = attackSpeed;
-            if (dist <= Rl * 1.15) {
+            // Under fire there is no time to reach the ideal position: launch from longer range.
+            if (dist <= Rl * (g.last.underFire ? 1.6 : 1.15)) {
+                g.launchRange = dist * 1.1;
                 double c1 = wrap360(B + 90.0), c2 = wrap360(B - 90.0);
                 g.turnAwayCourse = std::fabs(angleDiff(guide.heading, c1)) < std::fabs(angleDiff(guide.heading, c2)) ? c1 : c2;
                 setPhase(TorpPhase::Launch, "ai.d.torpedo_launch_position");
@@ -614,16 +623,31 @@ int AiController::torpedoSetting(const sim::Ship& s, double run) const {
     return 0;
 }
 
-bool AiController::friendlyInTorpedoPath(const sim::Ship& s, double course, double range) const {
-    double speed = 45.0 * 0.514444;
-    Vec2 dir = bearingVector(course);
-    for (auto* o : view_.ownShips()) {
-        if (o == &s || !o->operational()) continue;
-        for (double dd = 600.0; dd <= range; dd += 400.0) {
-            double t = dd / speed;
-            if (distance(s.pos + dir * dd, o->pos + o->velocity() * t) < o->cls->length * 0.5 + 300.0) return true;
-        }
+bool torpedoFanEndangers(const Vec2& launcher, double course, double spreadDeg, double run, double speed, const sim::Ship& o) {
+    double half = spreadDeg * 0.5 + 4.0;  // gyro and launch-angle errors widen the fan
+    double margin = o.cls->length * 0.5 + 400.0;
+    if (distance(launcher, o.pos) > run + margin + length(o.velocity()) * run / speed) return false;
+    for (double a = -half; a <= half + 0.01; a += std::max(1.0, half / 4.0)) {
+        Vec2 dir = bearingVector(course + a);
+        for (double dd = 300.0; dd <= run; dd += 300.0)
+            if (distance(launcher + dir * dd, o.pos + o.velocity() * (dd / speed)) < margin) return true;
     }
+    return false;
+}
+
+bool AiController::friendlyInTorpedoPath(const sim::Ship& s, double course, double spreadDeg, int setting) const {
+    // Torpedoes that miss run on to the end of their range: check every track of the fan over the full
+    // run against where each friendly ship will be when the torpedo gets there.
+    double speed = 45.0 * 0.514444, run = 10000.0;
+    for (auto& tm : s.torpedoMounts)
+        if (tm.def->torpedo && !tm.def->torpedo->settings.empty()) {
+            const auto& st = tm.def->torpedo->settings[size_t(clamp(setting, 0, int(tm.def->torpedo->settings.size()) - 1))];
+            speed = st.speedKn * 0.514444;
+            run = st.range;
+            break;
+        }
+    for (auto* o : view_.ownShips())
+        if (o != &s && o->operational() && torpedoFanEndangers(s.pos, course, spreadDeg, run, speed, *o)) return true;
     return false;
 }
 
@@ -748,8 +772,12 @@ void AiController::captainMovement(CaptainBrain& c, sim::Ship& s, GroupBrain* g,
 void AiController::captainWeapons(CaptainBrain& c, sim::Ship& s, GroupBrain* g, const Doctrine& d) {
     double now = w_.time();
     bool playerShip = settings_.assistMode;
+    if (s.dmg.hitsTaken > c.lastHitCount) {
+        c.lastHitCount = s.dmg.hitsTaken;
+        c.lastHitTime = now;
+    }
     if (!playerShip) {
-        if (g && g->holdFire)
+        if (g && g->holdFire && now - c.lastHitTime > 90.0)
             s.orders.weapons = sim::WeaponsStatus::Hold;
         else
             s.orders.weapons = d.requireIdentification ? sim::WeaponsStatus::Tight : sim::WeaponsStatus::Free;
@@ -837,6 +865,8 @@ void AiController::captainTorpedoes(CaptainBrain& c, sim::Ship& s, GroupBrain* g
     bool engaged = g && (g->posture == Posture::Engage || g->posture == Posture::Withdraw);
     if (!attackRun && !engaged) return;
     double rangeLimit = d.torpedoRange(view_.night()) * (attackRun ? 1.35 : 1.0);
+    // Ships further down the column are farther from the target than the guide that set the launch range.
+    if (attackRun) rangeLimit = std::max(rangeLimit, g->launchRange * 1.3);
     uint32_t best = 0;
     double bestV = 0;
     std::vector<sim::Ship*> self{&s};
@@ -847,8 +877,14 @@ void AiController::captainTorpedoes(CaptainBrain& c, sim::Ship& s, GroupBrain* g
         Vec2 p = t.predict(now);
         double dist = distance(s.pos, p);
         if (dist > rangeLimit) continue;
-        // A deliberate attack run accepts a poorer solution: the spread covers the error.
-        if (t.velSigma > (attackRun ? 4.5 : 3.0) || t.posSigma > (attackRun ? 1500.0 : 600.0)) continue;
+        // A deliberate attack run accepts a poorer solution: the spread covers the error. A director that has
+        // been following the target knows its course and speed far better than the plot.
+        double velSigma = t.velSigma, posSigma = t.posSigma;
+        if (const sim::DirectorState* sol = sim::firecontrol::solutionFor(s, t.id)) {
+            velSigma = std::min(velSigma, 1.0 + 4.0 * (1.0 - sol->quality));
+            posSigma = std::min(posSigma, sol->rangeSigma + 150.0);
+        }
+        if (velSigma > (attackRun ? 4.5 : 3.0) || posSigma > (attackRun ? 1500.0 : 600.0)) continue;
         double crossing = std::fabs(std::sin((t.courseEstimate() - bearingTo(s.pos, p)) * kDegToRad));
         if (length(t.vel) > 2.0 && crossing < 0.45 && !attackRun) continue;
         double v = d.priority(t.typeGuess) * (t.size == sim::SizeClass::Small ? 0.45 : 1.0) * (0.5 + 0.5 * crossing) / (1.0 + dist / 5000.0);
@@ -883,7 +919,7 @@ void AiController::captainTorpedoes(CaptainBrain& c, sim::Ship& s, GroupBrain* g
     double spread = clamp((n - 1) * spacing / std::max(1000.0, dist) * kRadToDeg, 1.0, 14.0);
     int setting = torpedoSetting(s, dist * 1.3);
     double course = bearingTo(s.pos, p);
-    if (friendlyInTorpedoPath(s, course, dist * 1.3)) {
+    if (friendlyInTorpedoPath(s, course, spread, setting)) {
         if (!c.torpedoedTracks.count(best)) record(DecisionLevel::Captain, s.name, "ai.d.torpedo_hold_friendly", "", {s.name});
         c.torpedoedTracks[best] = now - 240.0;  // re-check in a minute
         return;

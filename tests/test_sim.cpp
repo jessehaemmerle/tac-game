@@ -187,3 +187,25 @@ TEST_CASE("determinism: identical seeds give identical battles") {
     };
     CHECK(simulate(99) == simulate(99));
 }
+
+TEST_CASE("contacts: new tracks and identifications are announced as events") {
+    Fixture f(13.0);  // daylight
+    f.add("usn_dd_fletcher", Side::Allies, {0, 0}, 0, 15);
+    f.add("ijn_dd_kagero", Side::Axis, {0, 9000}, 180, 15);
+    int fresh = 0, identified = 0;
+    for (int i = 0; i < int(240.0 / kStep); ++i) {
+        f.w.step();
+        for (const auto& e : f.w.takeEvents()) {
+            if (e.type == EventType::ContactNew && e.side == Side::Allies) {
+                ++fresh;
+                CHECK(f.w.picture(Side::Allies).find(e.track) != nullptr);
+            }
+            if (e.type == EventType::ContactIdentified && e.side == Side::Allies) {
+                ++identified;
+                CHECK(e.text == "ijn_dd_kagero");
+            }
+        }
+    }
+    CHECK(fresh == 1);       // one ship, one track
+    CHECK(identified <= 1);  // announced once at most
+}

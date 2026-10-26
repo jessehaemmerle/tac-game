@@ -53,6 +53,7 @@ struct GroupBrain {
     TorpPhase phase = TorpPhase::Approach;
     double phaseSince = 0;
     uint32_t torpTarget = 0;
+    double launchRange = 0;  // range at which the group turned to launch; captains fire out to it
     double impactTime = -1;
     double turnAwayCourse = 0;
     int launches = 0;
@@ -76,7 +77,8 @@ struct CaptainBrain {
     std::map<uint32_t, double> torpedoedTracks;
     double lastLaunch = -1e9;
     double searchlightSince = -1;
-    double lastHitCount = 0;
+    int lastHitCount = 0;
+    double lastHitTime = -1e9;  // a ship being hit returns fire even while its group keeps the guns dark
 };
 
 struct AiSettings {
@@ -85,6 +87,10 @@ struct AiSettings {
     bool autoEvade = true;     // assist: captains comb torpedo tracks on their own
     bool autoTorpedoes = false;
 };
+
+/// Would a torpedo fan (course, total spread) running out to its full range pass within reach of ship o,
+/// given o's present course and speed?
+bool torpedoFanEndangers(const Vec2& launcher, double course, double spreadDeg, double runM, double speedMs, const sim::Ship& o);
 
 class AiController {
 public:
@@ -126,7 +132,7 @@ private:
     void record(DecisionLevel level, const std::string& actor, const std::string& decision, const std::string& detail,
                 std::vector<std::string> args = {}, std::vector<OptionScore> alts = {}, double score = 0);
     int torpedoSetting(const sim::Ship& s, double runDistance) const;
-    bool friendlyInTorpedoPath(const sim::Ship& s, double course, double range) const;
+    bool friendlyInTorpedoPath(const sim::Ship& s, double course, double spreadDeg, int setting) const;
 
     sim::World& w_;
     SideView view_;

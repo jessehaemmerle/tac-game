@@ -40,6 +40,7 @@ Track* ContactPicture::report(const Measurement& m, double now, bool* created) {
         nt.sharedAt = now + ((m.sense & kSenseFlash) ? 15.0 : reportDelay());
         tracks_.push_back(nt);
         t = &tracks_.back();
+        changes_.push_back({t->id, false, (m.sense & kSenseRadar) != 0});
     } else {
         double dt = std::max(0.0, now - t->lastUpdate);
         Vec2 pred = t->pos + t->vel * dt;
@@ -66,6 +67,8 @@ Track* ContactPicture::report(const Measurement& m, double now, bool* created) {
         t->lastUpdate = t->lastSeen = now;
     }
     if (m.level > t->level || (m.level == t->level && m.level >= ClassLevel::TypeKnown && !m.classGuess.empty())) {
+        if (t->level < ClassLevel::ClassKnown && m.level >= ClassLevel::ClassKnown && !m.classGuess.empty())
+            changes_.push_back({t->id, true, false});
         t->level = std::max(t->level, m.level);
         if (m.size != SizeClass::Unknown) t->size = m.size;
         if (m.typeGuess != ShipType::Unknown) t->typeGuess = m.typeGuess;

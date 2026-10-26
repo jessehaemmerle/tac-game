@@ -180,8 +180,10 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
             double crew = crewRate(s) * (0.5 + 0.5 * d.health) * (0.5 + 0.5 * s.readiness);
             double rangeSig, brgSig;
             if (radarOk) {
-                rangeSig = d.def->radarDef->rangeAccuracy;
-                brgSig = d.def->radarDef->bearingAccuracyDeg;
+                // Echoes of ships close inshore merge with the land return: range and bearing wander.
+                double merge = d.def->radarDef->landClutter * (1.0 - smoothstep(800.0, 5000.0, w.terrain().distanceToLand(tgt->pos, 6000.0)));
+                rangeSig = d.def->radarDef->rangeAccuracy * (1.0 + 6.0 * merge);
+                brgSig = d.def->radarDef->bearingAccuracyDeg * (1.0 + 3.0 * merge);
             } else {
                 double lightF = std::pow(clamp(vf.light, 0.01, 1.0), 0.38);
                 rangeSig = r * r * 2.5e-6 / std::max(1.0, d.def->rangefinderBase) * (1.0 + 3.0 * (1.0 - lightF)) + 15.0;
@@ -308,6 +310,12 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
 }  // namespace
 
 Vec2 predictedTarget(const DirectorState& d, double t) { return d.estPos + d.estVel * (t - d.lastMeasure); }
+
+const DirectorState* solutionFor(const Ship& s, uint32_t track, double minTrackTime) {
+    for (const auto& d : s.directors)
+        if (track && d.targetTrack == track && d.tracking && d.trackTime >= minTrackTime) return &d;
+    return nullptr;
+}
 
 ShellKind chooseShell(const MountState& m, SizeClass targetSize) {
     const GunDef* g = m.def->gun;

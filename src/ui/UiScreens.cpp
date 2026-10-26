@@ -179,6 +179,10 @@ void GameUi::drawBriefing() {
         return;
     }
     const game::Scenario& sc = scenarios_[size_t(selectedScenario_)];
+    if (chosenSideFor_ != sc.id) {
+        chosenSide_ = sc.defaultPlayer;
+        chosenSideFor_ = sc.id;
+    }
     if (std::find(sc.playableSides.begin(), sc.playableSides.end(), chosenSide_) == sc.playableSides.end()) chosenSide_ = sc.defaultPlayer;
     ImGuiIO& io = ImGui::GetIO();
     const float W = io.DisplaySize.x, H = io.DisplaySize.y;

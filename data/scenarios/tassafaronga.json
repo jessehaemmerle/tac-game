@@ -1,0 +1,318 @@
+{
+  "id": "tassafaronga",
+  "theater": "pacific",
+  "location": {
+    "lat": -9.28,
+    "lon": 159.92
+  },
+  "terrain": "terrain/ironbottom_sound.json",
+  "date": {
+    "year": 1942,
+    "month": 11,
+    "day": 30,
+    "hour": 23.0,
+    "utc_offset": 11
+  },
+  "weather": {
+    "cloud_cover": 0.6,
+    "visibility_km": 10,
+    "sea_state": 1,
+    "wind_dir": 140,
+    "wind_kn": 6,
+    "squalls": 1,
+    "squall_intensity": 0.4
+  },
+  "player_sides": [
+    "axis",
+    "allies"
+  ],
+  "default_player": "axis",
+  "time_limit_s": 7200,
+  "groups": [
+    {
+      "id": "wright",
+      "name": "group.tassafaronga.wright",
+      "side": "allies",
+      "doctrine": "usn_1942_late",
+      "formation": "column",
+      "spacing": 900,
+      "crew": "green",
+      "position": {
+        "lat": -9.3,
+        "lon": 160.02
+      },
+      "course": 285,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "usn_ca_new_orleans",
+          "name": "Minneapolis",
+          "sensors": [
+            "usn_lookouts",
+            "usn_sg",
+            "usn_sc"
+          ]
+        },
+        {
+          "class": "usn_ca_new_orleans",
+          "name": "New Orleans"
+        },
+        {
+          "class": "usn_ca_pensacola",
+          "name": "Pensacola"
+        },
+        {
+          "class": "usn_cl_brooklyn",
+          "name": "Honolulu",
+          "sensors": [
+            "usn_lookouts",
+            "usn_sg",
+            "usn_sc"
+          ]
+        },
+        {
+          "class": "usn_ca_northampton",
+          "name": "Northampton"
+        }
+      ],
+      "mission": {
+        "type": "attack",
+        "speed_kn": 20,
+        "attack_speed_kn": 28,
+        "waypoints": [
+          {
+            "lat": -9.27,
+            "lon": 159.9
+          }
+        ],
+        "objective": {
+          "lat": -9.3,
+          "lon": 159.85
+        },
+        "radius": 9000
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "wright_van",
+      "name": "group.tassafaronga.wright_van",
+      "side": "allies",
+      "doctrine": "usn_1942_late",
+      "formation": "column",
+      "spacing": 500,
+      "crew": "green",
+      "position": {
+        "lat": -9.29,
+        "lon": 159.985
+      },
+      "course": 285,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "usn_dd_fletcher",
+          "name": "Fletcher"
+        },
+        {
+          "class": "usn_dd_mahan",
+          "name": "Perkins"
+        },
+        {
+          "class": "usn_dd_bagley",
+          "name": "Maury"
+        },
+        {
+          "class": "usn_dd_mahan",
+          "name": "Drayton"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "wright",
+        "speed_kn": 20,
+        "attack_speed_kn": 32
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "wright_rear",
+      "name": "group.tassafaronga.wright_rear",
+      "side": "allies",
+      "doctrine": "usn_1942_late",
+      "formation": "column",
+      "spacing": 500,
+      "crew": "green",
+      "position": {
+        "lat": -9.31,
+        "lon": 160.05
+      },
+      "course": 285,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "usn_dd_mahan",
+          "name": "Lamson"
+        },
+        {
+          "class": "usn_dd_benson",
+          "name": "Lardner"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "wright",
+        "speed_kn": 20,
+        "attack_speed_kn": 32
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "tanaka",
+      "name": "group.tassafaronga.tanaka",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "column",
+      "spacing": 600,
+      "crew": "elite",
+      "position": {
+        "lat": -9.28,
+        "lon": 159.8
+      },
+      "course": 125,
+      "speed_kn": 15,
+      "ships": [
+        {
+          "class": "ijn_dd_yugumo",
+          "name": "Naganami"
+        },
+        {
+          "class": "ijn_dd_yugumo",
+          "name": "Makinami",
+          "torpedo_reloads": false
+        },
+        {
+          "class": "ijn_dd_kagero",
+          "name": "Oyashio",
+          "torpedo_reloads": false
+        },
+        {
+          "class": "ijn_dd_kagero",
+          "name": "Kuroshio",
+          "torpedo_reloads": false
+        },
+        {
+          "class": "ijn_dd_kagero",
+          "name": "Kagero",
+          "torpedo_reloads": false
+        },
+        {
+          "class": "ijn_dd_shiratsuyu",
+          "name": "Kawakaze",
+          "torpedo_reloads": false
+        },
+        {
+          "class": "ijn_dd_shiratsuyu",
+          "name": "Suzukaze",
+          "torpedo_reloads": false
+        }
+      ],
+      "mission": {
+        "type": "attack",
+        "speed_kn": 15,
+        "attack_speed_kn": 30,
+        "withdraw_at_hour": 23.75,
+        "waypoints": [
+          {
+            "lat": -9.345,
+            "lon": 159.87
+          }
+        ],
+        "objective": {
+          "lat": -9.345,
+          "lon": 159.87
+        },
+        "radius": 3000,
+        "exit": [
+          {
+            "lat": -9.25,
+            "lon": 159.76
+          },
+          {
+            "lat": -9.12,
+            "lon": 159.6
+          },
+          {
+            "lat": -8.95,
+            "lon": 159.5
+          }
+        ]
+      },
+      "readiness": 0.8
+    },
+    {
+      "id": "takanami",
+      "name": "group.tassafaronga.takanami",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "column",
+      "spacing": 600,
+      "crew": "elite",
+      "position": {
+        "lat": -9.275,
+        "lon": 159.825
+      },
+      "course": 125,
+      "speed_kn": 15,
+      "ships": [
+        {
+          "class": "ijn_dd_yugumo",
+          "name": "Takanami"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "tanaka",
+        "speed_kn": 15,
+        "attack_speed_kn": 30
+      },
+      "readiness": 0.9
+    }
+  ],
+  "objectives": [
+    {
+      "id": "stop",
+      "side": "allies",
+      "type": "destroy_group",
+      "group": "tanaka",
+      "value": 0.3,
+      "points": 150
+    },
+    {
+      "id": "sink",
+      "side": "allies",
+      "type": "destroy_tonnage",
+      "value": 2000,
+      "points": 100
+    },
+    {
+      "id": "preserve",
+      "side": "allies",
+      "type": "preserve",
+      "value": 0.8,
+      "points": 100
+    },
+    {
+      "id": "sink",
+      "side": "axis",
+      "type": "destroy_tonnage",
+      "value": 9000,
+      "points": 150
+    },
+    {
+      "id": "preserve",
+      "side": "axis",
+      "type": "preserve",
+      "value": 0.75,
+      "points": 150
+    }
+  ]
+}

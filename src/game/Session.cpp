@@ -92,6 +92,8 @@ void Session::spawnGroup(size_t index) {
         if (sg.readiness >= 1.0) s.alertedAt = 0;
         if (!ss.fcRadar)
             for (auto& d : s.directors) d.radarFitted = false;
+        if (!ss.torpedoReloads)
+            for (auto& tm : s.torpedoMounts) tm.reloads = 0;
         if (!ss.sensors.empty()) {
             s.sensors.clear();
             // Period refits: the session owns the replacement sensor mount definitions.

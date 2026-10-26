@@ -279,8 +279,13 @@ int World::fireTorpedoes(Ship& s, uint32_t trackId, int count, double spreadDeg,
     double tSpeed = setting.speedKn * 0.514444;
     double tt;
     Vec2 aim;
-    Vec2 targetNow = tr->predict(time_);
-    if (!solveIntercept(s.pos, tSpeed, targetNow, tr->vel, tt, aim)) {
+    // The ship's own director solution beats the plot for course and speed, if it has one.
+    Vec2 targetNow = tr->predict(time_), targetVel = tr->vel;
+    if (const DirectorState* sol = firecontrol::solutionFor(s, trackId)) {
+        targetNow = firecontrol::predictedTarget(*sol, time_);
+        targetVel = sol->estVel;
+    }
+    if (!solveIntercept(s.pos, tSpeed, targetNow, targetVel, tt, aim)) {
         if (why) *why = "order.torpedo_no_solution";
         return 0;
     }
@@ -372,6 +377,25 @@ void World::step() {
         if (tick_ % 40 == uint64_t(s->id % 40)) sensors::torpedoWatch(*this, *s);
         if (s->orders.searchlight && tick_ % 20 == 0) setSearchlight(*s, true, s->orders.searchlightTrack);
         firecontrol::update(*this, *s, dt);
+    }
+    for (int si = 0; si < kSideCount; ++si) {
+        ContactPicture& pic = pictures_[size_t(si)];
+        for (const auto& c : pic.takeChanges()) {
+            const Track* t = pic.find(c.track);
+            if (!t) continue;
+            Event e;
+            e.type = c.identified ? EventType::ContactIdentified : EventType::ContactNew;
+            e.time = time_;
+            e.side = Side(si);
+            e.track = t->id;
+            e.pos = {t->pos, 0.0};
+            e.value2 = c.radar ? 1.0 : 0.0;
+            if (c.identified) {
+                e.b = pic.truthOf(*t);
+                e.text = t->classGuess;
+            }
+            emit(e);
+        }
     }
     stepShells(dt);
     stepTorpedoes(dt);

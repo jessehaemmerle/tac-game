@@ -1,0 +1,291 @@
+{
+  "id": "cape_esperance",
+  "theater": "pacific",
+  "location": {
+    "lat": -9.15,
+    "lon": 159.72
+  },
+  "terrain": "terrain/ironbottom_sound.json",
+  "date": {
+    "year": 1942,
+    "month": 10,
+    "day": 11,
+    "hour": 23.25,
+    "utc_offset": 11
+  },
+  "weather": {
+    "cloud_cover": 0.5,
+    "visibility_km": 12,
+    "sea_state": 1,
+    "wind_dir": 120,
+    "wind_kn": 5,
+    "squalls": 2,
+    "squall_intensity": 0.5
+  },
+  "player_sides": [
+    "allies",
+    "axis"
+  ],
+  "default_player": "allies",
+  "time_limit_s": 7200,
+  "groups": [
+    {
+      "id": "scott",
+      "name": "group.esperance.scott",
+      "side": "allies",
+      "doctrine": "usn_1942",
+      "formation": "column",
+      "spacing": 600,
+      "crew": "regular",
+      "position": {
+        "lat": -9.08,
+        "lon": 159.7
+      },
+      "course": 230,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "usn_ca_new_orleans",
+          "name": "San Francisco"
+        },
+        {
+          "class": "usn_cl_brooklyn",
+          "name": "Boise",
+          "sensors": [
+            "usn_lookouts",
+            "usn_sg",
+            "usn_sc"
+          ]
+        },
+        {
+          "class": "usn_ca_pensacola",
+          "name": "Salt Lake City"
+        },
+        {
+          "class": "usn_cl_st_louis",
+          "name": "Helena"
+        }
+      ],
+      "mission": {
+        "type": "patrol",
+        "speed_kn": 20,
+        "attack_speed_kn": 28,
+        "loop": true,
+        "waypoints": [
+          {
+            "lat": -9.15,
+            "lon": 159.61
+          },
+          {
+            "lat": -9.05,
+            "lon": 159.74
+          }
+        ]
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "scott_van",
+      "name": "group.esperance.scott_van",
+      "side": "allies",
+      "doctrine": "usn_1942",
+      "formation": "column",
+      "spacing": 500,
+      "crew": "regular",
+      "position": {
+        "lat": -9.095,
+        "lon": 159.685
+      },
+      "course": 230,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "usn_dd_benson",
+          "name": "Farenholt"
+        },
+        {
+          "class": "usn_dd_benson",
+          "name": "Duncan"
+        },
+        {
+          "class": "usn_dd_benson",
+          "name": "Laffey"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "scott",
+        "speed_kn": 20,
+        "attack_speed_kn": 32
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "scott_rear",
+      "name": "group.esperance.scott_rear",
+      "side": "allies",
+      "doctrine": "usn_1942",
+      "formation": "column",
+      "spacing": 500,
+      "crew": "regular",
+      "position": {
+        "lat": -9.06,
+        "lon": 159.725
+      },
+      "course": 230,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "usn_dd_benson",
+          "name": "Buchanan"
+        },
+        {
+          "class": "usn_dd_benson",
+          "name": "McCalla"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "scott",
+        "speed_kn": 20,
+        "attack_speed_kn": 32
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "goto",
+      "name": "group.esperance.goto",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "column",
+      "spacing": 1100,
+      "crew": "veteran",
+      "position": {
+        "lat": -8.96,
+        "lon": 159.5
+      },
+      "course": 125,
+      "speed_kn": 26,
+      "ships": [
+        {
+          "class": "ijn_ca_aoba",
+          "name": "Aoba"
+        },
+        {
+          "class": "ijn_ca_furutaka",
+          "name": "Furutaka"
+        },
+        {
+          "class": "ijn_ca_aoba",
+          "name": "Kinugasa"
+        }
+      ],
+      "mission": {
+        "type": "attack",
+        "speed_kn": 26,
+        "attack_speed_kn": 30,
+        "withdraw_at_hour": 1.5,
+        "waypoints": [
+          {
+            "lat": -9.07,
+            "lon": 159.68
+          },
+          {
+            "lat": -9.21,
+            "lon": 159.8
+          }
+        ],
+        "objective": {
+          "lat": -9.37,
+          "lon": 160.0
+        },
+        "radius": 6000,
+        "exit": [
+          {
+            "lat": -9.2,
+            "lon": 159.8
+          },
+          {
+            "lat": -9.07,
+            "lon": 159.68
+          },
+          {
+            "lat": -8.9,
+            "lon": 159.5
+          }
+        ]
+      },
+      "readiness": 0.5
+    },
+    {
+      "id": "goto_screen",
+      "name": "group.esperance.goto_screen",
+      "side": "axis",
+      "doctrine": "ijn_1942",
+      "formation": "line_abreast",
+      "spacing": 3000,
+      "crew": "veteran",
+      "position": {
+        "lat": -8.955,
+        "lon": 159.512
+      },
+      "course": 125,
+      "speed_kn": 26,
+      "ships": [
+        {
+          "class": "ijn_dd_fubuki",
+          "name": "Fubuki"
+        },
+        {
+          "class": "ijn_dd_fubuki",
+          "name": "Hatsuyuki"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "goto",
+        "speed_kn": 26,
+        "attack_speed_kn": 34
+      },
+      "readiness": 0.5
+    }
+  ],
+  "objectives": [
+    {
+      "id": "stop",
+      "side": "allies",
+      "type": "destroy_group",
+      "group": "goto",
+      "value": 0.34,
+      "points": 150
+    },
+    {
+      "id": "sink",
+      "side": "allies",
+      "type": "destroy_tonnage",
+      "value": 8000,
+      "points": 100
+    },
+    {
+      "id": "preserve",
+      "side": "allies",
+      "type": "preserve",
+      "value": 0.75,
+      "points": 100
+    },
+    {
+      "id": "sink",
+      "side": "axis",
+      "type": "destroy_tonnage",
+      "value": 5000,
+      "points": 150
+    },
+    {
+      "id": "preserve",
+      "side": "axis",
+      "type": "preserve",
+      "value": 0.7,
+      "points": 150
+    }
+  ]
+}

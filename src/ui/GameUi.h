@@ -123,6 +123,7 @@ private:
     std::vector<game::Scenario> scenarios_;
     int selectedScenario_ = 0;
     sim::Side chosenSide_ = sim::Side::Allies;
+    std::string chosenSideFor_;  // scenario id the side choice belongs to (a new mission starts from its default side)
 
     // Sessions
     std::unique_ptr<game::Session> session_;   // battle

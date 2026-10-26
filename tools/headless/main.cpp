@@ -1,11 +1,12 @@
 // Headless battle runner: plays a scenario AI-vs-AI (or with a passive player side) many times and
 // prints statistics and the AI decision log. Used to tune doctrine and to check historical plausibility.
 //
-//   irontide_headless --scenario savo_island --runs 20 --seed 1 [--log] [--trace 60] [--skill 0.7]
+//   irontide_headless --scenario savo_island --runs 20 --seed 1 [--log] [--events] [--trace 60] [--skill 0.7]
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <map>
+#include <set>
 #include <string>
 
 #include "ai/Doctrine.h"
@@ -59,6 +60,7 @@ int main(int argc, char** argv) {
     double skill = std::atof(arg(argc, argv, "--skill", "0.7"));
     double trace = std::atof(arg(argc, argv, "--trace", "0"));
     bool showLog = flag(argc, argv, "--log");
+    bool showEvents = flag(argc, argv, "--events");  // contacts, first salvo per ship, torpedoes, hits
 
     struct Agg {
         double lost = 0, sunk = 0, points = 0;
@@ -80,6 +82,7 @@ int main(int argc, char** argv) {
             return 1;
         }
         double nextTrace = 0;
+        std::set<sim::EntityId> openedFire;
         while (!session.finished()) {
             session.step();
             auto events = session.drainEvents();
@@ -97,6 +100,31 @@ int main(int argc, char** argv) {
                 }
             }
             for (auto& e : events) {
+                if (showEvents) {
+                    auto name = [&](sim::EntityId id) { const sim::Ship* s = w.ship(id); return s ? s->name.c_str() : "?"; };
+                    const char* side = e.side == sim::Side::Allies ? "ALL" : "AXIS";
+                    switch (e.type) {
+                        case sim::EventType::ContactNew:
+                            std::printf("  [%5.0fs] %s new contact T%u%s\n", e.time, side, e.track, e.value2 > 0.5 ? " (radar)" : "");
+                            break;
+                        case sim::EventType::ContactIdentified: std::printf("  [%5.0fs] %s identified T%u as %s\n", e.time, side, e.track, e.text.c_str()); break;
+                        case sim::EventType::GunFired:
+                            if (openedFire.insert(e.a).second) std::printf("  [%5.0fs] %s opens fire\n", e.time, name(e.a));
+                            break;
+                        case sim::EventType::TorpedoLaunched: std::printf("  [%5.0fs] %s launches %.0f torpedoes\n", e.time, name(e.a), e.value); break;
+                        case sim::EventType::TorpedoHit: std::printf("  [%5.0fs] torpedo from %s hits %s\n", e.time, name(e.a), name(e.b)); break;
+                        case sim::EventType::ShellHit: {
+                            const sim::Ship *f = w.ship(e.a), *t = w.ship(e.b);
+                            double r = f && t ? distance(f->pos, t->pos) : 0.0;
+                            double land = t ? w.terrain().distanceToLand(t->pos, 20000.0) : 0.0;
+                            std::printf("  [%5.0fs] %s hits %s (%.0f mm%s) at %.1f km, target %.1f km off land, light %.2f, fire %.2f\n", e.time, name(e.a),
+                                        name(e.b), e.value, e.value2 > 0.5 ? ", pen" : "", r / 1000.0, land / 1000.0, t ? w.illuminationOn(*t) : 0.0,
+                                        t ? t->dmg.totalFireIntensity() : 0.0);
+                            break;
+                        }
+                        default: break;
+                    }
+                }
                 if (e.type == sim::EventType::ShipSunk || e.type == sim::EventType::ShipCrippled) {
                     if (const sim::Ship* s = w.ship(e.a); s && e.type == sim::EventType::ShipCrippled && runs <= 3)
                         std::printf("  [%5.0fs] %s out of action (%s)\n", e.time, s->name.c_str(), e.text.c_str());

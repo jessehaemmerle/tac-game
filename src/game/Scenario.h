@@ -18,6 +18,7 @@ struct ScenarioShip {
     std::optional<sim::CrewQuality> crew;   // overrides group crew
     std::vector<std::string> sensors;       // overrides class sensors (period refits)
     bool fcRadar = true;                    // false: directors without fire-control radar
+    bool torpedoReloads = true;             // false: reload torpedoes landed (deck cargo, e.g. supply drums)
 };
 
 struct ScenarioGroup {

@@ -16,7 +16,8 @@ if(MSVC)
 else()
   add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers)
   if(WIN32)
-    add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN _WIN32_WINNT=0x0A00)
+    # C99-conforming printf family on MinGW (%zu etc. regardless of the msvcrt version).
+    add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN _WIN32_WINNT=0x0A00 __USE_MINGW_ANSI_STDIO=1)
   endif()
 endif()
 
@@ -97,6 +98,11 @@ if(IRONTIDE_BUILD_GAME)
     external/imgui/backends/imgui_impl_win32.cpp
     external/imgui/backends/imgui_impl_dx12.cpp)
   target_include_directories(IronTide PRIVATE external/imgui/backends)
+  if(NOT MSVC)
+    # Third-party backend code: keep the build log about our own warnings.
+    set_source_files_properties(external/imgui/backends/imgui_impl_win32.cpp external/imgui/backends/imgui_impl_dx12.cpp
+                                PROPERTIES COMPILE_OPTIONS "-w")
+  endif()
   target_link_libraries(IronTide PRIVATE irontide_ui d3d12 dxgi dxguid d3dcompiler ole32 winmm shell32 dwmapi)
   if(MINGW)
     target_link_options(IronTide PRIVATE -static -municode)

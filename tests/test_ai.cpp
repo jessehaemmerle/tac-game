@@ -217,3 +217,19 @@ TEST_CASE("player orders are acknowledged by the bridge") {
         }
     CHECK(replies().empty());
 }
+
+TEST_CASE("torpedo fans are checked for friendly ships over their whole run") {
+    Battle b(1.5);
+    b.group("ca", Side::Allies, {"usn_ca_new_orleans"}, {0, 0}, 90, 0);
+    const Ship& ca = *b.w.ships().front();
+    double speed = 36.0 * 0.514444, run = 7300.0;
+    // Fired due north from 5 km south of the cruiser: on the centre line ...
+    CHECK(ai::torpedoFanEndangers({0, -5000}, 0.0, 6.0, run, speed, ca));
+    // ... inside the fan but off the centre line ...
+    CHECK(ai::torpedoFanEndangers({-300, -5000}, 0.0, 10.0, run, speed, ca));
+    // ... beyond the target the torpedoes were aimed at (a miss runs on) ...
+    CHECK(ai::torpedoFanEndangers({0, -7000}, 0.0, 4.0, run, speed, ca));
+    // ... but not when the fan points well away or the cruiser lies beyond the torpedoes' reach.
+    CHECK_FALSE(ai::torpedoFanEndangers({0, -5000}, 60.0, 6.0, run, speed, ca));
+    CHECK_FALSE(ai::torpedoFanEndangers({0, -9000}, 0.0, 6.0, run, speed, ca));
+}

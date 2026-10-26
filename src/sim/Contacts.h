@@ -91,6 +91,17 @@ public:
 
     /// Integrate a sensor measurement. Returns the track and whether it was newly created.
     Track* report(const Measurement& m, double now, bool* created = nullptr);
+    /// New tracks and first class identifications since the last call (World turns them into events).
+    struct Change {
+        uint32_t track = 0;
+        bool identified = false;  // false: new contact
+        bool radar = false;       // new contact made by radar
+    };
+    std::vector<Change> takeChanges() {
+        std::vector<Change> out;
+        out.swap(changes_);
+        return out;
+    }
     /// Propagate tracks, age holders and mark/drop lost tracks. Returns ids of tracks that became lost.
     std::vector<uint32_t> update(double now);
 
@@ -110,6 +121,7 @@ private:
     double reportMin_ = 20, reportMax_ = 60, reportReliability_ = 0.9;
     Rng* rng_ = nullptr;
     std::vector<Track> tracks_;
+    std::vector<Change> changes_;
     uint32_t nextId_ = 1;
 };
 

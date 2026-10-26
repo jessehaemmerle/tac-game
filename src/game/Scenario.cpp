@@ -113,6 +113,7 @@ bool loadScenario(const std::string& path, Scenario& sc, std::string* error) {
             if (sj.contains("crew")) s.crew = sim::crewFromString(jstr(sj, "crew"));
             for (auto& sen : jarr(sj, "sensors")) s.sensors.push_back(sen.get<std::string>());
             s.fcRadar = jbool(sj, "fc_radar", true);
+            s.torpedoReloads = jbool(sj, "torpedo_reloads", true);
             g.ships.push_back(s);
         }
         const Json& mj = jobj(gj, "mission");
@@ -189,6 +190,7 @@ Json scenarioToJson(const Scenario& sc) {
             if (s.crew) sj["crew"] = crews[int(*s.crew)];
             if (!s.sensors.empty()) sj["sensors"] = s.sensors;
             if (!s.fcRadar) sj["fc_radar"] = false;
+            if (!s.torpedoReloads) sj["torpedo_reloads"] = false;
             ships.push_back(sj);
         }
         gj["ships"] = ships;

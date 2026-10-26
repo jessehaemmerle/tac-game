@@ -492,7 +492,7 @@ void GameUi::runAutomation() {
     const std::string& s = a.screen;
     if (s == "missions") go(Screen::Missions);
     else if (s == "briefing") {
-        findScenario();
+        if (const game::Scenario* sc = findScenario(); sc && !a.side.empty()) chosenSideFor_ = sc->id;  // explicit --side wins
         go(Screen::Briefing);
     } else if (s == "settings") {
         settingsReturn_ = Screen::MainMenu;
