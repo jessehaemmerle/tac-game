@@ -1,0 +1,40 @@
+{
+  "id": "usn_dd_bagley", "nation": "usn", "type": "DD", "name": "Bagley", "year": 1937,
+  "ships": ["Bagley", "Blue", "Helm", "Mugford", "Ralph Talbot", "Henley", "Patterson", "Jarvis"],
+  "sources": "Friedman, U.S. Destroyers; navweaps.com; DANFS",
+  "dimensions": { "length": 104.0, "length_wl": 102.0, "beam": 10.8, "draft": 3.9, "mast_height": 26, "lookout_height": 17, "superstructure_height": 9 },
+  "displacement": { "standard": 1500, "full": 2325 },
+  "propulsion": { "max_speed_kn": 36.8, "cruise_speed_kn": 15, "shp": 49000, "accel_kn_per_min": 9.0, "tactical_diameter_m": 600, "shafts": 2 },
+  "crew": 158,
+  "armor": { "belt": 0, "deck": 0, "turret_face": 0, "torpedo_protection": 0.0 },
+  "mounts": [
+    { "id": "1", "weapon": "usn_5in38", "f": 0.14, "arc_min": -150, "arc_max": 150, "style": "shield", "armor": 3, "ammo": { "Common": 330, "Starshell": 30 } },
+    { "id": "2", "weapon": "usn_5in38", "f": 0.215, "superfiring": true, "arc_min": -150, "arc_max": 150, "style": "shield", "armor": 3, "ammo": { "Common": 330, "Starshell": 30 } },
+    { "id": "3", "weapon": "usn_5in38", "f": 0.72, "superfiring": true, "arc_min": 30, "arc_max": 330, "style": "open", "armor": 0, "ammo": { "Common": 330, "Starshell": 30 } },
+    { "id": "4", "weapon": "usn_5in38", "f": 0.83, "arc_min": 30, "arc_max": 330, "style": "open", "armor": 0, "ammo": { "Common": 330, "Starshell": 30 } }
+  ],
+  "torpedo_mounts": [
+    { "id": "T1", "weapon": "usn_mk15", "tubes": 4, "f": 0.46, "y": 3.3, "arc_min": 30, "arc_max": 150, "reloads": 0 },
+    { "id": "T2", "weapon": "usn_mk15", "tubes": 4, "f": 0.46, "y": -3.3, "arc_min": -150, "arc_max": -30, "reloads": 0 },
+    { "id": "T3", "weapon": "usn_mk15", "tubes": 4, "f": 0.57, "y": 3.3, "arc_min": 30, "arc_max": 150, "reloads": 0 },
+    { "id": "T4", "weapon": "usn_mk15", "tubes": 4, "f": 0.57, "y": -3.3, "arc_min": -150, "arc_max": -30, "reloads": 0 }
+  ],
+  "directors": [ { "id": "main", "role": "main", "rangefinder_m": 3.0, "height": 15, "f": 0.27 } ],
+  "sensors": [ { "id": "usn_lookouts", "height": 17, "f": 0.27 }, { "id": "usn_sc", "height": 26, "f": 0.30 } ],
+  "searchlights": 1, "searchlight_cm": 61, "depth_charges": 14, "rcs": 0.3, "reserve_buoyancy": 0.45, "hull_strength": 0.75,
+  "model": {
+    "bow_rake": 0.04, "stern": 0.0, "freeboard_bow": 6.2, "freeboard_mid": 4.6, "freeboard_stern": 2.9,
+    "forecastle_end": 0.40, "forecastle_drop": 2.0, "fineness": 0.48, "flare": 0.22, "hull_paint": "usn_ms21", "deck_paint": "usn_deck_blue",
+    "parts": [
+      { "type": "bridge", "f": 0.275, "len": 8, "wid": 7.5, "h": 2.6, "levels": 3, "style": "usn_dd" },
+      { "type": "director", "f": 0.27, "z": 9, "len": 2.6, "wid": 3.4, "h": 2.2 },
+      { "type": "tripod", "f": 0.31, "h": 20, "rake": 4 },
+      { "type": "radar", "f": 0.31, "z": 19, "len": 0.5, "wid": 3.6, "h": 2.6, "style": "sc", "ref": "usn_sc" },
+      { "type": "funnel", "f": 0.40, "len": 5.0, "wid": 3.4, "h": 7.5, "rake": 4 },
+      { "type": "deckhouse", "f": 0.40, "len": 12, "wid": 6, "h": 2.4 },
+      { "type": "deckhouse", "f": 0.69, "len": 9, "wid": 5.5, "h": 2.4 },
+      { "type": "searchlight", "f": 0.42, "z": 6.5 },
+      { "type": "boat", "f": 0.37, "y": 3.8, "z": 1.2, "len": 7 }
+    ]
+  }
+}

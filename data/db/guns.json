@@ -1,0 +1,74 @@
+// Naval guns. Sources: navweaps.com datapages (Tony DiGiulian), Campbell "Naval Weapons of World War Two".
+// max_range_m / max_range_elev are used to calibrate the drag model of the first shell.
+[
+  { "id": "usn_8in55", "name": "8\"/55 Mark 9/12/14", "nation": "usn", "caliber_mm": 203.2, "calibres": 55,
+    "rof_rpm": 3.0, "elev_max": 41, "elev_min": -5, "traverse_dps": 5, "elev_dps": 8,
+    "max_range_m": 29130, "max_range_elev": 41, "dispersion": 0.0065,
+    "shells": [
+      { "kind": "AP", "name": "AP Mark 19 (260 lb)", "mass_kg": 118.0, "mv": 853, "burster_kg": 1.5 },
+      { "kind": "Common", "name": "HC Mark 25 (260 lb)", "mass_kg": 118.0, "mv": 853, "burster_kg": 9.7 } ] },
+  { "id": "usn_6in47", "name": "6\"/47 Mark 16", "nation": "usn", "caliber_mm": 152.4, "calibres": 47,
+    "rof_rpm": 8.0, "elev_max": 47.5, "elev_min": -5, "traverse_dps": 10, "elev_dps": 10,
+    "max_range_m": 23880, "max_range_elev": 47.5, "dispersion": 0.006,
+    "shells": [
+      { "kind": "AP", "name": "AP Mark 35 (130 lb)", "mass_kg": 59.0, "mv": 762, "burster_kg": 1.0 },
+      { "kind": "Common", "name": "HC Mark 34 (105 lb)", "mass_kg": 47.6, "mv": 812, "burster_kg": 6.2 } ] },
+  { "id": "usn_5in38", "name": "5\"/38 Mark 12", "nation": "usn", "caliber_mm": 127.0, "calibres": 38,
+    "rof_rpm": 15.0, "elev_max": 85, "elev_min": -15, "traverse_dps": 25, "elev_dps": 15,
+    "max_range_m": 15900, "max_range_elev": 45, "dispersion": 0.007, "dual_purpose": true,
+    "shells": [
+      { "kind": "Common", "name": "AAC Mark 28 (55 lb)", "mass_kg": 25.0, "mv": 792, "burster_kg": 3.3 },
+      { "kind": "Starshell", "name": "Illum Mark 25", "mass_kg": 24.5, "mv": 640, "burster_kg": 0.0 } ] },
+  { "id": "usn_5in25", "name": "5\"/25 Mark 10/13", "nation": "usn", "caliber_mm": 127.0, "calibres": 25,
+    "rof_rpm": 14.0, "elev_max": 85, "elev_min": -10, "traverse_dps": 20, "elev_dps": 14,
+    "max_range_m": 13260, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true,
+    "shells": [
+      { "kind": "Common", "name": "AAC Mark 31 (54 lb)", "mass_kg": 24.4, "mv": 657, "burster_kg": 3.3 },
+      { "kind": "Starshell", "name": "Illum Mark 24", "mass_kg": 24.0, "mv": 600, "burster_kg": 0.0 } ] },
+  { "id": "usn_3in50", "name": "3\"/50 Mark 10/20", "nation": "usn", "caliber_mm": 76.2, "calibres": 50,
+    "rof_rpm": 15.0, "elev_max": 85, "elev_min": -10, "traverse_dps": 20, "elev_dps": 15,
+    "max_range_m": 13350, "max_range_elev": 43, "dispersion": 0.008, "dual_purpose": true,
+    "shells": [ { "kind": "Common", "name": "AAC (13 lb)", "mass_kg": 5.9, "mv": 823, "burster_kg": 0.35 } ] },
+  { "id": "rn_8in50", "name": "BL 8\"/50 Mark VIII", "nation": "rn", "caliber_mm": 203.2, "calibres": 50,
+    "rof_rpm": 3.0, "elev_max": 70, "elev_min": -3, "traverse_dps": 5, "elev_dps": 10,
+    "max_range_m": 26700, "max_range_elev": 45, "dispersion": 0.007,
+    "shells": [
+      { "kind": "AP", "name": "APC Mark I (256 lb)", "mass_kg": 116.1, "mv": 831, "burster_kg": 2.7 },
+      { "kind": "HE", "name": "HE (256 lb)", "mass_kg": 116.1, "mv": 831, "burster_kg": 10.4 } ] },
+  { "id": "rn_4in45", "name": "QF 4\"/45 Mark V", "nation": "rn", "caliber_mm": 101.6, "calibres": 45,
+    "rof_rpm": 12.0, "elev_max": 80, "elev_min": -5, "traverse_dps": 15, "elev_dps": 12,
+    "max_range_m": 14900, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true,
+    "shells": [
+      { "kind": "HE", "name": "HE (31 lb)", "mass_kg": 14.1, "mv": 728, "burster_kg": 1.2 },
+      { "kind": "Starshell", "name": "Starshell", "mass_kg": 14.0, "mv": 600, "burster_kg": 0.0 } ] },
+  { "id": "ijn_20cm50", "name": "20 cm/50 3rd Year Type No. 2", "nation": "ijn", "caliber_mm": 203.2, "calibres": 50,
+    "rof_rpm": 2.5, "elev_max": 55, "elev_min": -5, "loading_elev": 5, "traverse_dps": 4, "elev_dps": 6,
+    "max_range_m": 29400, "max_range_elev": 45, "dispersion": 0.0075,
+    "shells": [
+      { "kind": "AP", "name": "Type 91 AP", "mass_kg": 125.85, "mv": 835, "burster_kg": 3.1, "diving": true },
+      { "kind": "Common", "name": "Type 0 Common", "mass_kg": 125.85, "mv": 835, "burster_kg": 8.9 } ] },
+  { "id": "ijn_14cm50", "name": "14 cm/50 3rd Year Type", "nation": "ijn", "caliber_mm": 140.0, "calibres": 50,
+    "rof_rpm": 6.0, "elev_max": 30, "elev_min": -7, "traverse_dps": 6, "elev_dps": 8,
+    "max_range_m": 19750, "max_range_elev": 30, "dispersion": 0.0075,
+    "shells": [
+      { "kind": "Common", "name": "Type 0 Common", "mass_kg": 38.0, "mv": 850, "burster_kg": 2.3 },
+      { "kind": "Starshell", "name": "Illuminating", "mass_kg": 34.0, "mv": 700, "burster_kg": 0.0 } ] },
+  { "id": "ijn_127_50", "name": "12.7 cm/50 3rd Year Type", "nation": "ijn", "caliber_mm": 127.0, "calibres": 50,
+    "rof_rpm": 8.0, "elev_max": 55, "elev_min": -7, "traverse_dps": 6, "elev_dps": 12,
+    "max_range_m": 18445, "max_range_elev": 45, "dispersion": 0.0075,
+    "shells": [
+      { "kind": "Common", "name": "Type 0 Common", "mass_kg": 23.0, "mv": 910, "burster_kg": 1.8 },
+      { "kind": "Starshell", "name": "Illuminating", "mass_kg": 21.0, "mv": 700, "burster_kg": 0.0 } ] },
+  { "id": "ijn_12cm45", "name": "12 cm/45 3rd Year Type", "nation": "ijn", "caliber_mm": 120.0, "calibres": 45,
+    "rof_rpm": 6.0, "elev_max": 33, "elev_min": -7, "traverse_dps": 8, "elev_dps": 8,
+    "max_range_m": 16000, "max_range_elev": 33, "dispersion": 0.008,
+    "shells": [
+      { "kind": "Common", "name": "Common", "mass_kg": 20.3, "mv": 825, "burster_kg": 1.5 },
+      { "kind": "Starshell", "name": "Illuminating", "mass_kg": 19.0, "mv": 650, "burster_kg": 0.0 } ] },
+  { "id": "ijn_12cm45_ha", "name": "12 cm/45 10th Year Type HA", "nation": "ijn", "caliber_mm": 120.0, "calibres": 45,
+    "rof_rpm": 10.0, "elev_max": 75, "elev_min": -10, "traverse_dps": 10, "elev_dps": 10,
+    "max_range_m": 15600, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true,
+    "shells": [
+      { "kind": "Common", "name": "Common", "mass_kg": 20.4, "mv": 825, "burster_kg": 1.5 },
+      { "kind": "Starshell", "name": "Illuminating", "mass_kg": 19.0, "mv": 650, "burster_kg": 0.0 } ] }
+]

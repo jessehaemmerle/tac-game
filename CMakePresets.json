@@ -1,0 +1,20 @@
+{
+  "version": 6,
+  "configurePresets": [
+    { "name": "linux-debug", "generator": "Ninja", "binaryDir": "build/linux-debug",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
+    { "name": "linux-release", "generator": "Ninja", "binaryDir": "build/linux-release",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" } },
+    { "name": "mingw-release", "generator": "Ninja", "binaryDir": "build/mingw-release",
+      "toolchainFile": "${sourceDir}/cmake/toolchain-mingw64.cmake",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release", "IRONTIDE_BUILD_GAME": "ON", "IRONTIDE_BUILD_TESTS": "OFF" } },
+    { "name": "msvc", "generator": "Visual Studio 17 2022", "binaryDir": "build/msvc",
+      "architecture": "x64", "cacheVariables": { "IRONTIDE_BUILD_GAME": "ON" } }
+  ],
+  "buildPresets": [
+    { "name": "linux-debug", "configurePreset": "linux-debug" },
+    { "name": "linux-release", "configurePreset": "linux-release" },
+    { "name": "mingw-release", "configurePreset": "mingw-release" },
+    { "name": "msvc-release", "configurePreset": "msvc", "configuration": "Release" }
+  ]
+}

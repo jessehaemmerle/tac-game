@@ -1,0 +1,233 @@
+{
+  "id": "ijn_dd_kamikaze",
+  "nation": "ijn",
+  "type": "DD",
+  "name": "Kamikaze",
+  "year": 1922,
+  "ships": [
+    "Kamikaze",
+    "Asakaze",
+    "Harukaze",
+    "Matsukaze",
+    "Hatakaze",
+    "Oite",
+    "Hayate",
+    "Asanagi",
+    "Yunagi"
+  ],
+  "sources": "Jentschura et al., Warships of the IJN 1869-1945; Whitley, Destroyers of World War Two; navweaps.com; combinedfleet.com",
+  "dimensions": {
+    "length": 102.57,
+    "length_wl": 100.00574999999999,
+    "beam": 9.16,
+    "draft": 2.92,
+    "mast_height": 20,
+    "lookout_height": 15,
+    "superstructure_height": 8.5
+  },
+  "displacement": {
+    "standard": 1270,
+    "full": 1720
+  },
+  "propulsion": {
+    "max_speed_kn": 37.25,
+    "cruise_speed_kn": 16,
+    "shp": 38500,
+    "accel_kn_per_min": 9.0,
+    "tactical_diameter_m": 564.135,
+    "shafts": 2
+  },
+  "crew": 148,
+  "armor": {
+    "belt": 0,
+    "deck": 0,
+    "turret_face": 0,
+    "torpedo_protection": 0.0
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "ijn_12cm45",
+      "barrels": 1,
+      "f": 0.15,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "shield",
+      "armor": 6,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "ijn_12cm45",
+      "barrels": 1,
+      "f": 0.405,
+      "arc_min": 20,
+      "arc_max": 160,
+      "mirrored": true,
+      "style": "shield",
+      "armor": 6,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 20
+      },
+      "raise": 1.5
+    },
+    {
+      "id": "3",
+      "weapon": "ijn_12cm45",
+      "barrels": 1,
+      "f": 0.63,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "armor": 6,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 20
+      },
+      "raise": 1.0
+    },
+    {
+      "id": "4",
+      "weapon": "ijn_12cm45",
+      "barrels": 1,
+      "f": 0.83,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "armor": 6,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 20
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "ijn_type6",
+      "tubes": 2,
+      "f": 0.255,
+      "arc_min": 40,
+      "arc_max": 140,
+      "mirrored": true,
+      "reloads": 0
+    },
+    {
+      "id": "T2",
+      "weapon": "ijn_type6",
+      "tubes": 2,
+      "f": 0.55,
+      "arc_min": 40,
+      "arc_max": 140,
+      "mirrored": true,
+      "reloads": 0
+    },
+    {
+      "id": "T3",
+      "weapon": "ijn_type6",
+      "tubes": 2,
+      "f": 0.72,
+      "arc_min": 40,
+      "arc_max": 140,
+      "mirrored": true,
+      "reloads": 0
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 2.0,
+      "height": 13,
+      "f": 0.31
+    }
+  ],
+  "sensors": [
+    {
+      "id": "ijn_lookouts",
+      "height": 15,
+      "f": 0.31
+    }
+  ],
+  "searchlights": 1,
+  "searchlight_cm": 90,
+  "depth_charges": 18,
+  "rcs": 0.3,
+  "reserve_buoyancy": 0.42,
+  "hull_strength": 0.72,
+  "model": {
+    "bow_rake": 0.05,
+    "stern": 0.0,
+    "freeboard_bow": 6.0,
+    "freeboard_mid": 4.2,
+    "freeboard_stern": 2.6,
+    "forecastle_end": 0.21,
+    "forecastle_drop": 2.3,
+    "fineness": 0.47,
+    "flare": 0.32,
+    "hull_paint": "ijn_kure_grey",
+    "deck_paint": "ijn_linoleum",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.31,
+        "len": 7,
+        "wid": 7,
+        "h": 2.5,
+        "levels": 3,
+        "style": "ijn_dd"
+      },
+      {
+        "type": "tripod",
+        "f": 0.35,
+        "h": 14,
+        "rake": 7
+      },
+      {
+        "type": "funnel",
+        "f": 0.35,
+        "len": 4.0,
+        "wid": 2.8,
+        "h": 6.8,
+        "rake": 6
+      },
+      {
+        "type": "funnel",
+        "f": 0.47,
+        "len": 4.0,
+        "wid": 2.8,
+        "h": 6.6,
+        "rake": 6
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.47,
+        "len": 22.5654,
+        "wid": 5.5,
+        "h": 2.2
+      },
+      {
+        "type": "searchlight",
+        "f": 0.5,
+        "z": 4.5
+      },
+      {
+        "type": "mast",
+        "f": 0.68,
+        "h": 12,
+        "rake": 7
+      },
+      {
+        "type": "boat",
+        "f": 0.4,
+        "y": 3.8,
+        "z": 1.2,
+        "len": 7
+      }
+    ]
+  }
+}

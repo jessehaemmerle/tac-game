@@ -1,0 +1,320 @@
+{
+  "id": "ijn_ca_furutaka",
+  "nation": "ijn",
+  "type": "CA",
+  "name": "Furutaka",
+  "year": 1926,
+  "ships": [
+    "Furutaka",
+    "Kako"
+  ],
+  "sources": "Lacroix & Wells, Japanese Cruisers of the Pacific War; Jentschura et al., Warships of the IJN 1869-1945; navweaps.com; combinedfleet.com (post-1940 configuration)",
+  "dimensions": {
+    "length": 185.17,
+    "length_wl": 183.48,
+    "beam": 16.93,
+    "draft": 5.66,
+    "mast_height": 33,
+    "lookout_height": 23,
+    "superstructure_height": 16
+  },
+  "displacement": {
+    "standard": 8700,
+    "full": 10630
+  },
+  "propulsion": {
+    "max_speed_kn": 32.95,
+    "cruise_speed_kn": 14,
+    "shp": 103390,
+    "accel_kn_per_min": 5.0,
+    "tactical_diameter_m": 780,
+    "shafts": 4
+  },
+  "crew": 639,
+  "armor": {
+    "belt": 76,
+    "belt_magazine": 76,
+    "deck": 35,
+    "turret_face": 25,
+    "turret_roof": 25,
+    "barbette": 57,
+    "conning_tower": 35,
+    "torpedo_protection": 0.2
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "ijn_20cm50",
+      "barrels": 2,
+      "f": 0.165,
+      "arc_min": -150,
+      "arc_max": 150,
+      "ammo": {
+        "AP": 120,
+        "Common": 40
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "ijn_20cm50",
+      "barrels": 2,
+      "f": 0.23,
+      "arc_min": -150,
+      "arc_max": 150,
+      "superfiring": true,
+      "ammo": {
+        "AP": 120,
+        "Common": 40
+      }
+    },
+    {
+      "id": "3",
+      "weapon": "ijn_20cm50",
+      "barrels": 2,
+      "f": 0.785,
+      "arc_min": 30,
+      "arc_max": 330,
+      "ammo": {
+        "AP": 120,
+        "Common": 40
+      }
+    },
+    {
+      "id": "H1",
+      "weapon": "ijn_12cm45_ha",
+      "barrels": 1,
+      "f": 0.48,
+      "arc_min": 0,
+      "arc_max": 180,
+      "director": "sec",
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 40
+      },
+      "y": 6.6
+    },
+    {
+      "id": "H2",
+      "weapon": "ijn_12cm45_ha",
+      "barrels": 1,
+      "f": 0.48,
+      "arc_min": -180,
+      "arc_max": 0,
+      "director": "sec",
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 40
+      },
+      "y": -6.6
+    },
+    {
+      "id": "H3",
+      "weapon": "ijn_12cm45_ha",
+      "barrels": 1,
+      "f": 0.54,
+      "arc_min": 0,
+      "arc_max": 180,
+      "director": "sec",
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 40
+      },
+      "y": 6.6
+    },
+    {
+      "id": "H4",
+      "weapon": "ijn_12cm45_ha",
+      "barrels": 1,
+      "f": 0.54,
+      "arc_min": -180,
+      "arc_max": 0,
+      "director": "sec",
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 40
+      },
+      "y": -6.6
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "ijn_type93",
+      "tubes": 4,
+      "f": 0.59,
+      "y": 7.4,
+      "arc_min": 40,
+      "arc_max": 140,
+      "reloads": 4,
+      "reload_s": 900
+    },
+    {
+      "id": "T2",
+      "weapon": "ijn_type93",
+      "tubes": 4,
+      "f": 0.59,
+      "y": -7.4,
+      "arc_min": -140,
+      "arc_max": -40,
+      "reloads": 4,
+      "reload_s": 900
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 6.0,
+      "height": 26,
+      "f": 0.29
+    },
+    {
+      "id": "sec",
+      "role": "secondary",
+      "rangefinder_m": 4.5,
+      "height": 20,
+      "f": 0.31
+    },
+    {
+      "id": "torp",
+      "role": "torpedo",
+      "rangefinder_m": 4.5,
+      "height": 20,
+      "f": 0.3
+    }
+  ],
+  "sensors": [
+    {
+      "id": "ijn_lookouts",
+      "height": 23,
+      "f": 0.29
+    }
+  ],
+  "searchlights": 3,
+  "searchlight_cm": 110,
+  "floatplanes": 2,
+  "rcs": 0.9,
+  "reserve_buoyancy": 0.55,
+  "hull_strength": 0.95,
+  "model": {
+    "bow_rake": 0.045,
+    "stern": 0.0,
+    "freeboard_bow": 9.0,
+    "freeboard_mid": 6.0,
+    "freeboard_stern": 4.8,
+    "forecastle_end": 0.0,
+    "fineness": 0.5,
+    "flare": 0.3,
+    "hull_paint": "ijn_kure_grey",
+    "deck_paint": "ijn_linoleum",
+    "parts": [
+      {
+        "type": "pagoda",
+        "f": 0.29,
+        "len": 12,
+        "wid": 11,
+        "h": 3.1,
+        "levels": 3,
+        "taper": 0.3,
+        "style": "ijn"
+      },
+      {
+        "type": "director",
+        "f": 0.285,
+        "z": 9.8,
+        "len": 3.6,
+        "wid": 6.0,
+        "h": 2.6
+      },
+      {
+        "type": "tripod",
+        "f": 0.33,
+        "h": 26,
+        "rake": 7
+      },
+      {
+        "type": "funnel",
+        "f": 0.39,
+        "f2": 0.44,
+        "len": 8.0,
+        "wid": 5.0,
+        "h": 11.5,
+        "rake": 14,
+        "style": "trunked"
+      },
+      {
+        "type": "funnel",
+        "f": 0.5,
+        "len": 5.6,
+        "wid": 4.2,
+        "h": 11.0,
+        "rake": 10
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.47,
+        "len": 30,
+        "wid": 11,
+        "h": 2.6
+      },
+      {
+        "type": "searchlight",
+        "f": 0.45,
+        "y": 3.8,
+        "z": 9.5
+      },
+      {
+        "type": "searchlight",
+        "f": 0.45,
+        "y": -3.8,
+        "z": 9.5
+      },
+      {
+        "type": "tripod",
+        "f": 0.62,
+        "h": 20,
+        "rake": 7
+      },
+      {
+        "type": "catapult",
+        "f": 0.665,
+        "len": 19
+      },
+      {
+        "type": "aircraft",
+        "f": 0.665,
+        "z": 2.2,
+        "style": "pete"
+      },
+      {
+        "type": "crane",
+        "f": 0.64,
+        "y": 4.0,
+        "h": 10,
+        "len": 12
+      },
+      {
+        "type": "boat",
+        "f": 0.5,
+        "y": 5.2,
+        "z": 2.6,
+        "len": 10
+      },
+      {
+        "type": "boat",
+        "f": 0.5,
+        "y": -5.2,
+        "z": 2.6,
+        "len": 10
+      }
+    ]
+  }
+}

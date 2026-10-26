@@ -1,0 +1,125 @@
+#include "sim/Contacts.h"
+
+#include <algorithm>
+
+namespace it::sim {
+
+bool Track::heldBy(EntityId ship, double now, double maxAge) const {
+    for (auto& h : holders)
+        if (h.ship == ship && now - h.lastSeen <= maxAge) return true;
+    return false;
+}
+
+uint32_t Track::senseOf(EntityId ship, double now, double maxAge) const {
+    for (auto& h : holders)
+        if (h.ship == ship && now - h.lastSeen <= maxAge) return h.sense;
+    return 0;
+}
+
+Track* ContactPicture::report(const Measurement& m, double now, bool* created) {
+    Track* t = byTruth(m.truth);
+    if (created) *created = (t == nullptr);
+    if (!t) {
+        Track nt;
+        nt.id = nextId_++;
+        nt.truth_ = m.truth;
+        nt.pos = m.pos;
+        nt.vel = m.hasVelocity ? m.velocity : Vec2{};
+        nt.posSigma = m.sigma;
+        nt.velSigma = m.hasVelocity ? m.velSigma : 12.0;
+        nt.firstSeen = nt.lastSeen = nt.lastUpdate = now;
+        tracks_.push_back(nt);
+        t = &tracks_.back();
+    } else {
+        double dt = std::max(0.0, now - t->lastUpdate);
+        Vec2 pred = t->pos + t->vel * dt;
+        double sp2 = sqr(t->posSigma) + sqr(t->velSigma * dt);
+        double sm2 = sqr(m.sigma);
+        double k = sp2 / (sp2 + sm2);
+        Vec2 innov = m.pos - pred;
+        t->pos = pred + innov * k;
+        t->posSigma = std::sqrt(sp2 * sm2 / (sp2 + sm2));
+        if (dt > 0.5) {
+            // Velocity from the innovation; long baselines give the most information.
+            double base = std::max(dt, 4.0);
+            double mv2 = sqr(m.sigma / base);
+            double kv = clamp(sqr(t->velSigma) / (sqr(t->velSigma) + mv2), 0.03, 0.6) * k;
+            t->vel += innov / base * kv;
+            t->velSigma = std::max(0.4, std::sqrt(sqr(t->velSigma) * (1.0 - kv)));
+        }
+        if (m.hasVelocity) {
+            double kv = sqr(t->velSigma) / (sqr(t->velSigma) + sqr(m.velSigma));
+            t->vel = t->vel + (m.velocity - t->vel) * kv;
+            t->velSigma = std::max(0.4, std::sqrt(sqr(t->velSigma) * sqr(m.velSigma) / (sqr(t->velSigma) + sqr(m.velSigma))));
+        }
+        t->lastUpdate = t->lastSeen = now;
+    }
+    if (m.level > t->level || (m.level == t->level && m.level >= ClassLevel::TypeKnown && !m.classGuess.empty())) {
+        t->level = std::max(t->level, m.level);
+        if (m.size != SizeClass::Unknown) t->size = m.size;
+        if (m.typeGuess != ShipType::Unknown) t->typeGuess = m.typeGuess;
+        if (!m.classGuess.empty()) t->classGuess = m.classGuess;
+    } else if (t->size == SizeClass::Unknown && m.size != SizeClass::Unknown) {
+        t->size = m.size;
+    }
+    if (m.level >= ClassLevel::Identified) t->hostile = true;
+    if (m.hostileAct) {
+        t->hostile = true;
+        t->firedOnUs = true;
+    }
+    if (m.sense & kSenseFlash) t->lastFlash = now;
+    t->sense |= m.sense;
+    t->lost = false;
+    bool found = false;
+    for (auto& h : t->holders)
+        if (h.ship == m.observer) {
+            h.lastSeen = now;
+            h.sense |= m.sense;
+            found = true;
+        }
+    if (!found && m.observer != kNoEntity) t->holders.push_back({m.observer, now, m.sense});
+    return t;
+}
+
+std::vector<uint32_t> ContactPicture::update(double now) {
+    std::vector<uint32_t> lostNow;
+    for (auto& t : tracks_) {
+        t.holders.erase(std::remove_if(t.holders.begin(), t.holders.end(), [&](const Holder& h) { return now - h.lastSeen > 90.0; }),
+                        t.holders.end());
+        uint32_t s = 0;
+        for (auto& h : t.holders)
+            if (now - h.lastSeen < 60.0) s |= h.sense;
+        t.sense = s;
+        if (!t.lost && now - t.lastSeen > 120.0) {
+            t.lost = true;
+            lostNow.push_back(t.id);
+        }
+    }
+    tracks_.erase(std::remove_if(tracks_.begin(), tracks_.end(), [&](const Track& t) { return t.lost && now - t.lastSeen > 1200.0; }),
+                  tracks_.end());
+    return lostNow;
+}
+
+Track* ContactPicture::find(uint32_t id) {
+    for (auto& t : tracks_)
+        if (t.id == id) return &t;
+    return nullptr;
+}
+
+const Track* ContactPicture::find(uint32_t id) const {
+    for (auto& t : tracks_)
+        if (t.id == id) return &t;
+    return nullptr;
+}
+
+Track* ContactPicture::byTruth(EntityId truth) {
+    for (auto& t : tracks_)
+        if (t.truth_ == truth) return &t;
+    return nullptr;
+}
+
+void ContactPicture::forget(EntityId truth) {
+    tracks_.erase(std::remove_if(tracks_.begin(), tracks_.end(), [&](const Track& t) { return t.truth_ == truth; }), tracks_.end());
+}
+
+}  // namespace it::sim

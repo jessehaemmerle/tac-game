@@ -1,0 +1,20 @@
+// Torpedoes. Sources: navweaps.com (WTJAP_WWII, WTJAP_PreWWII, WTUS_WWII).
+// wake: visibility of the track (1 = air/steam torpedo, Type 93 oxygen torpedo is nearly wakeless).
+// dud/deep_run reflect 1942 reliability (US Mark 15 exploder and depth-keeping problems).
+[
+  { "id": "ijn_type93", "name": "Type 93 (61 cm, oxygen)", "nation": "ijn", "diameter_mm": 610, "mass_kg": 2700,
+    "warhead_kg": 490, "wake": 0.12, "dud": 0.04, "deep_run": 0.02, "erratic": 0.02, "wander": 0.025,
+    "settings": [ { "speed_kn": 48, "range_m": 20000 }, { "speed_kn": 40, "range_m": 32000 }, { "speed_kn": 36, "range_m": 40000 } ] },
+  { "id": "ijn_type90", "name": "Type 90 (61 cm)", "nation": "ijn", "diameter_mm": 610, "mass_kg": 2605,
+    "warhead_kg": 375, "wake": 1.0, "dud": 0.05, "deep_run": 0.03, "erratic": 0.03, "wander": 0.03,
+    "settings": [ { "speed_kn": 46, "range_m": 7000 }, { "speed_kn": 42, "range_m": 10000 }, { "speed_kn": 35, "range_m": 15000 } ] },
+  { "id": "ijn_type8", "name": "Type 8 No. 2 (61 cm)", "nation": "ijn", "diameter_mm": 610, "mass_kg": 2362,
+    "warhead_kg": 346, "wake": 1.0, "dud": 0.06, "deep_run": 0.03, "erratic": 0.03, "wander": 0.03,
+    "settings": [ { "speed_kn": 38, "range_m": 10000 }, { "speed_kn": 32, "range_m": 15000 }, { "speed_kn": 27, "range_m": 20000 } ] },
+  { "id": "ijn_type6", "name": "6th Year Type (53 cm)", "nation": "ijn", "diameter_mm": 533, "mass_kg": 1432,
+    "warhead_kg": 203, "wake": 1.0, "dud": 0.07, "deep_run": 0.04, "erratic": 0.04, "wander": 0.035,
+    "settings": [ { "speed_kn": 35, "range_m": 7000 }, { "speed_kn": 32, "range_m": 10000 }, { "speed_kn": 26, "range_m": 15000 } ] },
+  { "id": "usn_mk15", "name": "Mark 15 Mod 0 (21 in)", "nation": "usn", "diameter_mm": 533, "mass_kg": 1559,
+    "warhead_kg": 224, "wake": 1.0, "dud": 0.22, "deep_run": 0.15, "erratic": 0.04, "wander": 0.03,
+    "settings": [ { "speed_kn": 45, "range_m": 5486 }, { "speed_kn": 33.5, "range_m": 9144 }, { "speed_kn": 26.5, "range_m": 13716 } ] }
+]

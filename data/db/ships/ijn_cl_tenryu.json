@@ -1,0 +1,230 @@
+{
+  "id": "ijn_cl_tenryu",
+  "nation": "ijn",
+  "type": "CL",
+  "name": "Tenryu",
+  "year": 1919,
+  "ships": [
+    "Tenryu",
+    "Tatsuta"
+  ],
+  "sources": "Lacroix & Wells, Japanese Cruisers of the Pacific War; Jentschura et al., Warships of the IJN 1869-1945; navweaps.com; combinedfleet.com",
+  "dimensions": {
+    "length": 142.65,
+    "length_wl": 139.6,
+    "beam": 12.34,
+    "draft": 3.96,
+    "mast_height": 27,
+    "lookout_height": 18,
+    "superstructure_height": 10
+  },
+  "displacement": {
+    "standard": 3948,
+    "full": 4350
+  },
+  "propulsion": {
+    "max_speed_kn": 33.0,
+    "cruise_speed_kn": 14,
+    "shp": 51000,
+    "accel_kn_per_min": 6.5,
+    "tactical_diameter_m": 700,
+    "shafts": 3
+  },
+  "crew": 327,
+  "armor": {
+    "belt": 51,
+    "belt_magazine": 51,
+    "deck": 29,
+    "turret_face": 0,
+    "conning_tower": 51,
+    "torpedo_protection": 0.05
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.15,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "shield",
+      "armor": 8,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.29,
+      "arc_min": -150,
+      "arc_max": 150,
+      "superfiring": true,
+      "style": "shield",
+      "armor": 8,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "3",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.635,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "armor": 8,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "4",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.83,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "armor": 8,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 30
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "ijn_type6",
+      "tubes": 3,
+      "f": 0.4,
+      "arc_min": 40,
+      "arc_max": 140,
+      "mirrored": true,
+      "reloads": 0
+    },
+    {
+      "id": "T2",
+      "weapon": "ijn_type6",
+      "tubes": 3,
+      "f": 0.56,
+      "arc_min": 40,
+      "arc_max": 140,
+      "mirrored": true,
+      "reloads": 0
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 3.5,
+      "height": 17,
+      "f": 0.22
+    }
+  ],
+  "sensors": [
+    {
+      "id": "ijn_lookouts",
+      "height": 18,
+      "f": 0.22
+    }
+  ],
+  "searchlights": 2,
+  "searchlight_cm": 90,
+  "rcs": 0.5,
+  "reserve_buoyancy": 0.45,
+  "hull_strength": 0.8,
+  "model": {
+    "bow_rake": 0.04,
+    "stern": 0.0,
+    "freeboard_bow": 7.0,
+    "freeboard_mid": 5.0,
+    "freeboard_stern": 3.8,
+    "forecastle_end": 0.24,
+    "forecastle_drop": 2.2,
+    "fineness": 0.5,
+    "flare": 0.25,
+    "hull_paint": "ijn_kure_grey",
+    "deck_paint": "ijn_linoleum",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.22,
+        "len": 8,
+        "wid": 8,
+        "h": 2.6,
+        "levels": 3,
+        "style": "ijn_old"
+      },
+      {
+        "type": "tripod",
+        "f": 0.255,
+        "h": 22,
+        "rake": 6
+      },
+      {
+        "type": "funnel",
+        "f": 0.355,
+        "len": 4.6,
+        "wid": 3.4,
+        "h": 9.0,
+        "rake": 6
+      },
+      {
+        "type": "funnel",
+        "f": 0.43,
+        "len": 4.6,
+        "wid": 3.4,
+        "h": 9.0,
+        "rake": 6
+      },
+      {
+        "type": "funnel",
+        "f": 0.505,
+        "len": 4.6,
+        "wid": 3.4,
+        "h": 9.0,
+        "rake": 6
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.43,
+        "len": 24,
+        "wid": 6.5,
+        "h": 2.4
+      },
+      {
+        "type": "mast",
+        "f": 0.72,
+        "h": 17,
+        "rake": 6
+      },
+      {
+        "type": "searchlight",
+        "f": 0.47,
+        "z": 5.0
+      },
+      {
+        "type": "boat",
+        "f": 0.45,
+        "y": 4.3,
+        "z": 1.3,
+        "len": 8
+      },
+      {
+        "type": "boat",
+        "f": 0.45,
+        "y": -4.3,
+        "z": 1.3,
+        "len": 8
+      }
+    ]
+  }
+}

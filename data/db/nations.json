@@ -1,0 +1,8 @@
+[
+  { "id": "usn", "name": "nation.usn", "side": "allies", "prefix": "USS",  "flag": "us",  "language": "en-US" },
+  { "id": "ran", "name": "nation.ran", "side": "allies", "prefix": "HMAS", "flag": "au",  "language": "en-AU" },
+  { "id": "rn",  "name": "nation.rn",  "side": "allies", "prefix": "HMS",  "flag": "uk",  "language": "en-GB" },
+  { "id": "ijn", "name": "nation.ijn", "side": "axis",   "prefix": "",     "flag": "jp",  "language": "ja" },
+  { "id": "km",  "name": "nation.km",  "side": "axis",   "prefix": "",     "flag": "de",  "language": "de" },
+  { "id": "rm",  "name": "nation.rm",  "side": "axis",   "prefix": "",     "flag": "it",  "language": "it" }
+]

@@ -1,0 +1,30 @@
+{
+  "id": "usn_ap_transport", "nation": "usn", "type": "AP", "name": "Attack Transport (AP/AK)", "year": 1940,
+  "ships": ["George F. Elliott", "Barnett", "McCawley", "Hunter Liggett", "Fuller", "American Legion", "Heywood", "Neville", "Zeilin", "Libra", "Betelgeuse"],
+  "sources": "DANFS; Friedman, U.S. Amphibious Ships and Craft",
+  "dimensions": { "length": 148.0, "length_wl": 142.0, "beam": 19.0, "draft": 7.5, "mast_height": 30, "lookout_height": 18, "superstructure_height": 13 },
+  "displacement": { "standard": 9000, "full": 14000 },
+  "propulsion": { "max_speed_kn": 16.0, "cruise_speed_kn": 12, "shp": 8500, "accel_kn_per_min": 2.5, "tactical_diameter_m": 700, "shafts": 1 },
+  "crew": 420,
+  "armor": { "belt": 0, "deck": 0, "turret_face": 0, "torpedo_protection": 0.0 },
+  "mounts": [
+    { "id": "1", "weapon": "usn_3in50", "f": 0.08, "arc_min": -140, "arc_max": 140, "style": "open", "armor": 0, "ammo": { "Common": 300 } },
+    { "id": "2", "weapon": "usn_3in50", "f": 0.95, "arc_min": 40, "arc_max": 320, "style": "open", "armor": 0, "ammo": { "Common": 300 } }
+  ],
+  "directors": [ { "id": "main", "role": "main", "rangefinder_m": 1.0, "height": 14, "f": 0.42 } ],
+  "sensors": [ { "id": "usn_lookouts", "height": 18, "f": 0.42 } ],
+  "searchlights": 1, "searchlight_cm": 61, "rcs": 1.1, "reserve_buoyancy": 0.35, "hull_strength": 0.7,
+  "model": {
+    "bow_rake": 0.06, "stern": 0.0, "freeboard_bow": 10.5, "freeboard_mid": 8.5, "freeboard_stern": 8.0,
+    "forecastle_end": 0.0, "fineness": 0.68, "flare": 0.1, "hull_paint": "usn_ms21", "deck_paint": "teak",
+    "parts": [
+      { "type": "deckhouse", "f": 0.47, "len": 34, "wid": 15, "h": 2.8, "levels": 3 },
+      { "type": "bridge", "f": 0.40, "len": 8, "wid": 15, "h": 2.6, "levels": 1, "style": "merchant" },
+      { "type": "funnel", "f": 0.50, "len": 7, "wid": 5.5, "h": 9, "rake": 6 },
+      { "type": "mast", "f": 0.22, "h": 22, "rake": 4, "style": "derrick" },
+      { "type": "mast", "f": 0.75, "h": 20, "rake": 4, "style": "derrick" },
+      { "type": "boat", "f": 0.45, "y": 7.2, "z": 5.8, "len": 11 }, { "type": "boat", "f": 0.53, "y": 7.2, "z": 5.8, "len": 11 },
+      { "type": "boat", "f": 0.45, "y": -7.2, "z": 5.8, "len": 11 }, { "type": "boat", "f": 0.53, "y": -7.2, "z": 5.8, "len": 11 }
+    ]
+  }
+}

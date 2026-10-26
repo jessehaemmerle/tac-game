@@ -1,0 +1,41 @@
+{
+  "id": "usn_dd_fletcher", "nation": "usn", "type": "DD", "name": "Fletcher", "year": 1942,
+  "ships": ["Fletcher", "O'Bannon", "Nicholas", "Radford", "Jenkins", "La Vallette", "DeHaven", "Saufley"],
+  "sources": "Friedman, U.S. Destroyers; navweaps.com; DANFS",
+  "dimensions": { "length": 114.8, "length_wl": 112.5, "beam": 12.1, "draft": 4.2, "mast_height": 28, "lookout_height": 18, "superstructure_height": 10 },
+  "displacement": { "standard": 2050, "full": 2924 },
+  "propulsion": { "max_speed_kn": 36.5, "cruise_speed_kn": 15, "shp": 60000, "accel_kn_per_min": 8.5, "tactical_diameter_m": 680, "shafts": 2 },
+  "crew": 329,
+  "armor": { "belt": 0, "deck": 0, "turret_face": 0, "torpedo_protection": 0.0 },
+  "mounts": [
+    { "id": "51", "weapon": "usn_5in38", "f": 0.12, "arc_min": -150, "arc_max": 150, "style": "dp_single", "armor": 3, "ammo": { "Common": 330, "Starshell": 30 } },
+    { "id": "52", "weapon": "usn_5in38", "f": 0.19, "superfiring": true, "arc_min": -150, "arc_max": 150, "style": "dp_single", "armor": 3, "ammo": { "Common": 330, "Starshell": 30 } },
+    { "id": "53", "weapon": "usn_5in38", "f": 0.67, "superfiring": true, "raise": 0.8, "arc_min": 30, "arc_max": 330, "style": "dp_single", "armor": 3, "ammo": { "Common": 330, "Starshell": 30 } },
+    { "id": "54", "weapon": "usn_5in38", "f": 0.765, "superfiring": true, "arc_min": 30, "arc_max": 330, "style": "dp_single", "armor": 3, "ammo": { "Common": 330, "Starshell": 30 } },
+    { "id": "55", "weapon": "usn_5in38", "f": 0.86, "arc_min": 30, "arc_max": 330, "style": "dp_single", "armor": 3, "ammo": { "Common": 330, "Starshell": 30 } }
+  ],
+  "torpedo_mounts": [
+    { "id": "T1", "weapon": "usn_mk15", "tubes": 5, "f": 0.445, "arc_min": 35, "arc_max": 145, "mirrored": true, "reloads": 0 },
+    { "id": "T2", "weapon": "usn_mk15", "tubes": 5, "f": 0.575, "arc_min": 35, "arc_max": 145, "mirrored": true, "reloads": 0 }
+  ],
+  "directors": [ { "id": "main", "role": "main", "rangefinder_m": 4.6, "height": 16, "radar": "usn_fd_mk4", "f": 0.245 } ],
+  "sensors": [ { "id": "usn_lookouts", "height": 18, "f": 0.245 }, { "id": "usn_sg", "height": 26, "f": 0.28 }, { "id": "usn_sc", "height": 28, "f": 0.28 } ],
+  "searchlights": 1, "searchlight_cm": 61, "depth_charges": 28, "rcs": 0.36, "reserve_buoyancy": 0.5, "hull_strength": 0.85,
+  "model": {
+    "bow_rake": 0.04, "stern": 0.0, "freeboard_bow": 6.6, "freeboard_mid": 4.6, "freeboard_stern": 3.2,
+    "forecastle_end": 0.0, "fineness": 0.48, "flare": 0.22, "hull_paint": "usn_ms21", "deck_paint": "usn_deck_blue",
+    "parts": [
+      { "type": "bridge", "f": 0.245, "len": 9, "wid": 8.5, "h": 2.6, "levels": 3, "style": "usn_dd" },
+      { "type": "director", "f": 0.24, "z": 9.5, "len": 3.2, "wid": 4.6, "h": 2.6, "ref": "usn_fd_mk4" },
+      { "type": "mast", "f": 0.28, "h": 21, "rake": 3 },
+      { "type": "radar", "f": 0.28, "z": 19, "len": 0.5, "wid": 3.6, "h": 2.6, "style": "sc", "ref": "usn_sc" },
+      { "type": "radar", "f": 0.28, "z": 16.5, "len": 1.0, "wid": 1.6, "h": 1.2, "style": "sg", "ref": "usn_sg" },
+      { "type": "funnel", "f": 0.37, "len": 5.4, "wid": 3.6, "h": 7.4, "rake": 3 },
+      { "type": "funnel", "f": 0.51, "len": 5.4, "wid": 3.6, "h": 7.0, "rake": 3 },
+      { "type": "deckhouse", "f": 0.44, "len": 26, "wid": 6.5, "h": 2.4 },
+      { "type": "deckhouse", "f": 0.68, "len": 12, "wid": 6.0, "h": 2.4 },
+      { "type": "searchlight", "f": 0.45, "z": 6.0 },
+      { "type": "boat", "f": 0.33, "y": 4.4, "z": 1.2, "len": 7.5 }
+    ]
+  }
+}

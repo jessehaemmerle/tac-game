@@ -1,0 +1,210 @@
+{
+  "id": "ijn_dd_shiratsuyu",
+  "nation": "ijn",
+  "type": "DD",
+  "name": "Shiratsuyu",
+  "year": 1936,
+  "ships": [
+    "Shiratsuyu",
+    "Shigure",
+    "Murasame",
+    "Yudachi",
+    "Harusame",
+    "Samidare",
+    "Umikaze",
+    "Yamakaze",
+    "Kawakaze",
+    "Suzukaze"
+  ],
+  "sources": "Jentschura et al., Warships of the IJN 1869-1945; Whitley, Destroyers of World War Two; navweaps.com; combinedfleet.com",
+  "dimensions": {
+    "length": 111.0,
+    "length_wl": 108.225,
+    "beam": 9.9,
+    "draft": 3.5,
+    "mast_height": 24,
+    "lookout_height": 15,
+    "superstructure_height": 8.5
+  },
+  "displacement": {
+    "standard": 1685,
+    "full": 1980
+  },
+  "propulsion": {
+    "max_speed_kn": 34.0,
+    "cruise_speed_kn": 16,
+    "shp": 42000,
+    "accel_kn_per_min": 9.0,
+    "tactical_diameter_m": 610.5,
+    "shafts": 2
+  },
+  "crew": 226,
+  "armor": {
+    "belt": 0,
+    "deck": 0,
+    "turret_face": 0,
+    "torpedo_protection": 0.0
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "ijn_127_50",
+      "barrels": 2,
+      "f": 0.13,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "dd_turret",
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "ijn_127_50",
+      "barrels": 2,
+      "f": 0.71,
+      "arc_min": 30,
+      "arc_max": 330,
+      "superfiring": true,
+      "style": "dd_turret",
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "3",
+      "weapon": "ijn_127_50",
+      "barrels": 1,
+      "f": 0.82,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "dd_turret1",
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 20
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "ijn_type93",
+      "tubes": 4,
+      "f": 0.42,
+      "arc_min": 40,
+      "arc_max": 140,
+      "mirrored": true,
+      "reloads": 4,
+      "reload_s": 1200
+    },
+    {
+      "id": "T2",
+      "weapon": "ijn_type93",
+      "tubes": 4,
+      "f": 0.575,
+      "arc_min": 40,
+      "arc_max": 140,
+      "mirrored": true,
+      "reloads": 4,
+      "reload_s": 1200
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 3.0,
+      "height": 13,
+      "f": 0.24
+    }
+  ],
+  "sensors": [
+    {
+      "id": "ijn_lookouts",
+      "height": 15,
+      "f": 0.24
+    }
+  ],
+  "searchlights": 1,
+  "searchlight_cm": 90,
+  "depth_charges": 18,
+  "rcs": 0.3,
+  "reserve_buoyancy": 0.42,
+  "hull_strength": 0.72,
+  "model": {
+    "bow_rake": 0.05,
+    "stern": 0.0,
+    "freeboard_bow": 6.0,
+    "freeboard_mid": 4.2,
+    "freeboard_stern": 2.6,
+    "forecastle_end": 0.27,
+    "forecastle_drop": 2.3,
+    "fineness": 0.47,
+    "flare": 0.32,
+    "hull_paint": "ijn_kure_grey",
+    "deck_paint": "ijn_linoleum",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.24,
+        "len": 7,
+        "wid": 7,
+        "h": 2.5,
+        "levels": 3,
+        "style": "ijn_dd"
+      },
+      {
+        "type": "tripod",
+        "f": 0.27999999999999997,
+        "h": 18,
+        "rake": 7
+      },
+      {
+        "type": "funnel",
+        "f": 0.34,
+        "len": 5.0,
+        "wid": 3.4,
+        "h": 7.2,
+        "rake": 9
+      },
+      {
+        "type": "funnel",
+        "f": 0.49,
+        "len": 4.2,
+        "wid": 3.0,
+        "h": 6.8,
+        "rake": 9
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.47,
+        "len": 24.42,
+        "wid": 5.5,
+        "h": 2.2
+      },
+      {
+        "type": "searchlight",
+        "f": 0.46,
+        "z": 4.5
+      },
+      {
+        "type": "mast",
+        "f": 0.68,
+        "h": 12,
+        "rake": 7
+      },
+      {
+        "type": "boat",
+        "f": 0.4,
+        "y": 3.8,
+        "z": 1.2,
+        "len": 7
+      }
+    ]
+  }
+}

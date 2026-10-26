@@ -1,0 +1,50 @@
+{
+  "id": "usn_ca_pensacola", "nation": "usn", "type": "CA", "name": "Pensacola", "year": 1930,
+  "ships": ["Pensacola", "Salt Lake City"],
+  "sources": "Friedman, U.S. Cruisers; navweaps.com; DANFS",
+  "dimensions": { "length": 178.5, "length_wl": 173.7, "beam": 19.9, "draft": 6.7, "mast_height": 41, "lookout_height": 31, "superstructure_height": 15 },
+  "displacement": { "standard": 9100, "full": 11512 },
+  "propulsion": { "max_speed_kn": 32.5, "cruise_speed_kn": 15, "shp": 107000, "accel_kn_per_min": 5.0, "tactical_diameter_m": 820, "shafts": 4 },
+  "crew": 1054,
+  "armor": { "belt": 102, "belt_magazine": 102, "deck": 44, "turret_face": 64, "turret_roof": 51, "barbette": 19, "conning_tower": 32, "torpedo_protection": 0.08 },
+  "mounts": [
+    { "id": "1", "weapon": "usn_8in55", "barrels": 2, "f": 0.175, "arc_min": -150, "arc_max": 150, "ammo": { "AP": 100, "Common": 50 } },
+    { "id": "2", "weapon": "usn_8in55", "barrels": 3, "f": 0.24, "superfiring": true, "arc_min": -150, "arc_max": 150, "ammo": { "AP": 100, "Common": 50 } },
+    { "id": "3", "weapon": "usn_8in55", "barrels": 3, "f": 0.745, "superfiring": true, "arc_min": 30, "arc_max": 330, "ammo": { "AP": 100, "Common": 50 } },
+    { "id": "4", "weapon": "usn_8in55", "barrels": 2, "f": 0.81, "arc_min": 30, "arc_max": 330, "ammo": { "AP": 100, "Common": 50 } },
+    { "id": "S1", "weapon": "usn_5in25", "f": 0.42, "y": 7.6, "director": "sec", "arc_min": 0, "arc_max": 180, "style": "open", "armor": 0, "ammo": { "Common": 260, "Starshell": 40 } },
+    { "id": "S2", "weapon": "usn_5in25", "f": 0.42, "y": -7.6, "director": "sec", "arc_min": -180, "arc_max": 0, "style": "open", "armor": 0, "ammo": { "Common": 260, "Starshell": 40 } },
+    { "id": "S3", "weapon": "usn_5in25", "f": 0.49, "y": 8.0, "director": "sec", "arc_min": 0, "arc_max": 180, "style": "open", "armor": 0, "ammo": { "Common": 260, "Starshell": 40 } },
+    { "id": "S4", "weapon": "usn_5in25", "f": 0.49, "y": -8.0, "director": "sec", "arc_min": -180, "arc_max": 0, "style": "open", "armor": 0, "ammo": { "Common": 260, "Starshell": 40 } },
+    { "id": "S5", "weapon": "usn_5in25", "f": 0.56, "y": 7.6, "director": "sec", "arc_min": 0, "arc_max": 180, "style": "open", "armor": 0, "ammo": { "Common": 260, "Starshell": 40 } },
+    { "id": "S6", "weapon": "usn_5in25", "f": 0.56, "y": -7.6, "director": "sec", "arc_min": -180, "arc_max": 0, "style": "open", "armor": 0, "ammo": { "Common": 260, "Starshell": 40 } }
+  ],
+  "directors": [
+    { "id": "main", "role": "main", "rangefinder_m": 5.0, "height": 36, "radar": "usn_fc_mk3", "f": 0.31 },
+    { "id": "sec", "role": "secondary", "rangefinder_m": 3.0, "height": 22, "f": 0.34 }
+  ],
+  "sensors": [ { "id": "usn_lookouts", "height": 31, "f": 0.31 }, { "id": "usn_sc", "height": 41, "f": 0.31 } ],
+  "searchlights": 4, "searchlight_cm": 91, "floatplanes": 4, "rcs": 1.0, "reserve_buoyancy": 0.5, "hull_strength": 0.9,
+  "model": {
+    "bow_rake": 0.03, "stern": 0.0, "freeboard_bow": 8.8, "freeboard_mid": 5.6, "freeboard_stern": 4.6,
+    "forecastle_end": 0.0, "fineness": 0.52, "flare": 0.15, "hull_paint": "usn_ms21", "deck_paint": "usn_deck_blue",
+    "parts": [
+      { "type": "bridge", "f": 0.30, "len": 13, "wid": 11, "h": 3.0, "levels": 3, "style": "usn" },
+      { "type": "tripod", "f": 0.315, "h": 36, "rake": 0 },
+      { "type": "director", "f": 0.315, "z": 29, "len": 3.5, "wid": 5.0, "h": 2.6, "ref": "usn_fc_mk3" },
+      { "type": "radar", "f": 0.315, "z": 35, "len": 0.6, "wid": 4.6, "h": 3.4, "style": "sc", "ref": "usn_sc" },
+      { "type": "funnel", "f": 0.43, "len": 6.5, "wid": 4.6, "h": 11.0, "rake": 0 },
+      { "type": "funnel", "f": 0.50, "len": 6.5, "wid": 4.6, "h": 10.5, "rake": 0 },
+      { "type": "deckhouse", "f": 0.47, "len": 26, "wid": 10, "h": 2.8 },
+      { "type": "catapult", "f": 0.545, "y": 6.0, "len": 15 },
+      { "type": "catapult", "f": 0.545, "y": -6.0, "len": 15 },
+      { "type": "aircraft", "f": 0.545, "y": 6.0, "z": 2.2, "style": "soc" },
+      { "type": "tripod", "f": 0.60, "h": 24, "rake": 0 },
+      { "type": "crane", "f": 0.58, "h": 12, "len": 13 },
+      { "type": "deckhouse", "f": 0.665, "len": 9, "wid": 7, "h": 2.6, "levels": 2 },
+      { "type": "director", "f": 0.66, "z": 7.0, "len": 3.0, "wid": 4.0, "h": 2.3 },
+      { "type": "searchlight", "f": 0.465, "y": 3.2, "z": 8.0 }, { "type": "searchlight", "f": 0.465, "y": -3.2, "z": 8.0 },
+      { "type": "boat", "f": 0.46, "y": 5.5, "z": 2.8, "len": 10 }, { "type": "boat", "f": 0.46, "y": -5.5, "z": 2.8, "len": 10 }
+    ]
+  }
+}

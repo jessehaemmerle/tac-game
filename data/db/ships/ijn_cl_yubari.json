@@ -1,0 +1,218 @@
+{
+  "id": "ijn_cl_yubari",
+  "nation": "ijn",
+  "type": "CL",
+  "name": "Yubari",
+  "year": 1923,
+  "ships": [
+    "Yubari"
+  ],
+  "sources": "Lacroix & Wells, Japanese Cruisers of the Pacific War; Jentschura et al., Warships of the IJN 1869-1945; navweaps.com; combinedfleet.com",
+  "dimensions": {
+    "length": 139.5,
+    "length_wl": 138.68,
+    "beam": 12.04,
+    "draft": 3.58,
+    "mast_height": 26,
+    "lookout_height": 19,
+    "superstructure_height": 12
+  },
+  "displacement": {
+    "standard": 2890,
+    "full": 3587
+  },
+  "propulsion": {
+    "max_speed_kn": 35.5,
+    "cruise_speed_kn": 14,
+    "shp": 57900,
+    "accel_kn_per_min": 7.0,
+    "tactical_diameter_m": 650,
+    "shafts": 3
+  },
+  "crew": 328,
+  "armor": {
+    "belt": 38,
+    "belt_magazine": 38,
+    "deck": 25,
+    "turret_face": 0,
+    "conning_tower": 0,
+    "torpedo_protection": 0.0
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "ijn_14cm50",
+      "barrels": 2,
+      "f": 0.15,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "turret2",
+      "armor": 0,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.21,
+      "arc_min": -150,
+      "arc_max": 150,
+      "superfiring": true,
+      "style": "shield",
+      "armor": 8,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "3",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.765,
+      "arc_min": 30,
+      "arc_max": 330,
+      "superfiring": true,
+      "style": "shield",
+      "armor": 8,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "4",
+      "weapon": "ijn_14cm50",
+      "barrels": 2,
+      "f": 0.83,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "turret2",
+      "armor": 0,
+      "ammo": {
+        "Common": 120,
+        "Starshell": 30
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "ijn_type8",
+      "tubes": 2,
+      "f": 0.4,
+      "arc_min": 40,
+      "arc_max": 140,
+      "mirrored": true,
+      "reloads": 2,
+      "reload_s": 1200
+    },
+    {
+      "id": "T2",
+      "weapon": "ijn_type8",
+      "tubes": 2,
+      "f": 0.585,
+      "arc_min": 40,
+      "arc_max": 140,
+      "mirrored": true,
+      "reloads": 2,
+      "reload_s": 1200
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 4.5,
+      "height": 18,
+      "f": 0.27
+    }
+  ],
+  "sensors": [
+    {
+      "id": "ijn_lookouts",
+      "height": 19,
+      "f": 0.27
+    }
+  ],
+  "searchlights": 2,
+  "searchlight_cm": 90,
+  "rcs": 0.45,
+  "reserve_buoyancy": 0.45,
+  "hull_strength": 0.8,
+  "model": {
+    "bow_rake": 0.045,
+    "stern": 0.0,
+    "freeboard_bow": 7.4,
+    "freeboard_mid": 5.2,
+    "freeboard_stern": 4.0,
+    "forecastle_end": 0.0,
+    "fineness": 0.48,
+    "flare": 0.28,
+    "hull_paint": "ijn_kure_grey",
+    "deck_paint": "ijn_linoleum",
+    "parts": [
+      {
+        "type": "pagoda",
+        "f": 0.275,
+        "len": 9,
+        "wid": 8,
+        "h": 2.8,
+        "levels": 4,
+        "taper": 0.3,
+        "style": "ijn"
+      },
+      {
+        "type": "tripod",
+        "f": 0.31,
+        "h": 20,
+        "rake": 8
+      },
+      {
+        "type": "funnel",
+        "f": 0.44,
+        "f2": 0.5,
+        "len": 8.0,
+        "wid": 4.6,
+        "h": 10.5,
+        "rake": 18,
+        "style": "trunked"
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.47,
+        "len": 28,
+        "wid": 7.5,
+        "h": 2.4
+      },
+      {
+        "type": "mast",
+        "f": 0.7,
+        "h": 16,
+        "rake": 8
+      },
+      {
+        "type": "searchlight",
+        "f": 0.52,
+        "z": 5.5
+      },
+      {
+        "type": "boat",
+        "f": 0.47,
+        "y": 4.4,
+        "z": 1.3,
+        "len": 8
+      },
+      {
+        "type": "boat",
+        "f": 0.47,
+        "y": -4.4,
+        "z": 1.3,
+        "len": 8
+      }
+    ]
+  }
+}
