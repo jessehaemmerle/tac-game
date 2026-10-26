@@ -78,15 +78,12 @@ double Terrain::heightAt(const Vec2& p) const {
 
 double Terrain::distanceToLand(const Vec2& p, double maxDist) const {
     if (landDistance_.empty()) return maxDist;
-    double fx = (p.x - min_.x) / ldCell_, fy = (max_.y - p.y) / ldCell_;
-    int x = int(fx), y = int(fy);
-    if (x < 0 || y < 0 || x >= ldW_ || y >= ldH_) {
-        // Outside the map: distance to the map edge plus the edge value is a fair lower bound.
-        double dx = std::max({min_.x - p.x, 0.0, p.x - max_.x}), dy = std::max({min_.y - p.y, 0.0, p.y - max_.y});
-        Vec2 c{clamp(p.x, min_.x, max_.x), clamp(p.y, min_.y, max_.y)};
-        return std::min(maxDist, std::sqrt(dx * dx + dy * dy) + distanceToLand(c, maxDist));
-    }
-    return std::min(maxDist, double(landDistance_[size_t(y) * ldW_ + x]));
+    // Outside the map the distance to the edge is added to the nearest edge cell's value.
+    double dx = std::max({min_.x - p.x, 0.0, p.x - max_.x}), dy = std::max({min_.y - p.y, 0.0, p.y - max_.y});
+    double outside = std::sqrt(dx * dx + dy * dy);
+    int x = clamp(int((p.x - min_.x) / ldCell_), 0, ldW_ - 1);
+    int y = clamp(int((max_.y - p.y) / ldCell_), 0, ldH_ - 1);
+    return std::min(maxDist, outside + double(landDistance_[size_t(y) * ldW_ + x]));
 }
 
 bool Terrain::lineOfSight(const Vec3& a, const Vec3& b) const {

@@ -6,7 +6,7 @@
 namespace it::sim::damage {
 namespace {
 
-double crewRate(const Ship& s) { return crewFactor(s.crew) * (1.0 - 0.7 * s.dmg.crewLoss); }
+double crewRate(const Ship& s) { return crewFactor(s.crew) * (1.0 - 0.7 * s.dmg.crewLoss) * (0.6 + 0.4 * s.readiness); }
 
 double fOf(const Ship& s, double localX) { return clamp(0.5 - localX / s.cls->length, 0.0, 1.0); }
 
@@ -109,7 +109,11 @@ void damageNear(World& w, Ship& s, const Vec3& p, double radius, double severity
         if (high && dd < radius * 1.6) systemHit(w, s, sen.health, severity * 0.7, "system.sensor");
     }
     double f = fOf(s, p.x);
-    if (inside && f > 0.35 && f < 0.65 && p.z < c.model.freeboardMid) systemHit(w, s, s.dmg.propulsion, severity * 0.35, "system.propulsion");
+    if (inside && f > 0.35 && f < 0.65 && p.z < c.model.freeboardMid) {
+        systemHit(w, s, s.dmg.propulsion, severity * 0.35, "system.propulsion");
+        systemHit(w, s, s.dmg.power, severity * 0.3, "system.power");  // generators, switchboards
+    }
+    if (inside && p.z < c.model.freeboardMid + 3.0) s.dmg.power = std::max(0.0, s.dmg.power - severity * 0.04);  // cut cables
     if (inside && f > 0.88 && p.z < 1.0) {
         systemHit(w, s, s.dmg.steering, severity * 0.6, "system.steering");
         if (s.dmg.steering < 0.3 && !s.dmg.rudderJammed && w.rng().chance(0.5)) {
@@ -278,11 +282,11 @@ void shellHit(World& w, Ship& s, const Shell& sh, const HitInfo& hit) {
         s.dmg.list += (hit.local.y >= 0 ? 1.0 : -1.0) * area * 2.0;
     }
     if (inside && nearMagazine && hit.local.z < c.model.freeboardMid && g.caliberMm >= 120) {
-        double p = 0.012 + 0.006 * sd.bursterKg;
+        double p = 0.004 + 0.002 * sd.bursterKg;
         if (s.cls->size() == SizeClass::Small) p *= 1.5;
         if (w.rng().chance(p)) magazineExplosion(w, s);
     }
-    if (hit.mount >= 0 && penetrated && g.caliberMm >= 150 && w.rng().chance(0.03)) magazineExplosion(w, s);
+    if (hit.mount >= 0 && penetrated && g.caliberMm >= 150 && w.rng().chance(0.012)) magazineExplosion(w, s);
     if (s.dmg.sunkBy == kNoEntity || w.rng().chance(0.3)) s.dmg.sunkBy = sh.firer;
 
     Event e;
@@ -323,7 +327,10 @@ void torpedoHit(World& w, Ship& s, const Torpedo& t, const Vec2& local) {
     Vec3 p{local.x, local.y, -2.0};
     damageNear(w, s, p, 10.0 + kg / 40.0, 1.0, true, false);
     double f = fOf(s, local.x);
-    if (f > 0.35 && f < 0.65) systemHit(w, s, s.dmg.propulsion, 0.5, "system.propulsion");
+    if (f > 0.35 && f < 0.65) {
+        systemHit(w, s, s.dmg.propulsion, 0.5, "system.propulsion");
+        systemHit(w, s, s.dmg.power, 0.45, "system.power");
+    }
     if (f > 0.85) systemHit(w, s, s.dmg.steering, 0.8, "system.steering");
     if (w.rng().chance(0.3)) startFire(w, s, f, 0.4);
     // Magazine detonations from torpedo hits under turrets.
@@ -388,6 +395,7 @@ void update(World& w, Ship& s, double dt) {
         if (fire.intensity > 0.6 && w.rng().chance(0.002 * dt))
             spread.push_back({clamp(fire.f + w.rng().uniform(-0.08, 0.08), 0.02, 0.98), 0.2});
         d.crewLoss = std::min(1.0, d.crewLoss + fire.intensity * 0.00003 * dt);
+        if (fire.intensity > 0.5) d.power = std::max(0.0, d.power - (fire.intensity - 0.5) * 0.002 * dt);  // burning cables
         d.hullIntegrity -= fire.intensity * 0.00002 * dt;
         if (fire.intensity > 0.5 && w.rng().chance(0.004 * dt)) {
             double lx = (0.5 - fire.f) * c.length;
@@ -427,6 +435,7 @@ void update(World& w, Ship& s, double dt) {
         repair(d.propulsion);
         repair(d.steering);
         repair(d.searchlights);
+        repair(d.power);
         for (auto& m : s.mounts) repair(m.health);
         for (auto& sen : s.sensors) repair(sen.health);
         for (auto& dir : s.directors) repair(dir.health);

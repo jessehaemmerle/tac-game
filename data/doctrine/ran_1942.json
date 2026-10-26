@@ -1,0 +1,13 @@
+// RAN / RN 1942: professional night training, starshells and searchlights, but no radar on Canberra.
+{
+  "id": "ran_1942", "nation": "ran",
+  "aggression": 0.6, "caution": 0.5, "night_preference": 0.55, "initiative": 0.6,
+  "gun_range_night_m": 7000, "gun_range_day_m": 17000,
+  "require_identification": true, "illumination": "starshell", "use_aircraft_flares": false, "chase_salvos": true,
+  "torpedo_first": false, "hold_fire_until_torpedo_impact": false,
+  "torpedo_range_night_m": 4500, "torpedo_range_day_m": 7000, "torpedo_spacing_lengths": 1.0,
+  "reload_and_reattack": false, "torpedoes_per_spread": 4,
+  "reaction_time_s": 12, "report_delay_min_s": 60, "report_delay_max_s": 200, "report_reliability": 0.6, "assume_hostile": 0.4, "evasion_skill": 0.6, "formation": "column", "column_spacing_m": 700,
+  "withdraw_before_dawn_min": 0, "force_ratio_engage": 0.75, "force_ratio_withdraw": 0.45,
+  "target_priority": { "BB": 1.2, "CV": 1.3, "CA": 1.0, "CL": 0.9, "DD": 0.7, "AP": 0.5 }
+}

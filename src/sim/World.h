@@ -10,6 +10,7 @@
 #include "sim/Database.h"
 #include "sim/Environment.h"
 #include "sim/Events.h"
+#include "sim/Group.h"
 #include "sim/Ship.h"
 #include "sim/Terrain.h"
 
@@ -102,6 +103,14 @@ public:
     Terrain& terrain() { return terrain_; }
     const Terrain& terrain() const { return terrain_; }
 
+    Group& addGroup(const std::string& name, Side side, Formation f, double spacing);
+    Group* group(int id);
+    const Group* group(int id) const;
+    std::vector<Group>& groups() { return groups_; }
+    const std::vector<Group>& groups() const { return groups_; }
+    /// First operational member of the group (guide), or nullptr.
+    Ship* guideOf(const Group& g);
+
     // ------------------------------------------------------------------ simulation
     void step();  // advances by kStep
     double time() const { return time_; }
@@ -163,6 +172,7 @@ private:
     void stepFlares(double dt);
     void stepAircraft(double dt);
     void stepCollisions();
+    void updateTrails();
 
     const Database& db_;
     Rng rng_;
@@ -177,6 +187,7 @@ private:
     std::vector<Torpedo> torpedoes_;
     std::vector<Flare> flares_;
     std::vector<AircraftMission> aircraft_;
+    std::vector<Group> groups_;
     std::array<ContactPicture, kSideCount> pictures_{ContactPicture(Side::Allies), ContactPicture(Side::Axis),
                                                      ContactPicture(Side::Neutral)};
     std::vector<Event> events_;

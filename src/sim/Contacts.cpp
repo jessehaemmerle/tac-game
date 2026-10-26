@@ -16,6 +16,14 @@ uint32_t Track::senseOf(EntityId ship, double now, double maxAge) const {
     return 0;
 }
 
+double ContactPicture::reportDelay() {
+    if (!rng_) return reportMin_;
+    double d = rng_->uniform(reportMin_, reportMax_);
+    // Lost or garbled reports: the information reaches the flag much later, through other channels.
+    if (!rng_->chance(reportReliability_)) d += rng_->uniform(300.0, 900.0);
+    return d;
+}
+
 Track* ContactPicture::report(const Measurement& m, double now, bool* created) {
     Track* t = byTruth(m.truth);
     if (created) *created = (t == nullptr);
@@ -28,6 +36,8 @@ Track* ContactPicture::report(const Measurement& m, double now, bool* created) {
         nt.posSigma = m.sigma;
         nt.velSigma = m.hasVelocity ? m.velSigma : 12.0;
         nt.firstSeen = nt.lastSeen = nt.lastUpdate = now;
+        // Gun flashes are seen by everybody nearby; radio reports from aircraft and ships take time.
+        nt.sharedAt = now + ((m.sense & kSenseFlash) ? 15.0 : reportDelay());
         tracks_.push_back(nt);
         t = &tracks_.back();
     } else {
@@ -52,6 +62,7 @@ Track* ContactPicture::report(const Measurement& m, double now, bool* created) {
             t->vel = t->vel + (m.velocity - t->vel) * kv;
             t->velSigma = std::max(0.4, std::sqrt(sqr(t->velSigma) * sqr(m.velSigma) / (sqr(t->velSigma) + sqr(m.velSigma))));
         }
+        if (t->lost) t->sharedAt = std::max(t->sharedAt, now + reportDelay() * 0.5);  // re-acquired: new report
         t->lastUpdate = t->lastSeen = now;
     }
     if (m.level > t->level || (m.level == t->level && m.level >= ClassLevel::TypeKnown && !m.classGuess.empty())) {

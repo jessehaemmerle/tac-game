@@ -20,7 +20,7 @@
       { "kind": "Common", "name": "AAC Mark 28 (55 lb)", "mass_kg": 25.0, "mv": 792, "burster_kg": 3.3 },
       { "kind": "Starshell", "name": "Illum Mark 25", "mass_kg": 24.5, "mv": 640, "burster_kg": 0.0 } ] },
   { "id": "usn_5in25", "name": "5\"/25 Mark 10/13", "nation": "usn", "caliber_mm": 127.0, "calibres": 25,
-    "rof_rpm": 14.0, "elev_max": 85, "elev_min": -10, "traverse_dps": 20, "elev_dps": 14,
+    "rof_rpm": 10.0, "elev_max": 85, "elev_min": -10, "traverse_dps": 20, "elev_dps": 14,
     "max_range_m": 13260, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true,
     "shells": [
       { "kind": "Common", "name": "AAC Mark 31 (54 lb)", "mass_kg": 24.4, "mv": 657, "burster_kg": 3.3 },

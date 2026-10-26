@@ -1,0 +1,16 @@
+{
+  "name": "Ironbottom Sound",
+  "center_lat": -9.219999999999999,
+  "center_lon": 159.95,
+  "width": 1100,
+  "height": 886,
+  "cell_size_m": 100.0,
+  "heights": "ironbottom_sound.r16",
+  "bounds": {
+    "lat_min": -9.62,
+    "lat_max": -8.82,
+    "lon_min": 159.45,
+    "lon_max": 160.45
+  },
+  "attribution": "Terrain Tiles (Mapzen/Tilezen, AWS Open Data): SRTM, GMTED2010, ETOPO1 and others; see https://github.com/tilezen/joerd/blob/master/docs/attribution.md"
+}

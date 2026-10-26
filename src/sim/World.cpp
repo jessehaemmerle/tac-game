@@ -9,7 +9,10 @@
 
 namespace it::sim {
 
-World::World(const Database& db, uint64_t seed) : db_(db), rng_(seed) { terrain_.createFlat(200000.0); }
+World::World(const Database& db, uint64_t seed) : db_(db), rng_(seed) {
+    terrain_.createFlat(200000.0);
+    for (auto& p : pictures_) p.setReporting(20.0, 60.0, 0.9, &rng_);
+}
 
 Ship& World::spawnShip(const ShipClassDef& cls, const std::string& name, Side side, const Vec2& pos, double heading,
                        double speedKn, CrewQuality crew) {
@@ -29,6 +32,26 @@ Ship& World::spawnShip(const ShipClassDef& cls, const std::string& name, Side si
     return *ships_.back();
 }
 
+Group& World::addGroup(const std::string& name, Side side, Formation f, double spacing) {
+    Group g;
+    g.id = int(groups_.size());
+    g.name = name;
+    g.side = side;
+    g.formation = f;
+    g.spacing = spacing;
+    groups_.push_back(g);
+    return groups_.back();
+}
+
+Group* World::group(int id) { return id >= 0 && id < int(groups_.size()) ? &groups_[size_t(id)] : nullptr; }
+const Group* World::group(int id) const { return id >= 0 && id < int(groups_.size()) ? &groups_[size_t(id)] : nullptr; }
+
+Ship* World::guideOf(const Group& g) {
+    for (EntityId id : g.members)
+        if (Ship* s = ship(id); s && s->operational()) return s;
+    return nullptr;
+}
+
 Ship* World::ship(EntityId id) {
     for (auto& s : ships_)
         if (s->id == id) return s.get();
@@ -42,6 +65,27 @@ const Ship* World::ship(EntityId id) const {
 
 void World::emit(Event e) {
     if (e.time == 0) e.time = time_;
+    // Anything violent near a ship sounds general quarters.
+    switch (e.type) {
+        case EventType::ShellHit:
+        case EventType::TorpedoHit:
+        case EventType::TorpedoDud:
+            if (Ship* s = ship(e.b)) s->alert(time_);
+            break;
+        case EventType::UnderFire:
+        case EventType::TorpedoSighted:
+            if (Ship* s = ship(e.a)) s->alert(time_);
+            break;
+        case EventType::StarshellBurst:
+        case EventType::FlareDropped:
+        case EventType::GunFired:
+            for (auto& s : ships_)
+                if (distanceSq(s->pos, e.pos.xy()) < sqr(12000.0)) s->alert(time_ + (s->side == e.side ? 0.0 : 20.0));
+            break;
+        case EventType::ContactNew:
+            break;
+        default: break;
+    }
     events_.push_back(e);
     if (history_.size() < 200000 && e.type != EventType::ShellSplash && e.type != EventType::GunFired) history_.push_back(e);
 }
@@ -105,7 +149,9 @@ double World::illuminationOn(const Ship& target) const {
         L += f.intensity * 0.9 * fade / (1.0 + sqr(d / (f.aircraft ? 1400.0 : 950.0)));
     }
     for (auto& s : ships_) {
-        if (!s->operational() || !s->orders.searchlight || s->searchlightTarget != target.id || s->dmg.searchlights < 0.3) continue;
+        if (!s->operational() || !s->orders.searchlight || s->searchlightTarget != target.id || s->dmg.searchlights < 0.3 ||
+            s->dmg.power < 0.3)
+            continue;
         double d = distance(s->pos, target.pos);
         L += 0.9 * (1.0 - smoothstep(4000.0, 9000.0, d));
     }
@@ -312,6 +358,7 @@ void World::step() {
     ++tick_;
     env_.update(time_, dt);
     stepShips(dt);
+    if (tick_ % 4 == 0) updateTrails();
     for (auto& s : ships_) {
         if (!s->operational()) continue;
         for (auto& sen : s->sensors) {
@@ -319,7 +366,8 @@ void World::step() {
             const SensorDef* def = sen.def ? sen.def->def : nullptr;
             double period = def ? def->sweepPeriod : 5.0;
             sen.nextSweep = time_ + period * rng_.uniform(0.9, 1.1);
-            if (sen.working(time_)) sensors::sweep(*this, *s, sen);
+            bool powered = !(sen.def && sen.def->def && sen.def->def->kind == SensorKind::Radar) || s->dmg.power > 0.4;
+            if (sen.working(time_) && powered) sensors::sweep(*this, *s, sen);
         }
         if (tick_ % 40 == uint64_t(s->id % 40)) sensors::torpedoWatch(*this, *s);
         if (s->orders.searchlight && tick_ % 20 == 0) setSearchlight(*s, true, s->orders.searchlightTrack);
@@ -352,6 +400,11 @@ void World::stepShips(double dt) {
         Ship& s = *sp;
         if (s.dmg.sunk) continue;
         const auto& c = *s.cls;
+        if (s.alertedAt >= 0 && s.readiness < 1.0) {
+            // Manning battle stations takes roughly 3 (elite) to 8 (green) minutes.
+            double t = 480.0 / (crewFactor(s.crew) * crewFactor(s.crew));
+            s.readiness = std::min(1.0, s.readiness + dt / t);
+        }
         double vmax = s.maxSpeedNow();
         if (s.grounded) {
             s.speed = 0;
@@ -393,6 +446,15 @@ void World::stepShips(double dt) {
             damage::grounding(*this, s);
             s.speed = 0;
         }
+    }
+}
+
+void World::updateTrails() {
+    for (auto& g : groups_) {
+        Ship* guide = guideOf(g);
+        if (!guide) continue;
+        if (g.trail.empty() || distance(g.trail.back(), guide->pos) > 40.0) g.trail.push_back(guide->pos);
+        if (g.trail.size() > 600) g.trail.erase(g.trail.begin(), g.trail.begin() + 100);
     }
 }
 

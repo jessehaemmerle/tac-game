@@ -73,13 +73,13 @@ VisualFactors visualRange(const World& w, const Ship& observer, const Ship& targ
     bool night = w.env().ambientLight() < 0.3;
     double optic = 1.0;
     if (optics) optic = night ? optics->nightFactor : 1.0 + (optics->magnification - 7.0) * 0.01;
-    double crew = crewFactor(observer.crew) * (1.0 - 0.5 * observer.dmg.crewLoss);
+    double crew = crewFactor(observer.crew) * (1.0 - 0.5 * observer.dmg.crewLoss) * (0.8 + 0.2 * observer.readiness);
     double r = kDayRangeCruiser * f.size * lightF * f.background * optic * crew;
     // Bow waves and wakes of fast ships catch the eye at night.
     if (night) r *= 1.0 + 0.25 * smoothstep(15.0, 30.0, target.speedKn());
     // Burning ships and searchlights are beacons.
     if (target.dmg.totalFireIntensity() > 0.05) r = std::max(r, 6000.0 + 14000.0 * std::min(1.0, target.dmg.totalFireIntensity()));
-    if (target.orders.searchlight && target.searchlightOnSince >= 0) r = std::max(r, 22000.0);
+    if (target.orders.searchlight && target.searchlightOnSince >= 0 && target.dmg.power > 0.3) r = std::max(r, 22000.0);
 
     const auto& wx = w.env().weather();
     f.weather = w.env().squallTransmission(observer.pos, target.pos);
@@ -96,8 +96,10 @@ double radarRange(const World& w, const Ship& observer, const SensorDef& radar, 
     double horizon = 4120.0 * (std::sqrt(std::max(1.0, antennaHeight)) + std::sqrt(std::max(1.0, target.silhouetteHeight() * 0.6)));
     r = std::min(r, horizon);
     // Land clutter: metric radars in particular could not separate ships close to islands.
-    double dLand = w.terrain().distanceToLand(target.pos, 10000.0);
-    double clutter = radar.landClutter * (1.0 - smoothstep(1200.0, 6000.0, dLand));
+    // Metric sets (wide beams, A-scope displays) are swamped by echoes from land far around the target.
+    bool metric = radar.bearingAccuracyDeg >= 3.0;
+    double dLand = w.terrain().distanceToLand(target.pos, 15000.0);
+    double clutter = radar.landClutter * (1.0 - smoothstep(1200.0, metric ? 11000.0 : 6000.0, dLand));
     if (w.terrain().landBehind(observer.pos, target.pos, 4000.0)) clutter = std::max(clutter, radar.landClutter * 0.6);
     r *= 1.0 - 0.85 * clutter;
     // Radar shadow behind islands.
@@ -153,7 +155,8 @@ void sweep(World& w, Ship& observer, SensorState& sensor) {
             if (!def->surfaceSearch) continue;
             double rr = radarRange(w, observer, *def, sensor.def->height, target);
             if (rr < 50.0 || r > rr * 1.5) continue;
-            if (!w.rng().chance(sweepProbability(r, rr, def->sweepPeriod, 7.0) * clamp(crew, 0.3, 1.0))) continue;
+            double fading = def->bearingAccuracyDeg >= 3.0 ? w.rng().uniform(0.55, 1.0) : 1.0;  // surface lobing of metric sets
+            if (!w.rng().chance(sweepProbability(r, rr * fading, def->sweepPeriod, 7.0) * clamp(crew, 0.3, 1.0))) continue;
             Measurement m = measure(w, observer, target, def->rangeAccuracy, def->bearingAccuracyDeg, kSenseRadar);
             // Blip size gives a rough size class on microwave sets.
             m.level = (def->bearingAccuracyDeg <= 1.5 && r < 0.8 * rr) ? ClassLevel::SizeKnown : ClassLevel::Detected;

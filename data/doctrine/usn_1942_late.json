@@ -1,0 +1,14 @@
+// USN late 1942: SG radar trusted, radar-directed gunfire at long range, destroyers sent ahead for
+// torpedo attacks (Wright's plan at Tassafaronga), quicker decisions.
+{
+  "id": "usn_1942_late", "nation": "usn",
+  "aggression": 0.65, "caution": 0.45, "night_preference": 0.45, "initiative": 0.5,
+  "gun_range_night_m": 10500, "gun_range_day_m": 17000,
+  "require_identification": false, "illumination": "starshell", "use_aircraft_flares": false, "chase_salvos": true,
+  "torpedo_first": false, "hold_fire_until_torpedo_impact": false,
+  "torpedo_range_night_m": 6500, "torpedo_range_day_m": 7000, "torpedo_spacing_lengths": 1.0,
+  "reload_and_reattack": false, "torpedoes_per_spread": 5,
+  "reaction_time_s": 12, "report_delay_min_s": 40, "report_delay_max_s": 150, "report_reliability": 0.7, "assume_hostile": 0.6, "evasion_skill": 0.55, "formation": "column", "column_spacing_m": 900,
+  "withdraw_before_dawn_min": 0, "force_ratio_engage": 0.7, "force_ratio_withdraw": 0.4,
+  "target_priority": { "BB": 1.2, "CV": 1.3, "CA": 1.0, "CL": 0.9, "DD": 0.8, "AP": 1.1 }
+}

@@ -26,6 +26,26 @@ struct Aim {
     Vec2 point;
 };
 
+/// Is the line of fire fouled by a friendly ship? Gunnery officers do not fire through their own line.
+bool lineFouled(const World& w, const Ship& s, const Vec2& from, const Vec2& to) {
+    Vec2 d = to - from;
+    double len = length(d);
+    if (len < 1.0) return false;
+    Vec2 dir = d / len;
+    for (auto& op : w.ships()) {
+        const Ship& o = *op;
+        if (&o == &s || o.side != s.side || !o.alive()) continue;
+        Vec2 rel = o.pos - from;
+        double along = dot(rel, dir);
+        if (along < 0.0 || along > len * 0.92) continue;
+        double across = std::fabs(cross(dir, rel));
+        // Clearance grows with distance: shells pass high over far ships, low over near ones.
+        double clear = o.cls->length * 0.5 * std::fabs(cross(dir, o.forward())) + o.cls->beam + 120.0;
+        if (across < clear && along < 9000.0) return true;
+    }
+    return false;
+}
+
 bool computeAim(const World& w, const Ship& s, const DirectorState& d, const MountState& m, Aim& out, bool starshell) {
     const GunDef* gun = m.def->gun;
     if (!gun) return false;
@@ -55,11 +75,29 @@ bool computeAim(const World& w, const Ship& s, const DirectorState& d, const Mou
     return true;
 }
 
+/// Error of the salvo's mean point of impact: fire-control solution residuals, own roll and laying
+/// errors that do not average out within a salvo. Shared by every shell of the salvo.
+struct SalvoError {
+    double range = 0, deflection = 0;
+};
+
+SalvoError salvoError(World& w, const Ship& s, const DirectorState& d, double range) {
+    double crew = crewRate(s);
+    double base = 0.006 + 0.010 * (1.0 - d.quality);              // fraction of range
+    bool nightOptical = !d.radarRanging && w.env().ambientLight() < 0.3;
+    if (nightOptical) base *= 1.8;  // night, optical ranging on a dark shape or a glare
+    if (s.cls->size() == SizeClass::Small) base *= 1.35;            // lively destroyer platforms
+    base *= 1.0 + 0.12 * std::max(0.0, w.env().weather().seaState - 2.0);
+    base /= std::max(0.45, crew);
+    // Deflection errors grow at night: the director layer has only a silhouette or a searchlight beam to lay on.
+    return {w.rng().normal() * base * range, w.rng().normal() * base * (nightOptical ? 0.65 : 0.35) * range};
+}
+
 void fireMount(World& w, Ship& s, DirectorState& d, MountState& m, const Aim& aim, uint32_t salvoId, EntityId target, bool starshell,
-               ShellKind kind) {
+               ShellKind kind, const SalvoError& se) {
     const GunDef* gun = m.def->gun;
     double crew = crewRate(s);
-    double disp = gun->dispersion * (1.0 / std::max(0.4, crew)) * (1.0 + 0.6 * (1.0 - d.health)) *
+    double disp = gun->dispersion * (1.0 / std::max(0.4, crew)) * (1.0 + 0.6 * (1.0 - d.health)) * (s.dmg.power < 0.3 ? 2.0 : 1.0) *
                   (1.0 + 0.6 * std::min(1.0, std::fabs(s.turnRate) / 1.5)) * (1.0 + 0.4 * (1.0 - m.health));
     double sigmaR = disp * aim.range;
     Vec3 muzzle{s.localToWorld(m.def->x, m.def->y), m.def->z};
@@ -69,10 +107,10 @@ void fireMount(World& w, Ship& s, DirectorState& d, MountState& m, const Aim& ai
         const ShellDef* sd = gun->shell(kind);
         if (!sd) break;
         it->second--;
-        double r = std::max(200.0, aim.range + (starshell ? 1500.0 : 0.0) + w.rng().normal() * sigmaR);
+        double r = std::max(200.0, aim.range + se.range + (starshell ? 1500.0 : 0.0) + w.rng().normal() * sigmaR);
         double elev = aim.elevation, tof;
         if (!gun->elevationForRange(r, elev, tof)) elev = aim.elevation;
-        double az = aim.bearing + w.rng().normal() * (0.3 * sigmaR / std::max(500.0, aim.range)) * kRadToDeg;
+        double az = aim.bearing + (se.deflection + w.rng().normal() * 0.3 * sigmaR) / std::max(500.0, aim.range) * kRadToDeg;
         double mv = sd->muzzleVelocity * (1.0 + w.rng().normal() * 0.003);
         Shell sh;
         sh.firer = s.id;
@@ -90,7 +128,8 @@ void fireMount(World& w, Ship& s, DirectorState& d, MountState& m, const Aim& ai
         if (Salvo* sv = w.salvo(salvoId)) sv->inFlight++;
         s.stats.shellsFired++;
     }
-    double rof = gun->rofRpm * crew * (0.5 + 0.5 * m.health);
+    // Without power the mounts are trained, elevated and loaded by hand in local control.
+    double rof = gun->rofRpm * crew * (0.5 + 0.5 * m.health) * (0.25 + 0.75 * s.readiness) * (0.3 + 0.7 * s.dmg.power);
     double reload = 60.0 / std::max(0.2, rof);
     if (gun->loadingElevationDeg >= 0)
         reload += 2.0 * std::fabs(aim.elevation - gun->loadingElevationDeg) / std::max(1.0, gun->elevationRateDps);
@@ -126,18 +165,19 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
         d.trackTime = 0;
         d.rangeCorrection = d.deflectionCorrection = 0;
         d.salvosAtTarget = 0;
+        d.straddled = false;
     }
     double r = distance(s.pos, tgt->pos);
     if (now - d.lastMeasure >= 1.0) {
         bool radarOk = false;
-        if (d.def->radarDef && d.health > 0.5) {
+        if (d.def->radarDef && d.radarFitted && d.health > 0.5 && s.dmg.power > 0.4) {
             double rr = sensors::radarRange(w, s, *d.def->radarDef, d.def->height, *tgt);
             radarOk = r < rr * 0.9;
         }
         auto vf = sensors::visualRange(w, s, *tgt, lookoutOptics(s), d.def->height);
         bool opticalOk = r < vf.range * 0.85;
         if (radarOk || opticalOk) {
-            double crew = crewRate(s) * (0.5 + 0.5 * d.health);
+            double crew = crewRate(s) * (0.5 + 0.5 * d.health) * (0.5 + 0.5 * s.readiness);
             double rangeSig, brgSig;
             if (radarOk) {
                 rangeSig = d.def->radarDef->rangeAccuracy;
@@ -175,7 +215,8 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
         }
     }
     if (d.tracking) d.trackTime += dt;
-    double conv = 1.0 - std::exp(-d.trackTime / 45.0);
+    double convTime = (!d.radarRanging && w.env().ambientLight() < 0.3) ? 90.0 : 45.0;
+    double conv = 1.0 - std::exp(-d.trackTime / convTime);
     double target = d.tracking ? conv / (1.0 + d.rangeSigma / 250.0) : 0.0;
     d.quality += (target - d.quality) * std::min(1.0, dt / 3.0);
 
@@ -196,12 +237,13 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
             continue;
         }
         double rel = wrap180(aim.bearing - s.heading);
-        m.bears = inArc(rel, m.def->arcMin, m.def->arcMax, m.def->mirrored);
+        m.bears = inArc(rel, m.def->arcMin, m.def->arcMax, m.def->mirrored) &&
+                  !lineFouled(w, s, s.localToWorld(m.def->x, m.def->y), aim.point);
         if (!m.bears) {
             m.onTarget = false;
             continue;
         }
-        double rate = m.def->gun->traverseRateDps * (0.5 + 0.5 * m.health);
+        double rate = m.def->gun->traverseRateDps * (0.5 + 0.5 * m.health) * (0.25 + 0.75 * s.dmg.power);
         m.train = driveAngle(m.train, rel, rate + std::fabs(s.turnRate), dt);
         m.elevation += clamp(aim.elevation - m.elevation, -m.def->gun->elevationRateDps * dt, m.def->gun->elevationRateDps * dt);
         m.onTarget = std::fabs(angleDiff(m.train, rel)) < 0.5 && std::fabs(aim.elevation - m.elevation) < 0.3;
@@ -214,8 +256,10 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
             aims.push_back({mi, aim});
         }
     }
-    if (!allowed || !freshSolution || bearing == 0 || aims.empty()) return;
+    if (!allowed || !freshSolution || bearing == 0 || aims.empty() || s.readiness < 0.6) return;
     double minInterval = d.illuminate ? 25.0 : 2.0;
+    // Ladder / bracket: until a straddle is seen, wait for the fall of shot before the next salvo.
+    if (!d.illuminate && !d.straddled) minInterval = std::max(minInterval, d.lastSalvoTof + 3.0);
     if (now - d.lastSalvo < minInterval) return;
     bool full = ready == bearing;
     bool partial = ready * 2 >= bearing && now - d.lastSalvo > 60.0 / 1.5;
@@ -227,6 +271,7 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
     sv.target = tgt->id;
     w.salvos().push_back(sv);
     double maxCal = 0;
+    SalvoError se = salvoError(w, s, d, aims.front().second.range);
     for (auto& [mi, aim] : aims) {
         MountState& m = s.mounts[mi];
         bool star = d.illuminate && m.ammo.count(ShellKind::Starshell) && m.ammo[ShellKind::Starshell] > 0;
@@ -235,7 +280,7 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
             for (auto& [k, n] : m.ammo)
                 if (n > 0 && k != ShellKind::Starshell) kind = k;
         }
-        fireMount(w, s, d, m, aim, sv.id, tgt->id, star, kind);
+        fireMount(w, s, d, m, aim, sv.id, tgt->id, star, kind, se);
         maxCal = std::max(maxCal, m.def->gun->caliberMm);
         Event e;
         e.type = EventType::GunFired;
@@ -251,6 +296,7 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
     }
     (void)wanted;
     d.lastSalvo = now;
+    d.lastSalvoTof = aims.front().second.tof;
     d.salvoSeq = sv.id;
     d.salvosAtTarget++;
     s.stats.salvos++;
@@ -333,6 +379,8 @@ void salvoLanded(World& w, Salvo& sv) {
     double noise = (d.radarRanging ? 30.0 : 60.0) + 0.004 * range;
     double obsR = meanR + w.rng().normal() * noise, obsD = meanD + w.rng().normal() * noise * 0.5;
     if (sv.hits > 0) obsR *= 0.5;  // hits confirm the range
+    if (sv.overs > 0 && sv.shorts > 0) d.straddled = true;
+    if (std::fabs(obsR) > 600.0) d.straddled = false;  // lost the range again
     double gain = clamp(0.6 * crew, 0.3, 0.7);
     d.rangeCorrection -= gain * obsR;
     d.deflectionCorrection -= gain * obsD;

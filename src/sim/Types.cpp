@@ -1,4 +1,5 @@
 #include "sim/Types.h"
+#include "sim/Group.h"
 
 #include <algorithm>
 #include <cctype>
@@ -134,6 +135,22 @@ SensorKind sensorKindFromString(const std::string& str) {
     if (s == "sonar") return SensorKind::Sonar;
     if (s == "radar_detector") return SensorKind::RadarDetector;
     return SensorKind::Radar;
+}
+
+const char* formationKey(Formation f) {
+    static const char* k[] = {"formation.column", "formation.line_abreast", "formation.echelon_right", "formation.echelon_left",
+                              "formation.screen", "formation.free"};
+    return k[int(f)];
+}
+
+Formation formationFromString(const std::string& str) {
+    std::string s = lower(str);
+    if (s == "line_abreast" || s == "line") return Formation::LineAbreast;
+    if (s == "echelon_right") return Formation::EchelonRight;
+    if (s == "echelon_left") return Formation::EchelonLeft;
+    if (s == "screen") return Formation::Screen;
+    if (s == "free") return Formation::Free;
+    return Formation::Column;
 }
 
 }  // namespace it::sim

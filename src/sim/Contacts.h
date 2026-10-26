@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "core/Math.h"
+#include "core/Random.h"
 #include "sim/Types.h"
 
 namespace it::sim {
@@ -59,6 +60,9 @@ struct Track {
     std::vector<Holder> holders;
     // Observations the side has made: did the contact fire torpedoes / guns recently?
     double lastFlash = -1e9;
+    /// When the flag (side level) learns of this track via radio / signal reports. Ships holding the
+    /// contact know it immediately; everyone else only after the report gets through.
+    double sharedAt = 0;
 
     double age(double now) const { return now - lastSeen; }
     double courseEstimate() const { return bearingOf(vel); }
@@ -77,6 +81,13 @@ class ContactPicture {
 public:
     explicit ContactPicture(Side owner = Side::Neutral) : owner_(owner) {}
     Side owner() const { return owner_; }
+    /// Command & control quality: delay range (s) and probability that a contact report gets through.
+    void setReporting(double minDelay, double maxDelay, double reliability, Rng* rng) {
+        reportMin_ = minDelay;
+        reportMax_ = maxDelay;
+        reportReliability_ = reliability;
+        rng_ = rng;
+    }
 
     /// Integrate a sensor measurement. Returns the track and whether it was newly created.
     Track* report(const Measurement& m, double now, bool* created = nullptr);
@@ -94,7 +105,10 @@ public:
     void forget(EntityId truth);
 
 private:
+    double reportDelay();
     Side owner_;
+    double reportMin_ = 20, reportMax_ = 60, reportReliability_ = 0.9;
+    Rng* rng_ = nullptr;
     std::vector<Track> tracks_;
     uint32_t nextId_ = 1;
 };

@@ -51,7 +51,10 @@ struct DirectorState {
     double lastSalvo = -1e9;
     uint32_t salvoSeq = 0;      // id of the last salvo fired (for spotting)
     int salvosAtTarget = 0;
+    bool straddled = false;     // range found: switch from ladder (wait for fall of shot) to rapid fire
+    double lastSalvoTof = 0;
     bool radarRanging = false;
+    bool radarFitted = true;    // per-ship refit state (period variants without FC radar)
     bool illuminate = false;    // secondary directors: fire starshells over the target instead of shells
     bool operational() const { return health > 0.3; }
 };
@@ -78,6 +81,7 @@ struct DamageState {
     double trim = 0;             // deg, + = bow down
     double crewLoss = 0;         // fraction of crew killed/wounded
     double propulsion = 1.0, steering = 1.0, bridge = 1.0, radio = 1.0, searchlights = 1.0, aviation = 1.0;
+    double power = 1.0;  // electrical/hydraulic supply: turrets, directors, radar and searchlights depend on it
     bool rudderJammed = false;
     double jammedRudder = 0;
     std::vector<Fire> fires;
@@ -97,6 +101,10 @@ struct ShipOrders {
     bool searchlight = false;
     uint32_t searchlightTrack = 0;
     bool makeSmoke = false;
+    // Player control
+    bool playerSteering = false;   // ship detached from formation, steered by the player
+    uint32_t playerTarget = 0;     // main battery target chosen by the player (0 = captain's choice)
+    bool playerHoldTorpedoes = true;
 };
 
 struct ShipStats {
@@ -130,6 +138,14 @@ public:
     DamageState dmg;
     ShipOrders orders;
     ShipStats stats;
+
+    // Readiness: 1 = all hands at battle stations (Condition I). Ships cruising at Condition II/III need
+    // minutes after the alarm to man every gun, director and lookout station.
+    double readiness = 1.0;
+    double alertedAt = -1;        // time the alarm was sounded (-1: not alerted)
+    void alert(double now) {
+        if (alertedAt < 0) alertedAt = now;
+    }
 
     double lastFired = -1e9;      // time of last gun discharge (flash visibility)
     double lastFiredCalibre = 0;
