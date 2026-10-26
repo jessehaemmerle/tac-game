@@ -4,17 +4,16 @@
 #include <tuple>
 
 #include "core/FileSystem.h"
-#include "sim/Terrain.h"
 
 namespace it::game {
 namespace {
 
-Vec2 readPoint(const Json& j, const sim::Terrain* terrain, double lat0, double lon0) {
+/// Local metres from a point given as [x, y], {x, y} or {lat, lon} (relative to lat0/lon0, the world origin).
+Vec2 readPoint(const Json& j, double lat0, double lon0) {
     if (j.is_array() && j.size() >= 2) return {j[0].get<double>(), j[1].get<double>()};
     if (j.is_object()) {
         if (j.contains("lat")) {
             double lat = jnum(j, "lat"), lon = jnum(j, "lon");
-            if (terrain && !terrain->empty() && terrain->info().centerLat != 0) return terrain->toLocal(lat, lon);
             return {(lon - lon0) * 111320.0 * std::cos(lat0 * kDegToRad), (lat - lat0) * 110574.0};
         }
         return {jnum(j, "x"), jnum(j, "y")};
@@ -22,10 +21,10 @@ Vec2 readPoint(const Json& j, const sim::Terrain* terrain, double lat0, double l
     return {};
 }
 
-std::vector<Vec2> readPoints(const Json& arr, const sim::Terrain* t, double lat0, double lon0) {
+std::vector<Vec2> readPoints(const Json& arr, double lat0, double lon0) {
     std::vector<Vec2> out;
     if (arr.is_array())
-        for (auto& p : arr) out.push_back(readPoint(p, t, lat0, lon0));
+        for (auto& p : arr) out.push_back(readPoint(p, lat0, lon0));
     return out;
 }
 
@@ -79,9 +78,14 @@ bool loadScenario(const std::string& path, Scenario& sc, std::string* error) {
     }
     sc.defaultPlayer = sim::sideFromString(jstr(j, "default_player", "allies"));
 
-    sim::Terrain terrain;
-    const sim::Terrain* tp = nullptr;
-    if (!sc.terrain.empty() && terrain.load(fs::dataPath(sc.terrain).string())) tp = &terrain;
+    // Geographic positions are relative to the terrain's centre (the world origin). Only its
+    // georeference is needed here - loading the whole height field for every listed mission is not.
+    double lat0 = sc.lat, lon0 = sc.lon;
+    if (!sc.terrain.empty())
+        if (auto tj = loadJsonFile(fs::dataPath(sc.terrain)); tj && tj->contains("center_lat")) {
+            lat0 = jnum(*tj, "center_lat");
+            lon0 = jnum(*tj, "center_lon");
+        }
 
     for (auto& gj : jarr(j, "groups")) {
         ScenarioGroup g;
@@ -98,7 +102,7 @@ bool loadScenario(const std::string& path, Scenario& sc, std::string* error) {
                 g.lat = jnum(p, "lat");
                 g.lon = jnum(p, "lon");
             }
-            g.pos = readPoint(p, tp, sc.lat, sc.lon);
+            g.pos = readPoint(p, lat0, lon0);
         }
         g.course = jnum(gj, "course", 0);
         g.speedKn = jnum(gj, "speed_kn", 15);
@@ -118,11 +122,11 @@ bool loadScenario(const std::string& path, Scenario& sc, std::string* error) {
         }
         const Json& mj = jobj(gj, "mission");
         g.mission.type = ai::missionFromString(jstr(mj, "type", "patrol"));
-        g.mission.waypoints = readPoints(jarr(mj, "waypoints"), tp, sc.lat, sc.lon);
+        g.mission.waypoints = readPoints(jarr(mj, "waypoints"), lat0, lon0);
         g.mission.loop = jbool(mj, "loop", g.mission.type == ai::MissionType::Patrol || g.mission.type == ai::MissionType::Picket);
-        if (mj.contains("objective")) g.mission.objective = readPoint(mj["objective"], tp, sc.lat, sc.lon);
+        if (mj.contains("objective")) g.mission.objective = readPoint(mj["objective"], lat0, lon0);
         g.mission.radius = jnum(mj, "radius", 6000);
-        g.mission.exitRoute = readPoints(jarr(mj, "exit"), tp, sc.lat, sc.lon);
+        g.mission.exitRoute = readPoints(jarr(mj, "exit"), lat0, lon0);
         g.mission.withdrawAtHour = jnum(mj, "withdraw_at_hour", -1);
         g.mission.speedKn = jnum(mj, "speed_kn", g.speedKn);
         g.mission.attackSpeedKn = jnum(mj, "attack_speed_kn", std::max(g.speedKn, 28.0));
@@ -140,7 +144,7 @@ bool loadScenario(const std::string& path, Scenario& sc, std::string* error) {
         o.type = objectiveFromString(jstr(oj, "type"));
         o.value = jnum(oj, "value", 0);
         o.group = jstr(oj, "group");
-        if (oj.contains("area")) o.area = readPoint(oj["area"], tp, sc.lat, sc.lon);
+        if (oj.contains("area")) o.area = readPoint(oj["area"], lat0, lon0);
         o.radius = jnum(oj, "radius", 5000);
         o.points = jnum(oj, "points", 100);
         o.text = jstr(oj, "text", "objective." + sc.id + "." + o.id);

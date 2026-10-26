@@ -276,7 +276,7 @@ void GameUi::drawBriefing() {
         }
         ImGui::NewLine();
     }
-    ImGui::SetNextItemWidth(-1);
+    ImGui::SetNextItemWidth(-(ImGui::CalcTextSize("(?)").x + ImGui::GetStyle().ItemSpacing.x));  // leave room for the help marker
     ImGui::SliderFloat("##skill", &settings.aiSkill, 0.3f, 1.0f, tr("briefing.ai_skill_fmt"));
     helpMarker(tr("briefing.ai_skill_help"));
     const char* crewOpts[] = {tr("briefing.crew_weaker"), tr("briefing.crew_historical"), tr("briefing.crew_stronger")};
