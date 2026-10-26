@@ -1,0 +1,50 @@
+{
+ "size": 512,
+ "layers": [
+  {
+   "layer": 0,
+   "name": "hull_plating",
+   "tile_m": 8.0
+  },
+  {
+   "layer": 1,
+   "name": "superstructure_plating",
+   "tile_m": 4.0
+  },
+  {
+   "layer": 2,
+   "name": "teak_deck",
+   "tile_m": 4.0
+  },
+  {
+   "layer": 3,
+   "name": "linoleum_deck",
+   "tile_m": 4.0
+  },
+  {
+   "layer": 4,
+   "name": "steel_deck",
+   "tile_m": 4.0
+  },
+  {
+   "layer": 5,
+   "name": "canvas",
+   "tile_m": 1.5
+  },
+  {
+   "layer": 6,
+   "name": "gun_metal",
+   "tile_m": 2.0
+  },
+  {
+   "layer": 7,
+   "name": "antifouling",
+   "tile_m": 4.0
+  },
+  {
+   "layer": 8,
+   "name": "grating",
+   "tile_m": 1.0
+  }
+ ]
+}

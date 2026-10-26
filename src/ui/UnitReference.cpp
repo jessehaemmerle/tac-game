@@ -83,14 +83,18 @@ void UnitReference::draw(bool overlay) {
         }
         ImGui::TextDisabled("%s  |  %s  |  %d", nationName(c->nation), shipTypeName(c->type), c->year);
         ImGui::EndGroup();
-        float previewH = std::min(avail * 0.5f, pw * 0.42f);
-        drawPreview(*c, pw * 0.6f, previewH);
-        ImGui::SameLine();
-        ImGui::BeginChild("arcs", {0, previewH + ImGui::GetFrameHeightWithSpacing()}, ImGuiChildFlags_Borders);
-        sectionHeader(tr("unitref.fire_arcs"));
-        drawFireArcs(*c, std::min(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
-        ImGui::EndChild();
-        drawDetails(*c);
+        if (large_) {
+            drawPreview(*c, pw, ImGui::GetContentRegionAvail().y - ImGui::GetFrameHeightWithSpacing() * 1.3f);
+        } else {
+            float previewH = std::min(avail * 0.5f, pw * 0.42f);
+            drawPreview(*c, pw * 0.6f, previewH);
+            ImGui::SameLine();
+            ImGui::BeginChild("arcs", {0, previewH + ImGui::GetFrameHeightWithSpacing()}, ImGuiChildFlags_Borders);
+            sectionHeader(tr("unitref.fire_arcs"));
+            drawFireArcs(*c, std::min(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
+            ImGui::EndChild();
+            drawDetails(*c);
+        }
         ImGui::EndChild();
     }
     ImGui::End();
@@ -132,7 +136,7 @@ void UnitReference::drawList(float) {
 
 void UnitReference::drawPreview(const sim::ShipClassDef& c, float width, float height) {
     ImGui::BeginGroup();
-    uint64_t tex = ui_.svc.shipPreview(c.id, yaw_, pitch_, uint32_t(std::max(64.0f, width)), uint32_t(std::max(64.0f, height)), night_);
+    uint64_t tex = ui_.svc.shipPreview(c.id, view_, uint32_t(std::max(64.0f, width)), uint32_t(std::max(64.0f, height)));
     ImVec2 p = ImGui::GetCursorScreenPos();
     if (tex) ImGui::Image(ImTextureRef(ImTextureID(tex)), {width, height});
     else {
@@ -143,9 +147,18 @@ void UnitReference::drawPreview(const sim::ShipClassDef& c, float width, float h
     if (ImGui::IsItemHovered()) {
         ImGuiIO& io = ImGui::GetIO();
         if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-            yaw_ = float(wrap360(yaw_ + io.MouseDelta.x * 0.4f));
-            pitch_ = std::clamp(pitch_ + io.MouseDelta.y * 0.25f, -5.0f, 85.0f);
+            view_.yaw = float(wrap360(view_.yaw + io.MouseDelta.x * 0.4f));
+            view_.pitch = std::clamp(view_.pitch + io.MouseDelta.y * 0.25f, -5.0f, 85.0f);
         }
+        // Right drag moves the look-at point along the hull and up and down.
+        if (ImGui::IsMouseDragging(ImGuiMouseButton_Right) || ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {
+            // Grab-style: the model follows the mouse. Screen right is (cos yaw, -sin yaw) in (east, north),
+            // the hull runs north-south in the preview and the whole length spans about the view width.
+            float along = std::sin(view_.yaw * float(kDegToRad));
+            view_.focus = std::clamp(view_.focus + io.MouseDelta.x * along * 1.1f / (width * view_.zoom), -0.6f, 0.6f);
+            view_.lift = std::clamp(view_.lift + io.MouseDelta.y * 60.0f / (height * view_.zoom), -10.0f, 40.0f);
+        }
+        if (io.MouseWheel != 0.0f) view_.zoom = std::clamp(view_.zoom * std::pow(1.15f, io.MouseWheel), 1.0f, 25.0f);
     }
     struct Preset {
         const char* key;
@@ -156,12 +169,20 @@ void UnitReference::drawPreview(const sim::ShipClassDef& c, float width, float h
     for (int i = 0; i < 5; ++i) {
         if (i) ImGui::SameLine();
         if (ImGui::Button(tr(presets[i].key))) {
-            yaw_ = presets[i].yaw;
-            pitch_ = presets[i].pitch;
+            view_.yaw = presets[i].yaw;
+            view_.pitch = presets[i].pitch;
+            view_.zoom = 1.0f;
+            view_.focus = view_.lift = 0.0f;
         }
     }
     ImGui::SameLine();
-    ImGui::Checkbox(tr("unitref.night"), &night_);
+    ImGui::Checkbox(tr("unitref.night"), &view_.night);
+    ImGui::SameLine();
+    ImGui::Checkbox(tr("unitref.animate"), &view_.animate);
+    ImGui::SameLine();
+    ImGui::Checkbox(tr("unitref.large"), &large_);
+    ImGui::SameLine();
+    ImGui::TextDisabled("%s", tr("unitref.view_hint"));
     ImGui::EndGroup();
 }
 

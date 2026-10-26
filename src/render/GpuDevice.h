@@ -104,6 +104,8 @@ public:
     bool uploadBuffer(GpuResource& dst, const void* data, uint64_t size, D3D12_RESOURCE_STATES finalState);
     /// Synchronous upload of mip 0 of a 2D texture or of each slice of an array (tightly packed rows and slices).
     bool uploadTexture(GpuResource& dst, const void* data, uint32_t bytesPerPixel, D3D12_RESOURCE_STATES finalState, uint32_t slices = 1);
+    /// Synchronous upload of every subresource (index = slice * mips + mip; tightly packed rows).
+    bool uploadSubresources(GpuResource& dst, const std::vector<const uint8_t*>& data, uint32_t bytesPerPixel, D3D12_RESOURCE_STATES finalState);
     void makeSrv(GpuResource& r, DXGI_FORMAT viewFormat = DXGI_FORMAT_UNKNOWN);
     /// Extra SRV of a single mip level (staging heap index).
     uint32_t makeMipSrv(const GpuResource& r, uint32_t mip);

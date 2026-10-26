@@ -407,6 +407,7 @@ bool Renderer::init(GpuDevice& dev, ShaderLibrary& shaders, const sim::Database&
         dev.device()->CreateShaderResourceView(nullptr, &d, dev.stagingHeap().cpu(P.nullTexArray));
     }
     if (!initOcean(P, dev)) return false;
+    loadShipTextures(P, dev);
     IT_LOG_INFO("Renderer ready: %ux%u, MSAA %ux, shadow %u", dev.width(), dev.height(), P.msaa, s.shadowSize);
     return true;
 }
@@ -825,7 +826,9 @@ void Renderer::render(const Camera& cam, const SceneOptions& opt) {
 }
 
 // ------------------------------------------------------------------------------------------ preview
-uint64_t Renderer::shipPreview(const std::string& classId, float yaw, float pitch, uint32_t w, uint32_t h, bool night) {
+uint64_t Renderer::shipPreview(const std::string& classId, const PreviewParams& view, uint32_t w, uint32_t h) {
+    const float yaw = view.yaw, pitch = view.pitch;
+    const bool night = view.night;
     if (!dev_ || !p_->root || w == 0 || h == 0) return 0;
     auto& P = *p_;
     auto& dev = *dev_;
@@ -853,13 +856,15 @@ uint64_t Renderer::shipPreview(const std::string& classId, float yaw, float pitc
     Aabb b = mesh->bounds;
     Vec3f ext = b.extent();
     double radius = std::max({double(ext.x), double(ext.y), double(ext.z)}) * 1.15 + 2.0;
-    Vec3 target = origin + Vec3{0.0, double(b.center().z) * 0.6, 0.0};
+    // Model x (bow) maps to world +z at heading 0.
+    Vec3 target = origin + Vec3{0.0, double(b.center().z) * 0.6 + view.lift, double(view.focus) * double(cls->length)};
     Camera cam;
     cam.fovY = 30;
     // Fit the hull length horizontally and the masts vertically.
     double aspect = double(w) / double(h);
     double tanY = std::tan(cam.fovY * 0.5 * kDegToRad), tanX = tanY * aspect;
     double dist = std::max({double(ext.x) * 1.12 / tanX, double(ext.z + 4.0) * 1.6 / tanY, double(ext.y) * 3.0 / tanY}) + double(ext.y);
+    dist = std::max(4.0, dist / std::clamp(double(view.zoom), 0.5, 40.0));
     double cp = std::cos(pitch * kDegToRad), sp = std::sin(pitch * kDegToRad);
     Vec3 dir{std::sin(yaw * kDegToRad) * cp, sp, std::cos(yaw * kDegToRad) * cp};
     cam.pos = target - dir * dist;
@@ -867,7 +872,7 @@ uint64_t Renderer::shipPreview(const std::string& classId, float yaw, float pitc
     Vec3 look = target - cam.pos;
     cam.yaw = bearingOf({look.x, look.z});
     cam.pitch = std::atan2(look.y, std::sqrt(look.x * look.x + look.z * look.z)) * kRadToDeg;
-    cam.nearZ = 0.5;
+    cam.nearZ = std::min(0.5, dist * 0.02);
 
     FrameSetup fs;
     fs.camPos = cam.pos;
@@ -906,6 +911,7 @@ uint64_t Renderer::shipPreview(const std::string& classId, float yaw, float pitc
     cmd->SetGraphicsRootDescriptorTable(3, globalTable(P, dev, false, true));
     cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd->SetPipelineState(P.pso.ship.get());
+    bindShipTextures(P, dev);
     Vec4f params{float(std::hash<std::string>{}(classId) % 97), 0.0f, float(cls->length), float(cls->model.freeboardMid)};
     drawShipModel(P, dev, *mesh, world, {0, 0, 0, night ? 1.0f : 0.0f}, params, pose);
     cmd->SetPipelineState(P.pso.ocean.get());

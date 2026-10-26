@@ -28,22 +28,49 @@ struct Material {
     uint32_t packParams() const;
 };
 
-enum class PartKind : uint8_t { Static, Turret, Barrel, TorpedoMount, Searchlight, Radar, Director, Catapult, Aircraft };
+/// How a part moves. Animated parts rotate about their pivot (see render::drawShipModel).
+enum class PartKind : uint8_t {
+    Static,
+    Turret,        // trains with mount `mount`
+    Barrel,        // elevates (and recoils, barrel `sub`) with mount `mount`, child of its turret
+    TorpedoMount,  // trains with torpedo mount `mount`
+    Searchlight,
+    Radar,         // rotating search radar antenna
+    Director,      // main battery director (trains towards its target)
+    Catapult,
+    Aircraft,
+    AAMount,       // light AA mount `mount` (index into the model's AA list): trains
+    AAGuns,        // its guns: elevate, child of the mount
+    Torpedo,       // torpedo `sub` in the tubes of torpedo mount `mount`: slides out on launch, child of the mount
+    Flag,          // ensign: flutters in the vertex shader
+    Propeller,     // spins about its shaft (x axis)
+    Rudder,        // turns about a vertical axis
+};
 
 struct MeshPart {
     std::string name;
     PartKind kind = PartKind::Static;
     int mount = -1;         // index into the class mounts / torpedo mounts this part animates with
     int parent = -1;        // parent part (barrels belong to a turret)
+    int sub = -1;           // barrel or torpedo index within the mount
+    uint8_t lod = 0;        // 0: always drawn, 1: only when near (fittings, railings, rigging), 2: close-ups only
     Vec3f pivot;            // rotation pivot in model space
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     Aabb bounds() const;
 };
 
+/// Cosmetic light AA mount (not simulated): its position for the animation of the guns.
+struct AAMountInfo {
+    Vec3f pos;
+    float baseTrain = 0;  // stowed direction (deg, starboard positive)
+    int barrels = 1;
+};
+
 struct Model {
     std::string name;
     std::vector<MeshPart> parts;
+    std::vector<AAMountInfo> aa;
     Aabb bounds;
     size_t triangleCount() const;
     void computeBounds();
@@ -76,6 +103,21 @@ public:
     /// Cylinder between two points with radius r0 at a and r1 at b.
     void tube(const Vec3f& a, const Vec3f& b, float r0, float r1, int segments, bool caps = true);
     void sphere(const Vec3f& c, float rx, float ry, float rz, int segs = 10, int rings = 6);
+    /// Surface of revolution: profile points (radius, distance along the axis) swept around the axis.
+    void lathe(const Vec3f& base, const Vec3f& axis, const std::vector<Vec2f>& profile, int segments, bool capEnds = true);
+    /// Side walls between two closed rings of equal size (bottom, top); faces whose normals differ by less
+    /// than ~35 degrees are smoothed. Caps are fans (convex rings).
+    void loft(const std::vector<Vec3f>& bottom, const std::vector<Vec3f>& top, bool capTop = true, bool capBottom = false);
+    /// Prism from a top-view outline (counter-clockwise, x/y), z0..z1, the top inset by `inset` metres.
+    void prism(const std::vector<Vec2f>& outline, float z0, float z1, float inset = 0.0f, bool capBottom = false);
+    /// Round tube along a polyline (closed: ring).
+    void polyline(const std::vector<Vec3f>& pts, float radius, int segments, bool closed = false);
+    /// Rectangular bar from a to b (w across, h along `up`).
+    void bar(const Vec3f& a, const Vec3f& b, float w, float h, const Vec3f& up = {0, 0, 1});
+    /// Flat disc facing `n`.
+    void disc(const Vec3f& c, const Vec3f& n, float r, int segments);
+    /// Convex flat polygon (fan).
+    void polygon(const std::vector<Vec3f>& pts);
 
 private:
     MeshPart& p_;
@@ -84,5 +126,13 @@ private:
 
 /// Recompute smooth vertex normals from triangles (for lofted surfaces).
 void computeSmoothNormals(MeshPart& part, uint32_t firstVertex = 0, uint32_t firstIndex = 0);
+
+/// Top-view outline of a rectangle with rounded corners (counter-clockwise), centred on (cx, cy).
+std::vector<Vec2f> roundedRect(float cx, float cy, float len, float wid, float radius, int cornerSegments = 4);
+/// Outline of a rectangle whose forward corners are chamfered (`front` metres back) and whose rear is
+/// rounded (`rear` radius): gunhouses, bridge fronts.
+std::vector<Vec2f> gunhouseOutline(float cx, float cy, float len, float wid, float frontWid, float chamfer, float rearRadius);
+/// Ellipse outline.
+std::vector<Vec2f> ellipseOutline(float cx, float cy, float rx, float ry, int segments);
 
 }  // namespace it::procgen

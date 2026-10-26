@@ -24,7 +24,11 @@ Material mat(Vec3f albedo, float rough, float metal, uint8_t id, float emissive 
     return m;
 }
 
-enum MatId : uint8_t { kHull = 0, kBottom, kBoot, kDeck, kSuper, kMetal, kGlass, kCanvas, kLens, kAircraft, kStrip };
+// Material ids select the texture layer and special shading in data/shaders/ship.hlsl.
+enum MatId : uint8_t {
+    kHull = 0, kBottom, kBoot, kDeck, kSuper, kMetal, kGlass, kCanvas, kLens, kAircraft, kStrip,
+    kDeckLino, kDeckSteel, kGrating, kWood
+};
 
 struct Ctx {
     const sim::ShipClassDef& c;
@@ -33,7 +37,8 @@ struct Ctx {
     Model model;
 
     explicit Ctx(const sim::ShipClassDef& cls)
-        : c(cls), paint(paintScheme(cls.model.hullPaint, cls.model.deckPaint)), L(cls.length), B(cls.beam), T(cls.draft) {}
+        : c(cls), paint(paintScheme(cls.model.hullPaint, cls.model.deckPaint, cls.type != sim::ShipType::DD && cls.type != sim::ShipType::DE)),
+          L(cls.length), B(cls.beam), T(cls.draft) {}
     double x(double u) const { return (0.5 - u) * L; }
     double uOf(double xx) const { return clamp(0.5 - xx / L, 0.0, 1.0); }
     double deck(double u) const { return c.model.deckHeightAt(u); }
@@ -422,7 +427,7 @@ void buildTorpedoMount(Ctx& cx, size_t ti) {
 
 }  // namespace
 
-PaintScheme paintScheme(const std::string& hullPaint, const std::string& deckPaint) {
+PaintScheme paintScheme(const std::string& hullPaint, const std::string& deckPaint, bool plankedDeck) {
     PaintScheme p;
     Vec3f hull = srgb(110, 112, 112), bottom = srgb(110, 40, 32);
     if (hullPaint == "usn_ms21") hull = srgb(66, 74, 86);          // Navy Blue 5-N (Measure 21)
@@ -437,7 +442,12 @@ PaintScheme paintScheme(const std::string& hullPaint, const std::string& deckPai
     p.superstructure = mat(hull * 1.05f, 0.6f, 0.05f, kSuper);
     p.bottom = mat(bottom, 0.8f, 0.0f, kBottom);
     p.boot = mat(srgb(28, 28, 30), 0.7f, 0.0f, kBoot);
-    p.deck = mat(deck, 0.85f, 0.0f, kDeck);
+    // Cruisers kept their wooden planking under the Deck Blue paint; destroyers had bare steel decks.
+    // The IJN laid linoleum on steel, held down by brass strips.
+    uint8_t deckId = kDeck;
+    if (deckPaint == "ijn_linoleum") deckId = kDeckLino;
+    else if (!plankedDeck) deckId = kDeckSteel;
+    p.deck = mat(deck, deckId == kDeck && deckPaint == "teak" ? 0.8f : 0.85f, 0.0f, deckId);
     p.metal = mat(srgb(32, 32, 33), 0.45f, 0.6f, kMetal);
     p.glass = mat(srgb(18, 24, 30), 0.12f, 0.0f, kGlass);
     p.canvas = mat(srgb(168, 166, 156), 0.9f, 0.0f, kCanvas);

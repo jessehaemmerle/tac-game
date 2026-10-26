@@ -116,6 +116,7 @@ struct Renderer::Impl {
     Vec4f terrainRect;
     // Ships
     std::unordered_map<std::string, std::unique_ptr<GpuMesh>> meshes;
+    GpuResource shipAlbedo, shipSurface;  // tiling material layers (data/textures, tools/textures)
     // Effects
     std::vector<Particle> particles;
     std::vector<FlashLight> flashes;
@@ -183,6 +184,10 @@ void dispatchOcean(Renderer::Impl& p, GpuDevice& dev, double time);
 void drawOcean(Renderer::Impl& p, GpuDevice& dev);
 void buildTerrain(Renderer::Impl& p, GpuDevice& dev, const sim::Terrain& t, GpuResource& chart);
 const GpuMesh* shipMeshFor(Renderer::Impl& p, GpuDevice& dev, const sim::ShipClassDef& c);
+/// Load the ship material texture arrays (missing files leave the shader on flat paint).
+bool loadShipTextures(Renderer::Impl& p, GpuDevice& dev);
+/// Bind the ship material textures to the per-pass table (t16, t17).
+void bindShipTextures(Renderer::Impl& p, GpuDevice& dev);
 void drawTerrain(Renderer::Impl& p, GpuDevice& dev);
 void drawShips(Renderer::Impl& p, GpuDevice& dev, const sim::World& w, const Camera& cam, bool shadowPass, sim::EntityId selected,
                double visualTime);

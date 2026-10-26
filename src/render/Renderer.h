@@ -44,6 +44,16 @@ struct GpuMesh {
     Aabb bounds;
 };
 
+/// Camera and options of a ship-class preview (unit reference).
+struct PreviewParams {
+    float yaw = 135.0f, pitch = 10.0f;  // deg; yaw 0 looks at the bow
+    float zoom = 1.0f;                  // 1: the whole ship fills the view
+    float focus = 0.0f;                 // look-at point along the hull: +0.5 bow .. -0.5 stern
+    float lift = 0.0f;                  // look-at height offset (m)
+    bool night = false;
+    bool animate = false;               // armament demonstration
+};
+
 struct Particle;  // effects (Renderer.cpp)
 
 class Renderer {
@@ -64,8 +74,8 @@ public:
     void update(double realDt, double simDt);
     /// Render the 3D scene into the back buffer (after which the UI is drawn on top).
     void render(const Camera& cam, const SceneOptions& opt);
-    /// Render a rotating preview of a ship class (unit reference) and return an ImGui texture id.
-    uint64_t shipPreview(const std::string& classId, float yaw, float pitch, uint32_t w, uint32_t h, bool night = false);
+    /// Render a preview of a ship class (unit reference) and return an ImGui texture id.
+    uint64_t shipPreview(const std::string& classId, const PreviewParams& view, uint32_t w, uint32_t h);
     /// Hypsometric chart texture of the terrain for the tactical map (ImGui texture id, 0 if none).
     uint64_t chartTexture() const { return chart_.uiSrv != UINT32_MAX ? dev_->gpuHeap().gpu(chart_.uiSrv).ptr : 0; }
     /// Ship under a screen position (3D view picking), or kNoEntity.

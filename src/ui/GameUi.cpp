@@ -501,6 +501,16 @@ void GameUi::runAutomation() {
     else if (s == "unitref") {
         go(Screen::UnitReference);
         if (!a.unitClass.empty()) unitRef_->select(a.unitClass);
+        // Close-ups for visual checks: --yaw/--pitch, --distance as zoom factor, --pan along the hull, --large.
+        PreviewView& v = unitRef_->view();
+        if (a.camYaw >= 0) v.yaw = float(a.camYaw);
+        if (a.camPitch > -90) v.pitch = float(a.camPitch);
+        if (a.camDistance > 0) v.zoom = float(a.camDistance);
+        v.focus = float(a.pan);
+        v.lift = float(a.lift);
+        v.night = a.night;
+        v.animate = a.drill;
+        unitRef_->setLargeView(a.large);
     } else if (s == "editor") {
         if (const game::Scenario* sc = findScenario()) editor_->load(*sc);
         go(Screen::Editor);

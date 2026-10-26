@@ -70,6 +70,11 @@ Options parseOptions(const std::vector<std::string>& args) {
     a.camDistance = std::atof(argValue(args, "--distance", "-1").c_str());
     a.insight = argFlag(args, "--insight");
     a.insightFilter = std::atoi(argValue(args, "--insight-filter", "0").c_str());
+    a.pan = std::atof(argValue(args, "--pan", "0").c_str());
+    a.lift = std::atof(argValue(args, "--lift", "0").c_str());
+    a.large = argFlag(args, "--large");
+    a.night = argFlag(args, "--night");
+    a.drill = argFlag(args, "--drill");
     o.screenshot = argValue(args, "--screenshot");
     o.language = argValue(args, "--lang");
     o.debugLayer = argFlag(args, "--d3d-debug");
@@ -95,8 +100,16 @@ public:
     LRESULT wndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 
     // UiServices
-    uint64_t shipPreview(const std::string& cls, float yaw, float pitch, uint32_t w, uint32_t h, bool night) override {
-        return renderer_.shipPreview(cls, yaw, pitch, w, h, night);
+    uint64_t shipPreview(const std::string& cls, const ui::PreviewView& v, uint32_t w, uint32_t h) override {
+        render::PreviewParams p;
+        p.yaw = v.yaw;
+        p.pitch = v.pitch;
+        p.zoom = v.zoom;
+        p.focus = v.focus;
+        p.lift = v.lift;
+        p.night = v.night;
+        p.animate = v.animate;
+        return renderer_.shipPreview(cls, p, w, h);
     }
     uint64_t chartTexture() override { return renderer_.chartTexture(); }
     sim::EntityId pick3D(float x, float y) override { return renderer_.pick(ui_->camera(), x, y); }

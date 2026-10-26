@@ -197,6 +197,8 @@ S = {
 "unitref.title": ("Unit reference", "Einheitenhandbuch"), "unitref.search": ("Search class or ship...", "Klasse oder Schiff suchen..."), "unitref.all": ("All", "Alle"),
 "unitref.no_preview": ("3D preview not available", "3D-Vorschau nicht verfügbar"), "unitref.view_quarter": ("3/4", "3/4"), "unitref.view_side": ("Side", "Seite"),
 "unitref.view_bow": ("Bow", "Bug"), "unitref.view_stern": ("Stern", "Heck"), "unitref.view_top": ("Top", "Oben"), "unitref.night": ("Night", "Nacht"),
+"unitref.animate": ("Weapons drill", "Waffenvorführung"), "unitref.large": ("Large view", "Großansicht"),
+"unitref.view_hint": ("Drag: rotate   Wheel: zoom   Right-drag: move", "Ziehen: drehen   Rad: zoomen   Rechts ziehen: verschieben"),
 "unitref.fire_arcs": ("Fire arcs", "Bestreichungswinkel"), "unitref.ahead": ("ahead", "voraus"), "unitref.broadside": ("broadside", "Breitseite"), "unitref.astern": ("astern", "achteraus"),
 "unitref.tab_overview": ("Overview", "Übersicht"), "unitref.tab_guns": ("Guns", "Artillerie"), "unitref.tab_torpedoes": ("Torpedoes", "Torpedos"),
 "unitref.tab_protection": ("Protection", "Panzerung"), "unitref.tab_sensors": ("Sensors & fire control", "Sensoren & Feuerleitung"),

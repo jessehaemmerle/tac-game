@@ -32,6 +32,8 @@ struct Automation {
     double camYaw = -1, camPitch = -100, camDistance = -1;
     bool insight = false;          // open the AI insight window
     int insightFilter = 0;         // 0 own AI, 1 enemy AI, 2 all (enemy views need umpire mode: --side none)
+    double pan = 0, lift = 0;      // unit reference: look-at point along the hull (+0.5 bow) and height
+    bool large = false, night = false, drill = false;  // unit reference: large view, night lighting, weapons drill
 };
 
 struct LogLine {

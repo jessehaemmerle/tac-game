@@ -3,6 +3,8 @@
 // arcs, gun penetration tables against any other class, torpedoes, protection, sensors and history.
 #include <string>
 
+#include "ui/UiServices.h"
+
 namespace it::sim {
 struct ShipClassDef;
 }
@@ -16,6 +18,9 @@ public:
     explicit UnitReference(GameUi& ui) : ui_(ui) {}
     void draw(bool overlay);
     void select(const std::string& classId) { selected_ = classId; }
+    /// Model view state (automation: close-ups for visual checks).
+    PreviewView& view() { return view_; }
+    void setLargeView(bool on) { large_ = on; }
 
 private:
     void drawList(float height);
@@ -26,8 +31,8 @@ private:
 
     GameUi& ui_;
     std::string selected_, versus_;
-    float yaw_ = 135.0f, pitch_ = 10.0f;
-    bool night_ = false;
+    PreviewView view_;
+    bool large_ = false;  // model view fills the page
     char filter_[64] = {};
     int nationFilter_ = 0;  // 0 all, 1 allies, 2 axis
 };

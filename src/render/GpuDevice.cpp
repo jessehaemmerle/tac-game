@@ -352,6 +352,53 @@ bool GpuDevice::uploadTexture(GpuResource& dst, const void* data, uint32_t bpp, 
     return true;
 }
 
+bool GpuDevice::uploadSubresources(GpuResource& dst, const std::vector<const uint8_t*>& data, uint32_t bpp, D3D12_RESOURCE_STATES finalState) {
+    auto desc = dst.res->GetDesc();
+    const UINT count = UINT(data.size());
+    std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> fp(count);
+    std::vector<UINT> rows(count);
+    std::vector<UINT64> rowBytes(count);
+    UINT64 total = 0;
+    device_->GetCopyableFootprints(&desc, 0, count, 0, fp.data(), rows.data(), rowBytes.data(), &total);
+    ComPtr<ID3D12Resource> staging;
+    if (!IT_CHECK(device_->CreateCommittedResource(addr(heapProps(D3D12_HEAP_TYPE_UPLOAD)), D3D12_HEAP_FLAG_NONE, addr(bufferDesc(total)),
+                                                   D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(staging.put()))))
+        return false;
+    uint8_t* p = nullptr;
+    staging->Map(0, nullptr, reinterpret_cast<void**>(&p));
+    for (UINT s = 0; s < count; ++s) {
+        size_t srcPitch = size_t(fp[s].Footprint.Width) * bpp;
+        for (UINT y = 0; y < rows[s]; ++y) std::memcpy(p + fp[s].Offset + size_t(y) * fp[s].Footprint.RowPitch, data[s] + y * srcPitch, srcPitch);
+    }
+    staging->Unmap(0, nullptr);
+    ComPtr<ID3D12CommandAllocator> a;
+    ComPtr<ID3D12GraphicsCommandList> l;
+    device_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(a.put()));
+    device_->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, a.get(), nullptr, IID_PPV_ARGS(l.put()));
+    if (dst.state != D3D12_RESOURCE_STATE_COPY_DEST) {
+        auto b = render::transition(dst.get(), dst.state, D3D12_RESOURCE_STATE_COPY_DEST);
+        l->ResourceBarrier(1, &b);
+    }
+    for (UINT s = 0; s < count; ++s) {
+        D3D12_TEXTURE_COPY_LOCATION d{}, src{};
+        d.pResource = dst.get();
+        d.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+        d.SubresourceIndex = s;
+        src.pResource = staging.get();
+        src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+        src.PlacedFootprint = fp[s];
+        l->CopyTextureRegion(&d, 0, 0, 0, &src, nullptr);
+    }
+    auto b = render::transition(dst.get(), D3D12_RESOURCE_STATE_COPY_DEST, finalState);
+    l->ResourceBarrier(1, &b);
+    l->Close();
+    ID3D12CommandList* lists[] = {l.get()};
+    queue_->ExecuteCommandLists(1, lists);
+    flush();
+    dst.state = finalState;
+    return true;
+}
+
 void GpuDevice::makeSrv(GpuResource& r, DXGI_FORMAT viewFormat) {
     if (r.srv == UINT32_MAX) r.srv = staging_.alloc();
     D3D12_SHADER_RESOURCE_VIEW_DESC d{};

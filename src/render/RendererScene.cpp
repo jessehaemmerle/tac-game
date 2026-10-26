@@ -2,6 +2,8 @@
 #include <cstring>
 
 #include "core/FileSystem.h"
+#include "core/Image.h"
+#include "core/Log.h"
 #include "procgen/GltfImport.h"
 #include "render/RendererImpl.h"
 
@@ -149,6 +151,49 @@ void drawTerrain(Renderer::Impl& P, GpuDevice& dev) {
     cmd->DrawIndexedInstanced(P.terrainIndices, 1, 0, 0, 0);
 }
 
+// ------------------------------------------------------------------------------------ ship textures
+namespace {
+bool loadArray(GpuDevice& dev, const std::string& file, bool srgb, GpuResource& out) {
+    ImageRGBA8 img;
+    if (!loadImage(fs::dataPath("textures/" + file), img) || img.width == 0 || img.height % img.width != 0) {
+        IT_LOG_WARN("Ship texture %s missing or not a stack of square layers", file.c_str());
+        return false;
+    }
+    const uint32_t n = img.width, layers = img.height / n;
+    uint32_t mips = 1;
+    while ((n >> mips) >= 4) ++mips;
+    std::vector<ImageRGBA8> subs;  // slice-major: slice * mips + mip
+    for (uint32_t l = 0; l < layers; ++l) {
+        subs.push_back(crop(img, l * n, n));
+        for (uint32_t m = 1; m < mips; ++m) subs.push_back(downsample(subs.back(), srgb));
+    }
+    DXGI_FORMAT fmt = srgb ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM;
+    if (!dev.createTexture(out, fmt, n, n, mips, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, 1, layers, file.c_str()))
+        return false;
+    std::vector<const uint8_t*> data;
+    for (auto& s : subs) data.push_back(s.pixels.data());
+    if (!dev.uploadSubresources(out, data, 4, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)) return false;
+    dev.makeSrv(out);
+    return true;
+}
+}  // namespace
+
+bool loadShipTextures(Renderer::Impl& P, GpuDevice& dev) {
+    bool ok = loadArray(dev, "ship_albedo.png", true, P.shipAlbedo) && loadArray(dev, "ship_surface.png", false, P.shipSurface);
+    if (ok) IT_LOG_INFO("Ship textures: %u layers of %u px", P.shipAlbedo.depth, P.shipAlbedo.width);
+    return ok;
+}
+
+void bindShipTextures(Renderer::Impl& P, GpuDevice& dev) {
+    TableBuilder t(dev, 8);
+    for (uint32_t i = 0; i < 8; ++i) t.srv(i, P.nullTexArray);
+    if (P.shipAlbedo.srv != UINT32_MAX && P.shipSurface.srv != UINT32_MAX) {
+        t.srv(0, P.shipAlbedo.srv);
+        t.srv(1, P.shipSurface.srv);
+    }
+    dev.cmd()->SetGraphicsRootDescriptorTable(4, t.handle());
+}
+
 // --------------------------------------------------------------------------------------------- ships
 const GpuMesh* shipMeshFor(Renderer::Impl& P, GpuDevice& dev, const sim::ShipClassDef& c) {
     auto it = P.meshes.find(c.id);
@@ -287,6 +332,7 @@ void drawShipModel(Renderer::Impl& P, GpuDevice& dev, const GpuMesh& mesh, const
 void drawShips(Renderer::Impl& P, GpuDevice& dev, const sim::World& w, const Camera& cam, bool shadowPass, sim::EntityId selected,
                double visualTime) {
     double seaState = w.env().weather().seaState;
+    if (!shadowPass) bindShipTextures(P, dev);
     for (const auto& sp : w.ships()) {
         const sim::Ship& s = *sp;
         if (!s.cls || (s.dmg.sunk && s.dmg.sinkProgress >= 1.0)) continue;
