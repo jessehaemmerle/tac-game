@@ -28,8 +28,26 @@ only knows what its own lookouts and radars report.*
 - **Taktische Ansicht (Plot)** mit Küstenkarte, Kontakten nach eigenem Lagebild, Peil- und
   Entfernungsmessung und Befehlen per Rechtsklick; 3D-Ansicht mit Orbit-, Brücken- und
   Fernglaskamera; geteilte Ansicht.
-- **Einheitenhandbuch**: 3D-Vorschau, Bestreichungswinkel, Durchschlagstabelle gegen gewählte
-  Gegnerklassen, Panzerung, Torpedos, Sensoren und Geschichte für 21 Schiffsklassen.
+- **Einheitenhandbuch**: drehbare, zoombare 3D-Vorschau mit Großansicht, Nachtbeleuchtung und
+  **Waffenvorführung** (Türme schwenken, Salven mit Rückstoß je Rohr, Mündungsfeuer und
+  Pulverrauch, Torpedoausstoß, Katapultstart des Bordflugzeugs), Bestreichungswinkel,
+  Durchschlagstabelle gegen gewählte Gegnerklassen, Panzerung, Torpedos, Sensoren und Geschichte
+  für 21 Schiffsklassen.
+- **Schiffsmodelle**: prozedural aus den Klassendaten, je Marine im eigenen Stil – Rumpf mit
+  Panzergürtel bzw. Wulst, Schanzkleid, Wellenbrecher, Anker und Kette, Wellen, Schrauben und
+  Ruder; Brücken und Pagodenmasten mit Fensterbändern, Nocken und Splitterschutz; Schornsteine
+  mit Kappen, Funkenfängern und Dampfrohren; Masten mit Plattformen, Rahen, Signallampen und
+  Antennendrähten; Feuerleitstände (Mk 33/34/37, Typ 94) mit Entfernungsmessern und
+  Radarantennen (SC, SG, Mk 3, Mk 4); Türme mit Visierhauben, Messgeräte-Ohren und Mündungs-
+  schutzhüllen; leichte Flak (20 mm, 1,1″, 25 mm, 13 mm, Pom-Pom); Bordflugzeuge mit
+  Hoheitszeichen; Beiboote an Davits, Carley-Flöße, Relinge, Niedergänge, Poller, Lüfter,
+  Wasserbomben; wehende Kriegsflagge. Materialtexturen (Plattenstöße, Teak, Linoleum mit
+  Messingleisten, Rutschbelag, Segeltuch) mit Rost, Salz und Bullaugen; Detailstufen nach
+  Bildschirmgröße.
+- **Animationen**: Türme, Rohre und Leitstände folgen der Feuerleitung, jedes Rohr läuft nach dem
+  Schuss zurück, Torpedos verlassen die Rohre, Flak folgt feindlichen Flugzeugen, Bordflugzeuge
+  werden vom Katapult gestartet und fliegen ihre Einsätze sichtbar, Scheinwerfer richten in Seite
+  und Höhe, Radarantennen drehen, Schrauben und Ruder bewegen sich, zerstörte Lafetten hängen.
 - **Grafik**: FFT-Ozean mit Schaum und Kielwasser, Nachthimmel mit Mond und Sternen,
   HDR mit Augenadaption, Bloom und MSAA, Schattenkarten, Partikel für Mündungsfeuer, Rauch,
   Einschläge und Brände. Feature Level 12_0, kein Raytracing nötig.

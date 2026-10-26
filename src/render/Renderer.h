@@ -40,6 +40,7 @@ struct GpuMesh {
         int mount = -1, parent = -1, sub = -1;
         uint8_t lod = 0;
         Vec3f pivot, axis{1, 0, 0};
+        float reach = 0;  // farthest extent along the axis from the pivot (gun muzzles, torpedo length)
     };
     std::vector<Part> parts;
     std::vector<procgen::AAMountInfo> aa;
@@ -54,6 +55,7 @@ struct PreviewParams {
     float lift = 0.0f;                  // look-at height offset (m)
     bool night = false;
     bool animate = false;               // armament demonstration
+    float drillTime = -1.0f;            // >= 0: the demonstration frozen at this time (s)
 };
 
 struct Particle;  // effects (Renderer.cpp)

@@ -122,6 +122,25 @@ void effectsEvents(Renderer::Impl& P, const sim::World& w, const std::vector<sim
                     dir = {std::sin(brg * kDegToRad), 0.15, std::cos(brg * kDegToRad)};
                 }
                 Vec3 muzzle = pos + dir * (cal * 0.06);
+                // At the barrel tips of the model, when it is loaded: one flash per barrel.
+                if (s && s->cls) {
+                    auto it = P.meshes.find(s->cls->id);
+                    if (it != P.meshes.end()) {
+                        ShipPose pose = shipPose(P, *s, w, nullptr, now);
+                        Mat4f m = shipWorldMatrix(*s, Vec3{0, 0, 0}, now, w.env().weather().seaState);
+                        auto tips = muzzles(*it->second, pose, int(e.value2));
+                        for (size_t b = 1; b < tips.size(); ++b) {
+                            Vec3f tp = m.transformPoint(tips[b].pos);
+                            glow(P, Vec3{tp.x, tp.y, tp.z} + dir * (cal * 0.02), float(2.0 + 4.0 * k), {1.0f, 0.7f, 0.35f, 1.0f}, float(25.0 * std::sqrt(k)), 0.12f);
+                        }
+                        if (!tips.empty()) {
+                            Vec3f tp = m.transformPoint(tips[0].pos);
+                            Vec3f d = m.transformDir(tips[0].dir);
+                            dir = Vec3{d.x, d.y, d.z};
+                            muzzle = Vec3{tp.x, tp.y, tp.z};
+                        }
+                    }
+                }
                 glow(P, muzzle + dir * (cal * 0.03), float(3.0 + 6.0 * k), {1.0f, 0.72f, 0.38f, 1.0f}, float(40.0 * std::sqrt(k)), 0.14f);
                 glow(P, muzzle, float(8.0 + 12.0 * k), {1.0f, 0.55f, 0.25f, 1.0f}, float(3.0 * std::sqrt(k)), 0.25f);
                 flash(P, muzzle + Vec3{0, 4, 0}, Vec3f{1.0f, 0.68f, 0.38f} * float(22.0 * k), float(700.0 + 1200.0 * k), 0.2f);
@@ -396,7 +415,7 @@ void effectsGather(Renderer::Impl& P, const sim::World& w, const Camera& cam, do
         // Searchlights: spot light plus a visible beam in the haze.
         bool on = s.operational() && s.orders.searchlight && s.dmg.searchlights >= 0.3;
         if (on) {
-            ShipPose pose = shipPose(s, w, visualTime);
+            ShipPose pose = shipPose(P, s, w, nullptr, visualTime);
             double brg = s.heading + pose.searchlightTrain;
             double h = c.superstructureHeight + 2.0;
             Vec3 origin = toR(s.pos + s.forward() * (c.length * 0.12), h);

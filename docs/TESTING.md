@@ -23,7 +23,7 @@ build/linux-debug/irontide_tests -tc="torpedo*"
 |---|---|
 | `test_core.cpp` | Winkel und Peilungen, Abfanglösung, Matrizen, deterministischer Zufall, Lokalisierung mit Rückfallsprache |
 | `test_database.cpp` | Datenbank lädt und validiert, Kalibrierung der Ballistik gegen historische Höchstschussweiten, Schusstafeln, Durchschlag über Entfernung und Winkel, Bestreichungswinkel, Type 93 übertrifft Mark 15 |
-| `test_procgen.cpp` | Prozedurale Modelle sind gültig und treffen die Klassenmaße, Rumpfform |
+| `test_procgen.cpp` | Prozedurale Modelle sind gültig und treffen die Klassenmaße, Rumpfform, Dreiecksbudget je Detailstufe, nichts ragt seitlich heraus, Teilehierarchie (jedes Rohr eigenes Teil unter seiner Wiege, Torpedos in ihren Rohrsätzen, Flugzeuge auf ihren Katapulten), Flak aus den Klassendaten; Zeitverläufe von Rückstoß, Torpedoausstoß, Katapultstart und Waffenvorführung |
 | `test_sim.cpp` | Astronomie (Savo-Nacht war dunkel), Schiffsführung, Sichtentdeckung nach Licht und Optik, SG vs. SC und Funkschatten, Artillerieduell bei Tag, Type-93-Fächer treffen, Schadenswirkung, Determinismus, Kontaktereignisse |
 | `test_ai.cpp` | Fairness (keine Reaktion auf unentdeckte Gegner), IJN-Doktrin (Torpedos zuerst, Geschütze dunkel), Kämmen gemeldeter Laufbahnen, Rückzug eines einzelnen Zerstörers vor Kreuzern, Befehlsquittungen, Torpedofächer gegen eigene Schiffe, Savo Island KI gegen KI deterministisch |
 | `test_ui.cpp` | Jeder Bildschirm baut headless (ohne Grafik), Schiedsrichter-Gefecht mit allen Panels, Sprachtabellen vollständig und deckungsgleich, jeder im Code benutzte Schlüssel existiert |
@@ -70,6 +70,12 @@ IronTide.exe --screen battle --scenario savo_island --side axis --advance 2400 -
 | `--yaw`, `--pitch`, `--distance` | Kamera |
 | `--insight`, `--insight-filter` | KI-Einblick öffnen; 0 eigene, 1 gegnerische, 2 alle (gegnerische nur als Schiedsrichter) |
 | `--frames`, `--size`, `--msaa`, `--lang` | Bilder vor dem Foto, Auflösung, Kantenglättung, Sprache |
+| `--large`, `--pan`, `--lift`, `--night` | Handbuch: Großansicht, Blickpunkt entlang des Rumpfs und in der Höhe, Nachtbeleuchtung |
+| `--drill`, `--drill-time` | Handbuch: Waffenvorführung laufen lassen bzw. zu einem Zeitpunkt (s) einfrieren |
+
+Für schnelle Geometrieprüfungen ohne Wine rendert `irontide_modelview <klasse> bild.ppm [gier]
+[neigung] [breite] [zoom] [x] [z]` ein Modell in Software; `IT_PARTS=1` listet alle Teile mit
+Dreiecken und Detailstufe, `IT_ONLY=<name>` zeigt nur passende Teile.
 
 Unter Linux läuft das mit dem MinGW-Build unter **Wine mit vkd3d** (D3D12 → Vulkan) und
 **lavapipe** (Vulkan in Software) auf einem virtuellen X-Server. Benötigt werden

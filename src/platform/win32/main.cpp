@@ -75,6 +75,7 @@ Options parseOptions(const std::vector<std::string>& args) {
     a.large = argFlag(args, "--large");
     a.night = argFlag(args, "--night");
     a.drill = argFlag(args, "--drill");
+    a.drillTime = std::atof(argValue(args, "--drill-time", "-1").c_str());
     o.screenshot = argValue(args, "--screenshot");
     o.language = argValue(args, "--lang");
     o.debugLayer = argFlag(args, "--d3d-debug");
@@ -109,6 +110,7 @@ public:
         p.lift = v.lift;
         p.night = v.night;
         p.animate = v.animate;
+        p.drillTime = v.drillTime;
         return renderer_.shipPreview(cls, p, w, h);
     }
     uint64_t chartTexture() override { return renderer_.chartTexture(); }

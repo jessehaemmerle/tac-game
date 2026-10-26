@@ -79,6 +79,7 @@ void catapult(Ctx& cx, const sim::ModelPart& pt) {
     int ci = cx.part("catapult", PartKind::Catapult, 0);
     MeshPart& p = cx.P(ci);
     p.pivot = v3(x, y, z0);
+    p.sub = int(cx.catapults.size());
     cx.catapults.push_back({v3(x, y, z0), ci});
     MeshBuilder mb(p);
     mb.setMaterial(cx.paint.superstructure);
@@ -297,10 +298,13 @@ void aircraft(Ctx& cx, const sim::ModelPart& pt) {
         if (std::fabs(c.pos.x - at.x) < 3.0f && std::fabs(c.pos.y - at.y) < 1.5f) parent = c.part;
     int ai = cx.part("aircraft", PartKind::Aircraft, 0, parent);
     MeshPart& p = cx.P(ai);
-    p.pivot = parent >= 0 ? cx.P(parent).pivot : at;
-    MeshBuilder mb(p);
+    int ordinal = 0;
+    for (size_t i = 0; i + 1 < cx.model.parts.size(); ++i) ordinal += cx.model.parts[i].kind == PartKind::Aircraft;
+    p.sub = ordinal;
     if (parent >= 0) at.z = cx.P(parent).pivot.z + 2.45f;  // on the catapult carriage
     else cx.takeCircle(at.x, at.y, 3.0);
+    p.pivot = at;  // the aircraft's own reference point (under the float) for drawing it in flight
+    MeshBuilder mb(p);
     mb.setTransform(Mat4f::translation(at));
     floatplane(mb, cx.paint, pt.style, cx.ijn);
     mb.clearTransform();

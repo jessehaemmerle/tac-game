@@ -69,18 +69,33 @@ struct FoamStamp {
 };
 
 /// Articulation of a ship model: mount trains/elevations (deg), recoil and launch travel (m) and
-/// auxiliary part angles. Empty vectors leave the parts in their stowed position.
+/// auxiliary part angles. Empty vectors (and NaN entries) leave the parts in their stowed position.
 struct ShipPose {
+    static constexpr float kGone = 1e5f;
     std::vector<float> train, elev, torpTrain;
     std::vector<std::vector<float>> recoil;      // per mount and barrel: run-back (m)
     std::vector<std::vector<float>> torpedoOut;  // per torpedo mount and tube: travel out of the tube (m), < 0: tube empty
-    std::vector<float> aaTrain, aaElev;          // light AA (absolute train, deg); empty: stowed outboard
-    float searchlightTrain = 0, searchlightElev = 0, directorTrain = 0, radarAngle = 0;
-    float catapultTrain = 0;    // deg, starboard catapults positive outboard (mirrored to port)
-    float aircraftLaunch = -1;  // m travelled along the catapult (< 0: on the carriage); > 60: gone
-    Vec3f aircraftFlight{};     // added offset once airborne (m, model space)
-    float propAngle = 0, rudder = 0;
+    std::vector<float> aaTrain, aaElev;          // light AA: train relative to the bow and elevation (deg)
+    std::vector<float> directorTrain;            // per director (class index), NaN: stowed
+    std::vector<float> catapultTrain;            // per catapult: deg outboard
+    std::vector<float> aircraftTravel;           // per floatplane: < 0 on its carriage, m flown once shot off, >= kGone hidden
+    float searchlightTrain = 0, searchlightElev = 0, radarAngle = 0;
+    float propAngle = 0, rudder = 0;             // deg
     bool searchlightOn = false;
+};
+
+/// What the renderer remembers of each ship's weapons between frames (recoil and launch timing).
+struct ShipAnim {
+    std::vector<double> fired;         // per mount: sim time of the last salvo
+    std::vector<int> torpLoaded;       // per torpedo mount: tubes loaded at the last check
+    std::vector<double> torpLaunch;    // per torpedo mount: sim time of the last launch
+    std::vector<int> torpFrom, torpTo; // tubes [from, to) fired in that launch
+};
+
+/// Muzzle of one barrel in model space (for flashes).
+struct Muzzle {
+    int mount = -1, barrel = -1;
+    Vec3f pos, dir;
 };
 
 struct Pipelines {
@@ -133,6 +148,7 @@ struct Renderer::Impl {
     std::vector<FoamStamp> foam;
     double smokeAccum = 0;
     std::vector<GpuLight> lights;
+    std::unordered_map<sim::EntityId, ShipAnim> anims;
     std::vector<GpuParticle> gpuParticles;
     std::vector<float> wakeVerts;  // x, z, foam
     Rng rng{12345};
@@ -203,8 +219,19 @@ void drawShips(Renderer::Impl& p, GpuDevice& dev, const sim::World& w, const Cam
 /// 1 fittings and light AA, 2 close-up details such as railings and rigging).
 void drawShipModel(Renderer::Impl& p, GpuDevice& dev, const GpuMesh& mesh, const Mat4f& world, const Vec4f& tint, const Vec4f& params,
                    const ShipPose& pose, int maxLod = 2);
-ShipPose shipPose(const sim::Ship& s, const sim::World& w, double visualTime);
+// RendererAnimation.cpp
+ShipPose shipPose(Renderer::Impl& p, const sim::Ship& s, const sim::World& w, const GpuMesh* mesh, double visualTime);
 ShipPose stowedPose(const sim::ShipClassDef& c);
+/// Weapons drill of the unit reference at time t (procgen::anim::drill applied to this class).
+ShipPose drillPose(const sim::ShipClassDef& c, const GpuMesh& mesh, double t);
+/// Model-space transform of every part for a pose, and which parts are hidden.
+void partTransforms(const GpuMesh& mesh, const ShipPose& pose, std::vector<Mat4f>& local, std::vector<uint8_t>& hidden);
+std::vector<Muzzle> muzzles(const GpuMesh& mesh, const ShipPose& pose, int mount = -1);
+/// Record weapon events (salvos) and torpedo launches for the animations.
+void recordShipEvents(Renderer::Impl& p, const sim::World& w, const std::vector<sim::Event>& events);
+void updateShipAnims(Renderer::Impl& p, const sim::World& w);
+/// Floatplanes in the air (aircraft missions), drawn with their parent class's model.
+void drawFlyingAircraft(Renderer::Impl& p, GpuDevice& dev, const sim::World& w, const Camera& cam, double visualTime);
 Mat4f shipWorldMatrix(const sim::Ship& s, const Vec3& camPos, double visualTime, double seaState);
 /// Ship model space (x fwd, y stbd, z up) to render space at heading 0 (x east, y up, z north), as a matrix.
 Mat4f modelToRenderBasis(double headingDeg);

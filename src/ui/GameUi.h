@@ -34,6 +34,7 @@ struct Automation {
     int insightFilter = 0;         // 0 own AI, 1 enemy AI, 2 all (enemy views need umpire mode: --side none)
     double pan = 0, lift = 0;      // unit reference: look-at point along the hull (+0.5 bow) and height
     bool large = false, night = false, drill = false;  // unit reference: large view, night lighting, weapons drill
+    double drillTime = -1;         // unit reference: show the weapons drill at this time (s)
 };
 
 struct LogLine {

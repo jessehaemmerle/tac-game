@@ -407,6 +407,7 @@ void bridge(Ctx& cx, const sim::ModelPart& pt) {
         // Director / rangefinder on the compass bridge roof (trains with the main director).
         int di = cx.part("director_bridge", PartKind::Director, 0);
         MeshPart& dp = cx.P(di);
+        dp.sub = 0;
         dp.pivot = v3(cxp - cl * 0.15f, 0, top + 2.25f);
         MeshBuilder db(dp);
         db.setMaterial(cx.paint.superstructure);
@@ -836,6 +837,7 @@ void director(Ctx& cx, const sim::ModelPart& pt) {
     int di = cx.part("director", PartKind::Director, 0);
     MeshPart& p = cx.P(di);
     p.pivot = v3(xx, 0, z0);
+    p.sub = dd ? int(dd - cx.c.directors.data()) : 0;  // trains with this director's target
     MeshBuilder mb(p);
     mb.setMaterial(cx.paint.superstructure);
     float L = float(pt.len), W = float(pt.wid), H = float(pt.h);
@@ -875,6 +877,7 @@ void radar(Ctx& cx, const sim::ModelPart& pt) {
     int ri = cx.part("radar_" + pt.style, PartKind::Radar, 0);
     MeshPart& p = cx.P(ri);
     p.pivot = v3(xx, 0, z0);
+    p.sub = pt.style == "sg" ? 1 : 0;  // the SG turns faster than the air-search SC
     MeshBuilder mb(p);
     mb.setMaterial(cx.paint.superstructure);
     float x = float(xx), z = float(z0);

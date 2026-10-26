@@ -17,6 +17,7 @@ struct PreviewView {
     float lift = 0.0f;                  // look-at height offset (m)
     bool night = false;
     bool animate = false;               // armament demonstration: training, elevating, firing
+    float drillTime = -1.0f;            // >= 0: freeze the demonstration at this time (s, screenshots)
 };
 
 class UiServices {

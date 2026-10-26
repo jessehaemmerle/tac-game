@@ -126,7 +126,24 @@ SRV-Tabellen, eine UAV-Tabelle, statische Sampler). Pro Bild:
 4. Tiefenauflösung, Augenadaption (Luminanz-Compute), Bloom, ACES-Tonemapping, Filmkorn
 
 Schiffsmodelle entstehen prozedural aus den Klassendaten (`src/procgen`); glTF-Modelle können sie
-je Klasse ersetzen (siehe [CREDITS.md](../CREDITS.md)).
+je Klasse ersetzen (siehe [CREDITS.md](../CREDITS.md)). Der Generator ist in Module geteilt:
+
+| Datei | Inhalt |
+|---|---|
+| `ShipModel.cpp` | Einstieg, Farbschemata, Rumpfform, Reihenfolge des Aufbaus, Belegung des Decks |
+| `ShipHull.cpp` | Außenhaut mit Wasserpass, Gürtel/Wulst, Deck mit Wasserlauf, Schanzkleid, Wellenbrecher, Anker, Unterwasserschiff |
+| `ShipStructures.cpp` | Deckshäuser, Brücken, Pagoden, Schornsteine, Masten, Leitstände, Radar, Scheinwerfer, Kräne, Takelage |
+| `ShipWeapons.cpp` | Türme je Bauart, Lafetten, Einzelrohre, Torpedorohrsätze mit Torpedos, leichte Flak |
+| `ShipFittings.cpp` | Relinge, Niedergänge, Flöße, Katapulte, Bordflugzeuge, Boote, Decksausrüstung, Wasserbomben, Flagge |
+| `ShipAnimation.cpp` | Zeitverläufe: Rückstoß, Torpedoausstoß, Katapultstart, Waffenvorführung |
+
+Jedes bewegliche Teil ist ein eigenes Modellteil mit Drehpunkt, Achse und Elternteil (Turm →
+Wiege → Rohr; Torpedosatz → Torpedo; Katapult → Flugzeug; Flaklafette → Waffen). Der Renderer
+setzt daraus je Bild die Pose zusammen (`RendererAnimation.cpp`): Seiten- und Höhenrichtung aus der
+Simulation, Rückstoß aus den Schussereignissen, Torpedoausstoß aus der Beladung, Flak und
+Katapultstart aus den Flugzeugeinsätzen. Teile tragen eine Detailstufe (0 Rumpf und Bewaffnung,
+1 Ausrüstung und Flak, 2 Relinge, Takelage, Kleinteile), die nach der projizierten Größe eines
+Meters auf dem Bildschirm gewählt wird.
 
 ## Oberfläche (`src/ui`)
 

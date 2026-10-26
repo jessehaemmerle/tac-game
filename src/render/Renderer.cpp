@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstring>
 
+#include "procgen/ShipAnimation.h"
 #include "render/RendererImpl.h"
 
 namespace it::render {
@@ -445,6 +446,7 @@ void Renderer::setWorld(const sim::World* world) {
     P.trails.clear();
     P.torpedoTrails.clear();
     P.foam.clear();
+    P.anims.clear();
     P.oceanSeaState = -1;
     P.hasTerrain = false;
     if (world && !world->terrain().empty() && dev_) {
@@ -467,14 +469,19 @@ void Renderer::setWorld(const sim::World* world) {
 }
 
 void Renderer::onEvents(const std::vector<sim::Event>& events) {
-    if (world_) effectsEvents(*p_, *world_, events);
+    if (!world_) return;
+    recordShipEvents(*p_, *world_, events);
+    effectsEvents(*p_, *world_, events);
 }
 
 void Renderer::update(double realDt, double simDt) {
     visualTime_ += simDt;
     // Waves follow simulated time, but never run absurdly fast under high time compression.
     p_->oceanTime += std::min(simDt, realDt * 3.0) + (world_ ? 0.0 : realDt);
-    if (world_) effectsUpdate(*p_, *world_, realDt, simDt, visualTime_);
+    if (world_) {
+        updateShipAnims(*p_, *world_);
+        effectsUpdate(*p_, *world_, realDt, simDt, visualTime_);
+    }
 }
 
 const GpuMesh* Renderer::shipMesh(const std::string& classId) {
@@ -594,6 +601,62 @@ void renderWakeMap(Renderer::Impl& P, GpuDevice& dev, const Vec3& camPos) {
         cmd->DrawInstanced(UINT(P.wakeVerts.size() / 3), 1, 0, 0);
     }
     dev.transition(P.wake, kSrvState);
+}
+
+/// Muzzle flashes and gun smoke of the weapons drill (the preview has no effects simulation).
+static void drawPreviewEffects(Renderer::Impl& P, GpuDevice& dev, const sim::ShipClassDef& cls, const GpuMesh& mesh, const ShipPose& pose,
+                               const Mat4f& world, double drillTime) {
+    double since = procgen::anim::drill(drillTime).sinceSalvo;
+    std::vector<GpuParticle> fx;
+    auto add = [&](Vec3f pos, float size, Vec4f color, int type, float age, float emissive, float seed) {
+        GpuParticle g{};
+        g.pos = world.transformPoint(pos);
+        g.axis = g.pos;
+        g.size = size;
+        g.color = color;
+        g.type = float(type);
+        g.age = age;
+        g.emissive = emissive;
+        g.seed = seed;
+        fx.push_back(g);
+    };
+    for (const Muzzle& mz : muzzles(mesh, pose)) {
+        const auto& m = cls.mounts[size_t(mz.mount)];
+        double cal = m.gun ? m.gun->caliberMm : 127.0;
+        float k = float(cal / 203.0), sk = std::sqrt(k);
+        double t = since - 0.12 * mz.mount - procgen::anim::barrelDelay(mz.barrel);
+        if (t < 0.0) continue;
+        Vec3f up{0, 0, 1};
+        float seed = float(mz.mount * 7 + mz.barrel);
+        if (t < 0.25) {
+            float a1 = float(t / 0.14), a2 = float(t / 0.25);
+            if (a1 < 1.0f) add(mz.pos + mz.dir * float(cal * 0.03), 3.0f + 6.0f * k, {1.0f, 0.72f, 0.38f, 1.0f}, kGlow, a1, 40.0f * sk * (1 - a1) * (1 - a1), seed);
+            add(mz.pos, 8.0f + 12.0f * k, {1.0f, 0.55f, 0.25f, 1.0f}, kGlow, a2, 3.0f * sk * (1 - a2) * (1 - a2), seed);
+        }
+        if (t < 6.0) {
+            // Brown cordite smoke rolling out ahead of the muzzle and rising.
+            float age = float(t / 8.0);
+            for (int q = 0; q < 2; ++q) {
+                float push = float(cal * 0.05 * (q + 1)) + float(6.0 * std::sqrt(t)) * k * (1.0f + q);
+                Vec3f p = mz.pos + mz.dir * push + up * float(0.6 * t);
+                float alpha = 0.55f * std::min(1.0f, age * 8.0f) * (1.0f - age * age);
+                add(p, 3.0f + 3.0f * k + float(t) * (2.0f + 2.0f * k), {0.42f, 0.40f, 0.37f, alpha}, kSmoke, age, 0.6f * std::max(0.0f, 1.0f - float(t) * 4.0f), seed + q);
+            }
+        }
+    }
+    if (fx.empty()) return;
+    std::sort(fx.begin(), fx.end(), [](const GpuParticle& a, const GpuParticle& b) { return lengthSq(a.pos) > lengthSq(b.pos); });
+    auto* cmd = dev.cmd();
+    TableBuilder t(dev, 8);
+    for (uint32_t i = 0; i < 8; ++i) t.srv(i, P.nullTex2D);
+    UploadAlloc a = dev.upload(fx.size() * sizeof(GpuParticle), sizeof(GpuParticle));
+    std::memcpy(a.cpu, fx.data(), fx.size() * sizeof(GpuParticle));
+    t.buffer(0, a, uint32_t(fx.size()), sizeof(GpuParticle));
+    cmd->SetGraphicsRootDescriptorTable(4, t.handle());
+    cmd->SetPipelineState(P.pso.particles.get());
+    cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+    cmd->DrawInstanced(4, UINT(fx.size()), 0, 0);
+    cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 static void renderShadowMap(Renderer::Impl& P, GpuDevice& dev, const sim::World* world, const Camera& cam, double visualTime, bool enabled,
@@ -886,17 +949,34 @@ uint64_t Renderer::shipPreview(const std::string& classId, const PreviewParams& 
     P.lights.clear();
     bool savedTerrain = P.hasTerrain;
     P.hasTerrain = false;
+
+    // Model matrix (camera relative); stowed armament, or the weapons drill.
+    Vec3 rel = origin - cam.pos;
+    Mat4f world = Mat4f::translation({float(rel.x), float(rel.y), float(rel.z)}) * modelToRenderBasis(0.0);
+    double drillT = view.drillTime >= 0.0f ? double(view.drillTime) : P.oceanTime;
+    ShipPose pose = view.animate ? drillPose(*cls, *mesh, drillT) : stowedPose(*cls);
+    if (!view.animate) pose.radarAngle = float(std::fmod(P.oceanTime * 25.0, 360.0));
+    pose.searchlightOn = night;
+    if (view.animate) {
+        // Muzzle flashes light up the ship and the sea for an instant after each salvo.
+        double since = procgen::anim::drill(drillT).sinceSalvo;
+        for (const Muzzle& mz : muzzles(*mesh, pose)) {
+            double cal = cls->mounts[size_t(mz.mount)].gun ? cls->mounts[size_t(mz.mount)].gun->caliberMm : 127.0;
+            double t = since - 0.12 * mz.mount;
+            if (t < 0.0 || t > 0.18 || mz.barrel != 0) continue;
+            float k = float(std::exp(-t * 18.0) * cal / 203.0);
+            GpuLight l{};
+            l.pos = world.transformPoint(mz.pos + mz.dir * 6.0f);
+            l.radius = 200.0f;
+            l.color = Vec3f{1.0f, 0.62f, 0.3f} * (30.0f * k);
+            if (P.lights.size() < 16) P.lights.push_back(l);
+        }
+    }
     fillFrameConstants(P, cam, float(w), float(h), fs, P.oceanTime, 1.0 / 60.0, dev.frameCounter(), 0.0f, 0.0f, P.shadow.width);
     D3D12_GPU_VIRTUAL_ADDRESS fcAddr = dev.constants(P.fc);
     cmd->SetGraphicsRootConstantBufferView(0, fcAddr);
     cmd->SetComputeRootConstantBufferView(0, fcAddr);
 
-    // Model matrix (camera relative), stowed armament.
-    Vec3 rel = origin - cam.pos;
-    Mat4f world = Mat4f::translation({float(rel.x), float(rel.y), float(rel.z)}) * modelToRenderBasis(0.0);
-    ShipPose pose = stowedPose(*cls);
-    pose.radarAngle = float(std::fmod(P.oceanTime * 25.0, 360.0));
-    pose.searchlightOn = night;
     renderShadowMap(P, dev, nullptr, cam, 0.0, true, mesh, &world, &pose);
 
     dev.transition(pv.hdrMS, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -908,7 +988,7 @@ uint64_t Renderer::shipPreview(const std::string& classId, const PreviewParams& 
     cmd->ClearRenderTargetView(rtv, black, 0, nullptr);
     cmd->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 0.0f, 0, 0, nullptr);
     viewport(cmd, w, h);
-    cmd->SetGraphicsRootDescriptorTable(3, globalTable(P, dev, false, true));
+    cmd->SetGraphicsRootDescriptorTable(3, globalTable(P, dev, false, P.lights.empty()));
     cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd->SetPipelineState(P.pso.ship.get());
     bindShipTextures(P, dev);
@@ -918,6 +998,7 @@ uint64_t Renderer::shipPreview(const std::string& classId, const PreviewParams& 
     drawOcean(P, dev);
     cmd->SetPipelineState(P.pso.sky.get());
     cmd->DrawInstanced(3, 1, 0, 0);
+    if (view.animate) drawPreviewEffects(P, dev, *cls, *mesh, pose, world, drillT);
 
     if (P.msaa > 1) {
         dev.transition(pv.hdrMS, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);

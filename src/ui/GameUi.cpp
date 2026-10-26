@@ -509,7 +509,8 @@ void GameUi::runAutomation() {
         v.focus = float(a.pan);
         v.lift = float(a.lift);
         v.night = a.night;
-        v.animate = a.drill;
+        v.animate = a.drill || a.drillTime >= 0;
+        v.drillTime = float(a.drillTime);
         unitRef_->setLargeView(a.large);
     } else if (s == "editor") {
         if (const game::Scenario* sc = findScenario()) editor_->load(*sc);

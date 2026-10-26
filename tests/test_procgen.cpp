@@ -1,6 +1,7 @@
 #include <doctest/doctest.h>
 
 #include "core/FileSystem.h"
+#include "procgen/ShipAnimation.h"
 #include "procgen/ShipModel.h"
 
 using namespace it;
@@ -100,4 +101,48 @@ TEST_CASE("model details follow the class data: light AA, propellers, aircraft o
     procgen::Model p = procgen::buildShipModel(*takao, plain);
     CHECK(p.triangleCount() < t.triangleCount() / 2);
     CHECK(p.aa.empty());
+}
+
+TEST_CASE("weapon animations: recoil, torpedo launch, catapult launch and the drill timeline") {
+    namespace an = procgen::anim;
+    // Recoil: nothing before the shot, full run-back right after, run out within two seconds.
+    CHECK(an::recoil(-0.1, 203.0) == 0.0f);
+    CHECK(an::recoil(0.07, 203.0) == doctest::Approx(0.65).epsilon(0.05));
+    CHECK(an::recoil(0.07, 127.0) < an::recoil(0.07, 203.0));
+    CHECK(an::recoil(2.5, 203.0) < 0.01f);
+    CHECK(an::barrelDelay(2) > an::barrelDelay(1));
+    // Torpedoes leave the tube, accelerate, drop once clear and are gone after a few seconds.
+    CHECK(an::torpedoTravel(0.0) == 0.0f);
+    CHECK(an::torpedoTravel(0.5) > 0.0f);
+    CHECK(an::torpedoTravel(1.0) > an::torpedoTravel(0.5));
+    CHECK(an::torpedoDrop(5.0f, 9.0f) == 0.0f);
+    CHECK(an::torpedoDrop(15.0f, 9.0f) < 0.0f);
+    CHECK(an::torpedoGone(an::torpedoTravel(3.0)));
+    // Floatplane launch: trains out, waits on the carriage, is shot off, catapult trains back.
+    CHECK(an::catapultLaunch(0.0).catapultTrain == 0.0f);
+    CHECK(an::catapultLaunch(40.0).catapultTrain == doctest::Approx(45.0f));
+    CHECK(an::catapultLaunch(59.0).travel < 0.0f);
+    CHECK(an::catapultLaunch(61.0).travel == doctest::Approx(18.0f));
+    CHECK_FALSE(an::catapultLaunch(62.0).gone);
+    CHECK(an::catapultLaunch(70.0).gone);
+    CHECK(an::catapultLaunch(89.0).catapultTrain == doctest::Approx(0.0f).epsilon(0.01));
+    // Drill: trained and elevated while firing, salvos at 9/13/17 s, torpedoes at 23 s, home at the end.
+    an::Drill d = an::drill(9.1);
+    CHECK(d.trainBlend == doctest::Approx(1.0f));
+    CHECK(d.elevation > 15.0f);
+    CHECK(d.sinceSalvo == doctest::Approx(0.1));
+    CHECK(an::drill(8.0).sinceSalvo > 100.0);
+    CHECK(an::drill(23.5).sinceTorpedoes == doctest::Approx(0.5));
+    CHECK(an::drill(20.0).sinceTorpedoes < 0.0);
+    CHECK(an::drill(26.5).launch.travel > 0.0f);
+    CHECK(an::drill(35.0).launch.gone);
+    CHECK_FALSE(an::drill(41.0).launch.gone);
+    CHECK(an::drill(43.9).trainBlend < 0.01f);
+    CHECK(an::drill(an::kDrillCycle + 9.1).sinceSalvo == doctest::Approx(0.1));
+    // The drill bearing is always one the mount can reach.
+    struct Arc {
+        double lo, hi;
+        bool mirrored;
+    } arcs[] = {{-150, 150, false}, {30, 150, true}, {30, 330, false}, {-150, -30, false}, {0, 180, false}, {-180, 0, false}};
+    for (auto& a : arcs) CHECK(sim::inArc(an::drillBearing(a.lo, a.hi, a.mirrored), a.lo, a.hi, a.mirrored));
 }

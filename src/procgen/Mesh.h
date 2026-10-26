@@ -36,10 +36,10 @@ enum class PartKind : uint8_t {
     Gun,           // one barrel `sub` of mount `mount`: recoils along its axis, child of the cradle
     TorpedoMount,  // trains with torpedo mount `mount`
     Searchlight,
-    Radar,         // rotating search radar antenna
-    Director,      // main battery director (trains towards its target)
-    Catapult,
-    Aircraft,
+    Radar,         // rotating search radar antenna (`sub` 1: surface search, turns faster)
+    Director,      // fire-control director `sub` (index into the class directors): trains towards its target
+    Catapult,      // catapult `sub`: trains outboard to launch
+    Aircraft,      // floatplane `sub`; pivot = its own reference point; child of its catapult (if any)
     AAMount,       // light AA mount `mount` (index into the model's AA list): trains
     AAGuns,        // its guns: elevate, child of the mount
     Torpedo,       // torpedo `sub` in the tubes of torpedo mount `mount`: slides out on launch, child of the mount
