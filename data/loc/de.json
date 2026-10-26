@@ -109,7 +109,7 @@
  "credits.game": "Iron Tide",
  "credits.game_text": "Eine taktische Marinesimulation des Überwassergefechts im Zweiten Weltkrieg. Design, Simulation, künstliche Intelligenz, prozedurale Modelle und Engine wurden für dieses Projekt erstellt.",
  "credits.history": "Historische Quellen",
- "credits.history_text": "Schiffs- und Waffendaten folgen veröffentlichten Quellen (u. a. NavWeaps, Conway's All the World's Fighting Ships, Morison, Lundgren 'The World Wonder'd', Hornfischer 'Neptune's Inferno'). Wo Quellen abweichen, wurden Werte vereinfacht.",
+ "credits.history_text": "Schiffs- und Waffendaten beruhen auf allgemein publizierten Eckdaten, für das Spiel gerundet und vereinfacht. Weiterführende Literatur: NavWeaps (navweaps.com), Conway's All the World's Fighting Ships 1922-1946, S. E. Morison „History of United States Naval Operations in World War II\" Bd. V, R. Lundgren „The World Wonder'd\", J. D. Hornfischer „Neptune's Inferno\".",
  "credits.libraries": "Bibliotheken",
  "crew.elite": "Elite",
  "crew.green": "Unerfahren",

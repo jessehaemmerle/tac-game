@@ -74,8 +74,8 @@ S = {
 "credits.audio": ("Audio", "Audio"),
 "credits.audio_text": ("Sound effects and bridge voices generated with ElevenLabs for this project.", "Soundeffekte und Brückenstimmen wurden für dieses Projekt mit ElevenLabs erzeugt."),
 "credits.history": ("Historical sources", "Historische Quellen"),
-"credits.history_text": ("Ship and weapon data follow published references (e.g. NavWeaps, Conway's All the World's Fighting Ships, Morison's History of US Naval Operations in WWII, Lundgren 'The World Wonder'd', Hornfischer 'Neptune's Inferno'). Values are simplified where sources disagree.",
-                         "Schiffs- und Waffendaten folgen veröffentlichten Quellen (u. a. NavWeaps, Conway's All the World's Fighting Ships, Morison, Lundgren 'The World Wonder'd', Hornfischer 'Neptune's Inferno'). Wo Quellen abweichen, wurden Werte vereinfacht."),
+"credits.history_text": ("Ship and weapon data use commonly published figures, rounded and simplified for play. Further reading: NavWeaps (navweaps.com), Conway's All the World's Fighting Ships 1922-1946, S. E. Morison 'History of United States Naval Operations in World War II' vol. V, R. Lundgren 'The World Wonder'd', J. D. Hornfischer 'Neptune's Inferno'.",
+                         "Schiffs- und Waffendaten beruhen auf allgemein publizierten Eckdaten, für das Spiel gerundet und vereinfacht. Weiterführende Literatur: NavWeaps (navweaps.com), Conway's All the World's Fighting Ships 1922-1946, S. E. Morison „History of United States Naval Operations in World War II\" Bd. V, R. Lundgren „The World Wonder'd\", J. D. Hornfischer „Neptune's Inferno\"."),
 # --- debrief
 "debrief.title": ("After-action report", "Gefechtsbericht"), "debrief.decisive_victory": ("Decisive victory", "Entscheidender Sieg"),
 "debrief.victory": ("Victory", "Sieg"), "debrief.draw": ("Indecisive", "Unentschieden"), "debrief.defeat": ("Defeat", "Niederlage"),

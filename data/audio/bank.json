@@ -1,0 +1,357 @@
+{
+ "sounds": {
+  "alarm_bell": [
+   "sfx/alarm_bell_0.wav",
+   "sfx/alarm_bell_1.wav",
+   "sfx/alarm_bell_2.wav"
+  ],
+  "amb_sea": [
+   "sfx/amb_sea.wav"
+  ],
+  "amb_wind": [
+   "sfx/amb_wind.wav"
+  ],
+  "explosion_medium": [
+   "sfx/explosion_medium_0.wav",
+   "sfx/explosion_medium_1.wav",
+   "sfx/explosion_medium_2.wav"
+  ],
+  "fire_loop": [
+   "sfx/fire_loop.wav"
+  ],
+  "gun_distant": [
+   "sfx/gun_distant_0.wav",
+   "sfx/gun_distant_1.wav",
+   "sfx/gun_distant_2.wav"
+  ],
+  "gun_large": [
+   "sfx/gun_large_0.wav",
+   "sfx/gun_large_1.wav",
+   "sfx/gun_large_2.wav"
+  ],
+  "gun_medium": [
+   "sfx/gun_medium_0.wav",
+   "sfx/gun_medium_1.wav",
+   "sfx/gun_medium_2.wav"
+  ],
+  "gun_small": [
+   "sfx/gun_small_0.wav",
+   "sfx/gun_small_1.wav",
+   "sfx/gun_small_2.wav"
+  ],
+  "hit_metal": [
+   "sfx/hit_metal_0.wav",
+   "sfx/hit_metal_1.wav",
+   "sfx/hit_metal_2.wav"
+  ],
+  "magazine_explosion": [
+   "sfx/magazine_explosion_0.wav",
+   "sfx/magazine_explosion_1.wav",
+   "sfx/magazine_explosion_2.wav"
+  ],
+  "searchlight_on": [
+   "sfx/searchlight_on_0.wav",
+   "sfx/searchlight_on_1.wav",
+   "sfx/searchlight_on_2.wav"
+  ],
+  "shell_whistle": [
+   "sfx/shell_whistle_0.wav",
+   "sfx/shell_whistle_1.wav",
+   "sfx/shell_whistle_2.wav"
+  ],
+  "sinking": [
+   "sfx/sinking_0.wav",
+   "sfx/sinking_1.wav",
+   "sfx/sinking_2.wav"
+  ],
+  "splash_large": [
+   "sfx/splash_large_0.wav",
+   "sfx/splash_large_1.wav",
+   "sfx/splash_large_2.wav"
+  ],
+  "splash_small": [
+   "sfx/splash_small_0.wav",
+   "sfx/splash_small_1.wav",
+   "sfx/splash_small_2.wav"
+  ],
+  "starshell_pop": [
+   "sfx/starshell_pop_0.wav",
+   "sfx/starshell_pop_1.wav",
+   "sfx/starshell_pop_2.wav"
+  ],
+  "torpedo_explosion": [
+   "sfx/torpedo_explosion_0.wav",
+   "sfx/torpedo_explosion_1.wav",
+   "sfx/torpedo_explosion_2.wav"
+  ],
+  "torpedo_launch": [
+   "sfx/torpedo_launch_0.wav",
+   "sfx/torpedo_launch_1.wav",
+   "sfx/torpedo_launch_2.wav"
+  ],
+  "ui_click": [
+   "sfx/ui_click_0.wav",
+   "sfx/ui_click_1.wav",
+   "sfx/ui_click_2.wav"
+  ],
+  "ui_telegraph": [
+   "sfx/ui_telegraph_0.wav",
+   "sfx/ui_telegraph_1.wav",
+   "sfx/ui_telegraph_2.wav"
+  ]
+ },
+ "voices": {
+  "de": {
+   "aye": [
+    "voice/de/aye_0.wav",
+    "voice/de/aye_1.wav"
+   ],
+   "capsized": [
+    "voice/de/capsized_0.wav",
+    "voice/de/capsized_1.wav"
+   ],
+   "cease_fire": [
+    "voice/de/cease_fire_0.wav",
+    "voice/de/cease_fire_1.wav"
+   ],
+   "collision": [
+    "voice/de/collision_0.wav",
+    "voice/de/collision_1.wav"
+   ],
+   "contact": [
+    "voice/de/contact_0.wav",
+    "voice/de/contact_1.wav"
+   ],
+   "contact_lost": [
+    "voice/de/contact_lost_0.wav",
+    "voice/de/contact_lost_1.wav"
+   ],
+   "contact_radar": [
+    "voice/de/contact_radar_0.wav",
+    "voice/de/contact_radar_1.wav"
+   ],
+   "course_steady": [
+    "voice/de/course_steady_0.wav",
+    "voice/de/course_steady_1.wav"
+   ],
+   "enemy_sinking": [
+    "voice/de/enemy_sinking_0.wav",
+    "voice/de/enemy_sinking_1.wav"
+   ],
+   "engines": [
+    "voice/de/engines_0.wav",
+    "voice/de/engines_1.wav"
+   ],
+   "fire": [
+    "voice/de/fire_0.wav",
+    "voice/de/fire_1.wav"
+   ],
+   "flare_enemy": [
+    "voice/de/flare_enemy_0.wav",
+    "voice/de/flare_enemy_1.wav"
+   ],
+   "general_quarters": [
+    "voice/de/general_quarters_0.wav",
+    "voice/de/general_quarters_1.wav"
+   ],
+   "grounded": [
+    "voice/de/grounded_0.wav",
+    "voice/de/grounded_1.wav"
+   ],
+   "hit_scored": [
+    "voice/de/hit_scored_0.wav",
+    "voice/de/hit_scored_1.wav"
+   ],
+   "hit_taken": [
+    "voice/de/hit_taken_0.wav",
+    "voice/de/hit_taken_1.wav"
+   ],
+   "identified": [
+    "voice/de/identified_0.wav",
+    "voice/de/identified_1.wav"
+   ],
+   "magazine": [
+    "voice/de/magazine_0.wav",
+    "voice/de/magazine_1.wav"
+   ],
+   "magazine_flooded": [
+    "voice/de/magazine_flooded_0.wav",
+    "voice/de/magazine_flooded_1.wav"
+   ],
+   "open_fire": [
+    "voice/de/open_fire_0.wav",
+    "voice/de/open_fire_1.wav"
+   ],
+   "rudder_jammed": [
+    "voice/de/rudder_jammed_0.wav",
+    "voice/de/rudder_jammed_1.wav"
+   ],
+   "searchlight_enemy": [
+    "voice/de/searchlight_enemy_0.wav",
+    "voice/de/searchlight_enemy_1.wav"
+   ],
+   "ship_lost": [
+    "voice/de/ship_lost_0.wav",
+    "voice/de/ship_lost_1.wav"
+   ],
+   "starshell_enemy": [
+    "voice/de/starshell_enemy_0.wav",
+    "voice/de/starshell_enemy_1.wav"
+   ],
+   "straddle": [
+    "voice/de/straddle_0.wav",
+    "voice/de/straddle_1.wav"
+   ],
+   "torpedo_hit_scored": [
+    "voice/de/torpedo_hit_scored_0.wav",
+    "voice/de/torpedo_hit_scored_1.wav"
+   ],
+   "torpedo_hit_taken": [
+    "voice/de/torpedo_hit_taken_0.wav",
+    "voice/de/torpedo_hit_taken_1.wav"
+   ],
+   "torpedo_reloaded": [
+    "voice/de/torpedo_reloaded_0.wav",
+    "voice/de/torpedo_reloaded_1.wav"
+   ],
+   "torpedo_sighted": [
+    "voice/de/torpedo_sighted_0.wav",
+    "voice/de/torpedo_sighted_1.wav"
+   ],
+   "torpedoes_away": [
+    "voice/de/torpedoes_away_0.wav",
+    "voice/de/torpedoes_away_1.wav"
+   ],
+   "under_fire": [
+    "voice/de/under_fire_0.wav",
+    "voice/de/under_fire_1.wav"
+   ]
+  },
+  "en": {
+   "aye": [
+    "voice/en/aye_0.wav",
+    "voice/en/aye_1.wav"
+   ],
+   "capsized": [
+    "voice/en/capsized_0.wav",
+    "voice/en/capsized_1.wav"
+   ],
+   "cease_fire": [
+    "voice/en/cease_fire_0.wav",
+    "voice/en/cease_fire_1.wav"
+   ],
+   "collision": [
+    "voice/en/collision_0.wav",
+    "voice/en/collision_1.wav"
+   ],
+   "contact": [
+    "voice/en/contact_0.wav",
+    "voice/en/contact_1.wav"
+   ],
+   "contact_lost": [
+    "voice/en/contact_lost_0.wav",
+    "voice/en/contact_lost_1.wav"
+   ],
+   "contact_radar": [
+    "voice/en/contact_radar_0.wav",
+    "voice/en/contact_radar_1.wav"
+   ],
+   "course_steady": [
+    "voice/en/course_steady_0.wav",
+    "voice/en/course_steady_1.wav"
+   ],
+   "enemy_sinking": [
+    "voice/en/enemy_sinking_0.wav",
+    "voice/en/enemy_sinking_1.wav"
+   ],
+   "engines": [
+    "voice/en/engines_0.wav",
+    "voice/en/engines_1.wav"
+   ],
+   "fire": [
+    "voice/en/fire_0.wav",
+    "voice/en/fire_1.wav"
+   ],
+   "flare_enemy": [
+    "voice/en/flare_enemy_0.wav",
+    "voice/en/flare_enemy_1.wav"
+   ],
+   "general_quarters": [
+    "voice/en/general_quarters_0.wav",
+    "voice/en/general_quarters_1.wav"
+   ],
+   "grounded": [
+    "voice/en/grounded_0.wav",
+    "voice/en/grounded_1.wav"
+   ],
+   "hit_scored": [
+    "voice/en/hit_scored_0.wav",
+    "voice/en/hit_scored_1.wav"
+   ],
+   "hit_taken": [
+    "voice/en/hit_taken_0.wav",
+    "voice/en/hit_taken_1.wav"
+   ],
+   "identified": [
+    "voice/en/identified_0.wav",
+    "voice/en/identified_1.wav"
+   ],
+   "magazine": [
+    "voice/en/magazine_0.wav",
+    "voice/en/magazine_1.wav"
+   ],
+   "magazine_flooded": [
+    "voice/en/magazine_flooded_0.wav",
+    "voice/en/magazine_flooded_1.wav"
+   ],
+   "open_fire": [
+    "voice/en/open_fire_0.wav",
+    "voice/en/open_fire_1.wav"
+   ],
+   "rudder_jammed": [
+    "voice/en/rudder_jammed_0.wav",
+    "voice/en/rudder_jammed_1.wav"
+   ],
+   "searchlight_enemy": [
+    "voice/en/searchlight_enemy_0.wav",
+    "voice/en/searchlight_enemy_1.wav"
+   ],
+   "ship_lost": [
+    "voice/en/ship_lost_0.wav",
+    "voice/en/ship_lost_1.wav"
+   ],
+   "starshell_enemy": [
+    "voice/en/starshell_enemy_0.wav",
+    "voice/en/starshell_enemy_1.wav"
+   ],
+   "straddle": [
+    "voice/en/straddle_0.wav",
+    "voice/en/straddle_1.wav"
+   ],
+   "torpedo_hit_scored": [
+    "voice/en/torpedo_hit_scored_0.wav",
+    "voice/en/torpedo_hit_scored_1.wav"
+   ],
+   "torpedo_hit_taken": [
+    "voice/en/torpedo_hit_taken_0.wav",
+    "voice/en/torpedo_hit_taken_1.wav"
+   ],
+   "torpedo_reloaded": [
+    "voice/en/torpedo_reloaded_0.wav",
+    "voice/en/torpedo_reloaded_1.wav"
+   ],
+   "torpedo_sighted": [
+    "voice/en/torpedo_sighted_0.wav",
+    "voice/en/torpedo_sighted_1.wav"
+   ],
+   "torpedoes_away": [
+    "voice/en/torpedoes_away_0.wav",
+    "voice/en/torpedoes_away_1.wav"
+   ],
+   "under_fire": [
+    "voice/en/under_fire_0.wav",
+    "voice/en/under_fire_1.wav"
+   ]
+  }
+ }
+}

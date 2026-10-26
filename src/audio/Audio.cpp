@@ -80,6 +80,7 @@ std::string voiceKeyFor(const sim::Event& e, const sim::World& w, sim::Side me) 
         case T::UnderFire: return own(e.a) ? "under_fire" : "";
         case T::Collision: return own(e.a) ? "collision" : "";
         case T::ShipGrounded: return own(e.a) ? "grounded" : "";
+        case T::OrderAcknowledged: return e.side == me ? e.text : "";
         case T::Report:
             if (e.side != me) return "";
             if (e.text == "report.rudder_jammed") return "rudder_jammed";
@@ -92,7 +93,7 @@ std::string voiceKeyFor(const sim::Event& e, const sim::World& w, sim::Side me) 
 }
 
 int voicePriority(const std::string& k) {
-    if (k == "torpedo_sighted" || k == "torpedo_hit_taken" || k == "magazine" || k == "ship_lost") return 3;
+    if (k == "torpedo_sighted" || k == "torpedo_hit_taken" || k == "magazine" || k == "ship_lost" || k == "general_quarters") return 3;
     if (k == "hit_taken" || k == "fire" || k == "contact" || k == "contact_radar" || k == "searchlight_enemy" || k == "starshell_enemy") return 2;
     return 1;
 }
@@ -131,10 +132,9 @@ void AudioEngine::shutdown() {
     for (auto& a : active_)
         if (a.voice) a.voice->DestroyVoice();
     active_.clear();
-    if (ambSea_.voice) ambSea_.voice->DestroyVoice();
-    if (ambWind_.voice) ambWind_.voice->DestroyVoice();
-    ambSea_ = {};
-    ambWind_ = {};
+    for (Active* a : {&ambSea_, &ambWind_, &fireLoop_})
+        if (a->voice) a->voice->DestroyVoice();
+    ambSea_ = ambWind_ = fireLoop_ = {};
     currentVoice_ = nullptr;
     for (auto* b : {sfxBus_, voiceBus_, ambBus_})
         if (b) b->DestroyVoice();
@@ -229,10 +229,10 @@ void AudioEngine::playUi(const char* id) {
     if (xa_) play(std::string("ui_") + id, 0.6f, 0.0f, 1.0f, sfxBus_);
 }
 
-void AudioEngine::positional(const std::string& id, const Vec3& pos, double loudness, double reach) {
+void AudioEngine::positional(const std::string& id, const Vec3& pos, double loudness, double reach, double refDistance) {
     double d = length(pos - listener_);
     if (d > reach) return;
-    double v = loudness * std::pow(250.0 / (250.0 + d), 1.1);
+    double v = loudness * std::pow(refDistance / (refDistance + d), 1.1);
     if (v < 0.01) return;
     double brg = std::atan2(pos.x - listener_.x, pos.z - listener_.z) * kRadToDeg;
     double rel = wrap180(brg - listenerYaw_) * kDegToRad;
@@ -258,6 +258,10 @@ void AudioEngine::onEvents(const std::vector<sim::Event>& events, const sim::Wor
                            double timeScale) {
     listener_ = listener;
     listenerYaw_ = yaw;
+    if (w != world_) {
+        world_ = w;
+        generalQuarters_ = false;
+    }
     if (!xa_ || !w) return;
     // At high time compression sound delays shrink accordingly and only the loudest events are kept.
     double ts = std::max(1.0, timeScale);
@@ -267,11 +271,23 @@ void AudioEngine::onEvents(const std::vector<sim::Event>& events, const sim::Wor
         switch (e.type) {
             case T::GunFired: {
                 double cal = e.value;
-                const char* id = cal >= 180 ? "gun_large" : cal >= 120 ? "gun_medium" : "gun_small";
-                if (ts <= 8.0 || cal >= 180) positional(id, pos, 0.9 * std::min(1.4, cal / 180.0 + 0.3), 30000.0);
+                double loud = 0.9 * std::min(1.4, cal / 180.0 + 0.3);
+                if (ts > 8.0 && cal < 180) break;
+                // Beyond a few miles only the low rumble of the discharge carries.
+                if (length(pos - listener_) > 7000.0) positional("gun_distant", pos, 0.55 * loud, 40000.0, 3000.0);
+                else positional(cal >= 180 ? "gun_large" : cal >= 120 ? "gun_medium" : "gun_small", pos, loud, 30000.0);
                 break;
             }
-            case T::ShellSplash: positional(e.value >= 150 ? "splash_large" : "splash_small", pos, 0.6, 3500.0); break;
+            case T::ShellSplash: {
+                positional(e.value >= 150 ? "splash_large" : "splash_small", pos, 0.6, 3500.0);
+                // A shell falling close to the listener is heard coming in before it lands.
+                double d = length(pos - listener_);
+                if (d < 400.0 && clock_ - lastWhistle_ > 1.5 && ts <= 2.0) {
+                    lastWhistle_ = clock_;
+                    play("shell_whistle", float(0.5 * (1.0 - d / 500.0)), float(std::sin((wrap180(std::atan2(pos.x - listener_.x, pos.z - listener_.z) * kRadToDeg - listenerYaw_)) * kDegToRad) * 0.6), 1.0f, sfxBus_);
+                }
+                break;
+            }
             case T::ShellHit: positional(e.value2 > 0.5 ? "explosion_medium" : "hit_metal", pos, 1.0, 12000.0); break;
             case T::TorpedoHit: positional("torpedo_explosion", pos, 1.4, 25000.0); break;
             case T::Explosion: positional("explosion_medium", pos, 1.0, 15000.0); break;
@@ -284,6 +300,19 @@ void AudioEngine::onEvents(const std::vector<sim::Event>& events, const sim::Wor
                 break;
             case T::SearchlightOn:
                 if (const sim::Ship* s = w->ship(e.a)) positional("searchlight_on", {s->pos.x, 15.0, s->pos.y}, 0.5, 1500.0);
+                break;
+            case T::ShipSunk:
+                if (const sim::Ship* s = w->ship(e.a)) positional("sinking", {s->pos.x, 5.0, s->pos.y}, 0.9, 12000.0, 800.0);
+                break;
+            case T::OrderAcknowledged:
+                if (e.side == me && e.text == "engines") play("ui_telegraph", 0.55f, 0.0f, 1.0f, sfxBus_);
+                break;
+            case T::ContactNew:
+                if (e.side == me && me != sim::Side::Neutral && !generalQuarters_) {
+                    generalQuarters_ = true;
+                    play("alarm_bell", 0.45f, 0.0f, 1.0f, sfxBus_);
+                    voice("general_quarters", 3);
+                }
                 break;
             default: break;
         }
@@ -351,10 +380,36 @@ void AudioEngine::update(double dt, const sim::World* w, const Vec3& listener, b
         double wind = clamp(w->env().weather().windSpeedKn / 30.0, 0.05, 1.0) * clamp(0.4 + h / 400.0, 0.3, 1.0);
         if (ambSea_.voice) ambSea_.voice->SetVolume(float(sea * (paused ? 0.6 : 1.0)));
         if (ambWind_.voice) ambWind_.voice->SetVolume(float(wind * 0.6));
+        updateFireLoop(*w, paused);
     } else {
-        if (ambSea_.voice) ambSea_.voice->SetVolume(0.0f);
-        if (ambWind_.voice) ambWind_.voice->SetVolume(0.0f);
+        for (Active* a : {&ambSea_, &ambWind_, &fireLoop_})
+            if (a->voice) a->voice->SetVolume(0.0f);
     }
+}
+
+void AudioEngine::updateFireLoop(const sim::World& w, bool paused) {
+    // The roar of the nearest burning ship, panned towards it.
+    double best = 0, pan = 0;
+    for (const auto& s : w.ships()) {
+        if (s->dmg.sunk || s->dmg.fires.empty()) continue;
+        Vec3 p{s->pos.x, 8.0, s->pos.y};
+        double d = length(p - listener_);
+        double v = std::min(1.0, s->dmg.totalFireIntensity()) * std::pow(150.0 / (150.0 + d), 1.2);
+        if (v > best) {
+            best = v;
+            pan = std::sin(wrap180(std::atan2(p.x - listener_.x, p.z - listener_.z) * kRadToDeg - listenerYaw_) * kDegToRad) * 0.7;
+        }
+    }
+    if (best < 0.01) {
+        if (fireLoop_.voice) fireLoop_.voice->SetVolume(0.0f);
+        return;
+    }
+    if (!fireLoop_.voice) play("fire_loop", 0.0f, 0.0f, 1.0f, sfxBus_, true, &fireLoop_);
+    if (!fireLoop_.voice) return;
+    fireLoop_.voice->SetVolume(float(std::min(0.8, best * 1.5) * (paused ? 0.5 : 1.0)));
+    float l = float(std::sqrt(0.5 * (1.0 - pan))), r = float(std::sqrt(0.5 * (1.0 + pan)));
+    float m[2] = {l, r};
+    fireLoop_.voice->SetOutputMatrix(sfxBus_, 1, 2, m);
 }
 
 }  // namespace it::audio

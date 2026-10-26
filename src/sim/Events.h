@@ -37,6 +37,7 @@ enum class EventType : uint8_t {
     UnderFire,        // a = ship being shot at (splashes nearby)
     Report,           // generic bridge report: text = loc key, args
     ScenarioMessage,  // text = loc key / literal
+    OrderAcknowledged,// a = ship (or group flagship), side, text = bridge reply (aye, course_steady, engines, open_fire, cease_fire)
 };
 
 struct Event {

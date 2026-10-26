@@ -4,3 +4,5 @@ out/
 *.user
 compile_commands.json
 /shadercache/
+__pycache__/
+*.pyc

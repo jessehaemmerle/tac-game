@@ -74,6 +74,8 @@ public:
 private:
     void spawnGroup(size_t index);
     void checkEnd();
+    /// The bridge repeats a player order (voice reply, engine telegraph).
+    void acknowledge(sim::EntityId ship, const char* reply);
 
     const sim::Database& db_;
     const ai::DoctrineLibrary& lib_;

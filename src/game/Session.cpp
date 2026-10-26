@@ -256,15 +256,37 @@ sim::Ship* Session::playerShip(sim::EntityId id) {
     return (s && s->side == options_.player && s->operational()) ? s : nullptr;
 }
 
+void Session::acknowledge(sim::EntityId ship, const char* reply) {
+    sim::Event e;
+    e.type = sim::EventType::OrderAcknowledged;
+    e.time = world_->time();
+    e.a = ship;
+    e.side = options_.player;
+    e.text = reply;
+    pending_.push_back(std::move(e));
+}
+
+namespace {
+// Speed orders ring the engine telegraph, course orders are repeated by the helmsman.
+const char* helmReply(double oldCourse, double oldSpeed, double course, double speed) {
+    if (std::abs(speed - oldSpeed) >= 0.5) return "engines";
+    if (std::abs(wrap180(course - oldCourse)) >= 1.0) return "course_steady";
+    return nullptr;
+}
+}  // namespace
+
 void Session::orderGroupCourse(int group, double course, double speedKn) {
     if (sim::Group* g = world_->group(group); g && g->side == options_.player) {
+        const char* reply = helmReply(g->course, g->speedKn, wrap360(course), std::max(0.0, speedKn));
         g->course = wrap360(course);
         g->speedKn = std::max(0.0, speedKn);
+        if (reply && !g->members.empty()) acknowledge(g->members.front(), reply);
     }
 }
 
 void Session::orderGroupFormation(int group, sim::Formation f, double spacing) {
     if (sim::Group* g = world_->group(group); g && g->side == options_.player) {
+        if (g->formation != f && !g->members.empty()) acknowledge(g->members.front(), "aye");
         g->formation = f;
         if (spacing > 0) g->spacing = spacing;
     }
@@ -272,25 +294,36 @@ void Session::orderGroupFormation(int group, sim::Formation f, double spacing) {
 
 void Session::orderShipCourse(sim::EntityId id, double course, double speedKn) {
     if (sim::Ship* s = playerShip(id)) {
+        double speed = clamp(speedKn, -8.0, s->cls->maxSpeedKn);
+        const char* reply = s->orders.playerSteering ? helmReply(s->orders.course, s->orders.speedKn, wrap360(course), speed) : "aye";
         s->orders.playerSteering = true;
         s->orders.course = wrap360(course);
-        s->orders.speedKn = clamp(speedKn, -8.0, s->cls->maxSpeedKn);
+        s->orders.speedKn = speed;
+        if (reply) acknowledge(id, reply);
     }
 }
 
 void Session::rejoinGroup(sim::EntityId id) {
-    if (sim::Ship* s = playerShip(id)) s->orders.playerSteering = false;
+    if (sim::Ship* s = playerShip(id)) {
+        if (s->orders.playerSteering) acknowledge(id, "aye");
+        s->orders.playerSteering = false;
+    }
 }
 
 void Session::orderTarget(sim::EntityId id, uint32_t track) {
     if (sim::Ship* s = playerShip(id)) {
+        if (s->orders.playerTarget != track) acknowledge(id, "aye");
         s->orders.playerTarget = track;
         world_->setDirectorTarget(*s, 0, track);
     }
 }
 
 void Session::orderWeapons(sim::EntityId id, sim::WeaponsStatus ws) {
-    if (sim::Ship* s = playerShip(id)) s->orders.weapons = ws;
+    if (sim::Ship* s = playerShip(id)) {
+        if (s->orders.weapons != ws)
+            acknowledge(id, ws == sim::WeaponsStatus::Free ? "open_fire" : ws == sim::WeaponsStatus::Hold ? "cease_fire" : "aye");
+        s->orders.weapons = ws;
+    }
 }
 
 int Session::orderTorpedoes(sim::EntityId id, uint32_t track, int count, double spreadDeg, std::string* why) {
@@ -315,21 +348,28 @@ int Session::orderTorpedoes(sim::EntityId id, uint32_t track, int count, double 
 }
 
 void Session::orderSearchlight(sim::EntityId id, bool on, uint32_t track) {
-    if (sim::Ship* s = playerShip(id)) world_->setSearchlight(*s, on, track);
+    if (sim::Ship* s = playerShip(id)) {
+        if (s->orders.searchlight != on) acknowledge(id, "aye");
+        world_->setSearchlight(*s, on, track);
+    }
 }
 
 void Session::orderStarshells(sim::EntityId id, bool on) {
-    if (sim::Ship* s = playerShip(id))
+    if (sim::Ship* s = playerShip(id)) {
+        acknowledge(id, "aye");
         for (auto& d : s->directors)
             if (d.def->role == "secondary") {
                 d.illuminate = on;
                 if (on && s->directors[0].targetTrack) d.targetTrack = s->directors[0].targetTrack;
             }
+    }
 }
 
 bool Session::orderFloatplane(sim::EntityId id, bool flares, const Vec2& target) {
     sim::Ship* s = playerShip(id);
-    return s && world_->launchAircraft(*s, flares ? sim::AircraftMission::Kind::Flares : sim::AircraftMission::Kind::Recon, target);
+    if (!s || !world_->launchAircraft(*s, flares ? sim::AircraftMission::Kind::Flares : sim::AircraftMission::Kind::Recon, target)) return false;
+    acknowledge(id, "aye");
+    return true;
 }
 
 }  // namespace it::game

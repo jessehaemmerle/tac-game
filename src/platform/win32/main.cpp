@@ -239,7 +239,6 @@ bool App::init(HINSTANCE inst, const Options& opt) {
     IT_LOG_INFO("ImGui ready");
 
     if (opt.noAudio || !audio_.init()) IT_LOG_WARN("Audio unavailable");
-    IT_LOG_INFO("Audio initialised");
     audio_.loadBank(fs::dataPath("audio").string());
     audio_.setVolumes(settings_.masterVolume, settings_.sfxVolume, settings_.voiceVolume, settings_.ambienceVolume);
     audio_.setLanguage(settings_.language);

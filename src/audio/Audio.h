@@ -57,7 +57,10 @@ private:
     const Clip* pick(const std::string& id);
     void play(const std::string& id, float volume, float pan, float pitch, IXAudio2SubmixVoice* bus, bool loop = false, Active* out = nullptr);
     void voice(const std::string& key, int priority);
-    void positional(const std::string& id, const Vec3& pos, double loudness, double reachM);
+    /// Queue a sound at a world position; it starts once the sound has travelled to the listener.
+    /// refDistance sets the roll-off (small: sharp near-field sound, large: low rumble that carries).
+    void positional(const std::string& id, const Vec3& pos, double loudness, double reachM, double refDistance = 250.0);
+    void updateFireLoop(const sim::World& w, bool paused);
 
     void* dll_ = nullptr;
     IXAudio2* xa_ = nullptr;
@@ -75,7 +78,10 @@ private:
     std::deque<VoiceReq> voiceQueue_;
     IXAudio2SourceVoice* currentVoice_ = nullptr;
     std::map<std::string, double> voiceCooldown_;
-    Active ambSea_, ambWind_;
+    Active ambSea_, ambWind_, fireLoop_;
+    bool generalQuarters_ = false;  // first enemy contact of the battle sounds the alarm
+    double lastWhistle_ = -1e9;
+    const sim::World* world_ = nullptr;
     std::string language_ = "de";
     double clock_ = 0;
     Vec3 listener_;

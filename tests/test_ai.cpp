@@ -179,3 +179,41 @@ TEST_CASE("integration: Savo Island AI vs AI produces a battle and stays determi
     double hurt = std::get<0>(r1) + std::get<1>(r1);
     CHECK(hurt > 0.0);  // somebody got hurt within the first 90 minutes
 }
+
+TEST_CASE("player orders are acknowledged by the bridge") {
+    game::Scenario sc;
+    REQUIRE(game::loadScenario(fs::dataPath("scenarios/savo_island.json").string(), sc));
+    game::Session s(db(), doctrines());
+    game::SessionOptions o;
+    o.player = Side::Allies;
+    REQUIRE(s.start(sc, o));
+    s.step();
+    s.drainEvents();
+    const Ship* own = nullptr;
+    for (const auto& sh : s.world().ships())
+        if (sh->side == Side::Allies && sh->operational()) own = sh.get();
+    REQUIRE(own);
+    auto replies = [&] {
+        std::vector<std::string> out;
+        for (const auto& e : s.drainEvents())
+            if (e.type == EventType::OrderAcknowledged) out.push_back(e.text);
+        return out;
+    };
+    s.orderWeapons(own->id, WeaponsStatus::Hold);
+    CHECK(replies() == std::vector<std::string>{"cease_fire"});
+    s.orderWeapons(own->id, WeaponsStatus::Hold);  // no change, no reply
+    CHECK(replies().empty());
+    s.orderShipCourse(own->id, own->heading, own->speedKn());
+    CHECK(replies() == std::vector<std::string>{"aye"});
+    s.orderShipCourse(own->id, own->heading + 40.0, own->speedKn());
+    CHECK(replies() == std::vector<std::string>{"course_steady"});
+    s.orderShipCourse(own->id, own->heading + 40.0, own->speedKn() + 6.0);
+    CHECK(replies() == std::vector<std::string>{"engines"});
+    // The enemy's ships take no orders from the player.
+    for (const auto& sh : s.world().ships())
+        if (sh->side == Side::Axis) {
+            s.orderWeapons(sh->id, WeaponsStatus::Hold);
+            break;
+        }
+    CHECK(replies().empty());
+}

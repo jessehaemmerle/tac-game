@@ -109,7 +109,7 @@
  "credits.game": "Iron Tide",
  "credits.game_text": "A tactical naval simulation of surface warfare in the Second World War. Design, simulation, artificial intelligence, procedural models and engine were created for this project.",
  "credits.history": "Historical sources",
- "credits.history_text": "Ship and weapon data follow published references (e.g. NavWeaps, Conway's All the World's Fighting Ships, Morison's History of US Naval Operations in WWII, Lundgren 'The World Wonder'd', Hornfischer 'Neptune's Inferno'). Values are simplified where sources disagree.",
+ "credits.history_text": "Ship and weapon data use commonly published figures, rounded and simplified for play. Further reading: NavWeaps (navweaps.com), Conway's All the World's Fighting Ships 1922-1946, S. E. Morison 'History of United States Naval Operations in World War II' vol. V, R. Lundgren 'The World Wonder'd', J. D. Hornfischer 'Neptune's Inferno'.",
  "credits.libraries": "Libraries",
  "crew.elite": "Elite",
  "crew.green": "Green",
