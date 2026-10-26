@@ -83,6 +83,8 @@ endif()
 if(IRONTIDE_BUILD_TOOLS)
   add_executable(irontide_headless tools/headless/main.cpp)
   target_link_libraries(irontide_headless PRIVATE irontide_game)
+  add_executable(irontide_modelview tools/modelview/main.cpp)
+  target_link_libraries(irontide_modelview PRIVATE irontide_procgen)
 endif()
 
 # ---------------------------------------------------------------- Windows game
