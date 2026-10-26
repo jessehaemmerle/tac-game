@@ -1,6 +1,7 @@
 #pragma once
 // The deterministic naval simulation. Fixed time step (kStep), owns all entities, produces events.
 #include <array>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -192,6 +193,7 @@ private:
                                                      ContactPicture(Side::Neutral)};
     std::vector<Event> events_;
     std::vector<Event> history_;
+    std::map<std::pair<EntityId, EntityId>, double> lastCollision_;  // hulls grinding together report once
 };
 
 }  // namespace it::sim

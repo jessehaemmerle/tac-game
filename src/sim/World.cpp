@@ -84,6 +84,15 @@ void World::emit(Event e) {
             break;
         case EventType::ContactNew:
             break;
+        case EventType::Collision: {
+            double& last = lastCollision_[{std::min(e.a, e.b), std::max(e.a, e.b)}];
+            if (last > 0 && time_ - last < 60.0) {
+                last = time_;
+                return;
+            }
+            last = time_;
+            break;
+        }
         default: break;
     }
     events_.push_back(e);

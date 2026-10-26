@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    name: Linux - tests and AI batches
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Configure
+        run: cmake --preset linux-release
+
+      - name: Build
+        run: cmake --build --preset linux-release
+
+      - name: Unit and integration tests
+        run: ctest --test-dir build/linux-release --output-on-failure
+
+      - name: AI-vs-AI batches
+        run: |
+          for s in savo_island cape_esperance tassafaronga; do
+            ./build/linux-release/irontide_headless --data data --scenario "$s" --runs 3 --seed 1 | tail -n 8
+          done
+
+  windows:
+    name: Windows - MSVC, Direct3D 12
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake --preset msvc
+
+      - name: Build
+        run: cmake --build --preset msvc-release -- /m
+
+      - name: Unit and integration tests
+        run: ctest --test-dir build/msvc -C Release --output-on-failure
+
+      - name: Smoke test (WARP renderer, main menu screenshot)
+        # Hosted runners have no GPU; D3D12 falls back to the WARP software adapter.
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $exe = "build/msvc/Release/IronTide.exe"
+          $p = Start-Process -FilePath $exe -ArgumentList "--screen menu --frames 5 --no-audio --size 1280x720 --screenshot smoke.png --log smoke.log" -PassThru -Wait
+          Get-Content smoke.log -ErrorAction SilentlyContinue
+          if ($p.ExitCode -ne 0 -or -not (Test-Path smoke.png)) { throw "smoke test failed (exit $($p.ExitCode))" }
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist/IronTide | Out-Null
+          Copy-Item build/msvc/Release/IronTide.exe dist/IronTide/
+          Copy-Item -Recurse data dist/IronTide/data
+          Copy-Item LICENSE, CREDITS.md, README.md dist/IronTide/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IronTide-windows-x64
+          path: dist/IronTide
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test
+          path: |
+            smoke.png
+            smoke.log
+          if-no-files-found: ignore

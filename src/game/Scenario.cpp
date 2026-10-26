@@ -126,6 +126,7 @@ bool loadScenario(const std::string& path, Scenario& sc, std::string* error) {
         g.mission.withdrawAtHour = jnum(mj, "withdraw_at_hour", -1);
         g.mission.speedKn = jnum(mj, "speed_kn", g.speedKn);
         g.mission.attackSpeedKn = jnum(mj, "attack_speed_kn", std::max(g.speedKn, 28.0));
+        g.mission.escortOffset = jnum(mj, "escort_offset_m", 2500.0);
         std::string esc = jstr(mj, "escort");
         if (!esc.empty())
             for (size_t k = 0; k < sc.groups.size(); ++k)
@@ -209,6 +210,7 @@ Json scenarioToJson(const Scenario& sc) {
         if (g.mission.withdrawAtHour >= 0) mj["withdraw_at_hour"] = g.mission.withdrawAtHour;
         mj["speed_kn"] = g.mission.speedKn;
         mj["attack_speed_kn"] = g.mission.attackSpeedKn;
+        if (g.mission.escortOffset != 2500.0) mj["escort_offset_m"] = g.mission.escortOffset;
         if (g.mission.escortGroup >= 0 && g.mission.escortGroup < int(sc.groups.size())) mj["escort"] = sc.groups[size_t(g.mission.escortGroup)].id;
         gj["mission"] = mj;
         groups.push_back(gj);

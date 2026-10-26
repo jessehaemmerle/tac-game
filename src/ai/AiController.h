@@ -29,6 +29,7 @@ struct Mission {
     Vec2 objective;
     double radius = 6000;
     int escortGroup = -1;
+    double escortOffset = 2500;      // station relative to the escorted group's guide (m ahead; negative: astern)
     std::vector<Vec2> exitRoute;     // route to leave the battle area
     double withdrawAtHour = -1;       // local clock hour to break off (e.g. Mikawa at Savo)
     double speedKn = 15, attackSpeedKn = 30;

@@ -148,7 +148,8 @@
         "type": "escort",
         "escort": "scott",
         "speed_kn": 20,
-        "attack_speed_kn": 32
+        "attack_speed_kn": 32,
+        "escort_offset_m": -3200.0
       },
       "readiness": 1.0
     },

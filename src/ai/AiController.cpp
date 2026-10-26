@@ -402,7 +402,7 @@ void AiController::runMission(GroupBrain& g, sim::Group& grp, sim::Ship& guide) 
     if (m.type == MissionType::Escort && m.escortGroup >= 0) {
         if (sim::Group* eg = w_.group(m.escortGroup))
             if (sim::Ship* eguide = view_.guide(*eg)) {
-                Vec2 station = eguide->pos + eguide->forward() * 2500.0;
+                Vec2 station = eguide->pos + eguide->forward() * m.escortOffset;
                 grp.course = bearingTo(guide.pos, station);
                 grp.speedKn = clamp(eg->speedKn + distance(guide.pos, station) / 300.0, 0.0, guide.cls->maxSpeedKn);
                 return;
