@@ -242,7 +242,7 @@ static bool createPipelines(Renderer::Impl& P, GpuDevice& dev, ShaderLibrary& sh
     PsoDesc d;
     d = {"sky.hlsl", "VSMain", "PSMain", {}, BlendMode::Opaque, DepthMode::Read, D3D12_CULL_MODE_NONE, hdr, msaa};
     out.sky = G(d);
-    d = {"ship.hlsl", "VSMain", "PSMain", shipLayout(), BlendMode::Opaque, DepthMode::Write, D3D12_CULL_MODE_BACK, hdr, msaa};
+    d = {"ship.hlsl", "VSMain", "PSMain", shipLayout(), BlendMode::Opaque, DepthMode::Write, D3D12_CULL_MODE_NONE, hdr, msaa};
     out.ship = G(d);
     d = {"ship.hlsl", "VSShadow", nullptr, shipLayout(), BlendMode::Opaque, DepthMode::ShadowWrite, D3D12_CULL_MODE_NONE, DXGI_FORMAT_UNKNOWN, 1};
     out.shipShadow = G(d);
@@ -450,7 +450,19 @@ void Renderer::setWorld(const sim::World* world) {
         dev_->flush();
         buildTerrain(P, *dev_, world->terrain(), chart_);
     }
-    if (world) visualTime_ = world->time();
+    if (world) {
+        visualTime_ = world->time();
+        // Seed wakes by extrapolating each ship's track backwards so a freshly loaded battle does not
+        // start with ships sitting on undisturbed water.
+        for (const auto& sp : world->ships()) {
+            const sim::Ship& s = *sp;
+            if (!s.cls || s.dmg.sunk || s.speed < 0.3) continue;
+            auto& tr = P.trails[s.id];
+            Vec2 stern = s.pos - s.forward() * (s.cls->length * 0.45);
+            for (double t = 0.0; t <= 150.0; t += 1.0) tr.points.push_back({stern - s.velocity() * t, visualTime_ - t});
+            tr.lastSeen = visualTime_;
+        }
+    }
 }
 
 void Renderer::onEvents(const std::vector<sim::Event>& events) {
@@ -613,7 +625,7 @@ static void postProcess(Renderer::Impl& P, GpuDevice& dev, const RenderSettings&
                         uint32_t h) {
     auto* cmd = dev.cmd();
     PostPass pp{};
-    pp.expo = {1.6f, 0.06f, 14.0f, 0.16f};
+    pp.expo = {1.6f, 0.06f, 10.0f, 0.14f};
     pp.grade = {0.32f, s.filmGrain ? 0.018f : 0.0f, night, 1.0f - 0.25f * night};
     // Eye adaptation.
     int next = 1 - P.lumCur;

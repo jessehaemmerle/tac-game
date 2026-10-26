@@ -115,8 +115,10 @@ float4 PSMain(VSOut i) : SV_Target
         float att = 1.0 / (1.0 + d2 * 0.00002) * saturate(1.0 - ld / range);
         col += l.color * att * (s2 * F * 6.0 + saturate(dot(N, Ll)) * 0.002 + foam * 0.02);
     }
-    float3 foamCol = float3(0.8, 0.82, 0.85) * (ambientLight(float3(0, 1, 0)) * 1.4 + gSunColor.rgb * gSunDir.w * saturate(dot(N, L)) * 0.35);
-    col = lerp(col, foamCol, foam * 0.85);
+    // Foam scatters light diffusely (albedo ~0.8): sky dome plus the key light even at grazing angles.
+    float3 foamCol = float3(0.85, 0.87, 0.9) * (ambientLight(float3(0, 1, 0)) * 2.4 + skyRadiance(float3(0, 1, 0), false) * 0.35 +
+                                                gSunColor.rgb * gSunDir.w * (0.25 + 0.75 * saturate(dot(N, L))) * 0.5 * shadow);
+    col = lerp(col, foamCol, saturate(foam * 1.1));
     col = applyFog(col, i.rel, -V);
     return float4(col, 1.0);
 }

@@ -499,14 +499,14 @@ void effectsGather(Renderer::Impl& P, const sim::World& w, const Camera& cam, do
             // Bow wave: two diverging arms (Kelvin angle) and white water along the hull.
             Vec2 f = s.forward(), r = s.right();
             Vec2 bow = s.pos + f * (s.cls->length * 0.48);
-            double armLen = s.cls->length * (0.5 + speedK);
+            double armLen = s.cls->length * (0.35 + 0.45 * speedK);
             double tanK = std::tan(19.5 * kDegToRad);
             for (int side = -1; side <= 1; side += 2) {
                 Vec2 end = bow - f * armLen + r * (side * armLen * tanK + side * s.cls->beam * 0.5);
                 Vec2 mid = bow - f * (s.cls->length * 0.3) + r * (side * s.cls->beam * 0.55);
                 Vec2 w0 = r * (side * 2.5);
-                tri(bow, float(0.9 * speedK), mid + w0, float(0.7 * speedK), mid, float(0.8 * speedK));
-                tri(mid, float(0.8 * speedK), mid + w0, float(0.6 * speedK), end, 0.0f);
+                tri(bow, float(0.8 * speedK), mid + w0, float(0.5 * speedK), mid, float(0.7 * speedK));
+                tri(mid, float(0.45 * speedK), mid + w0, float(0.3 * speedK), end, 0.0f);
             }
         }
     }

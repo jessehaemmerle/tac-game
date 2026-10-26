@@ -432,7 +432,7 @@ PaintScheme paintScheme(const std::string& hullPaint, const std::string& deckPai
     else if (hullPaint == "rn_507a") hull = srgb(92, 95, 98);
     Vec3f deck = srgb(150, 120, 85);
     if (deckPaint == "usn_deck_blue") deck = srgb(56, 62, 72);  // Deck Blue 20-B
-    else if (deckPaint == "ijn_linoleum") deck = srgb(118, 72, 50);
+    else if (deckPaint == "ijn_linoleum") deck = srgb(104, 70, 54);
     p.hull = mat(hull, 0.62f, 0.05f, kHull);
     p.superstructure = mat(hull * 1.05f, 0.6f, 0.05f, kSuper);
     p.bottom = mat(bottom, 0.8f, 0.0f, kBottom);

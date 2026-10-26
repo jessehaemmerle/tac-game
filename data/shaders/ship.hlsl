@@ -44,10 +44,12 @@ float4 VSShadow(VSIn v) : SV_Position
     return mul(gShadowViewProj, float4(w.xyz, 1.0));
 }
 
-float4 PSMain(VSOut i) : SV_Target
+float4 PSMain(VSOut i, bool front : SV_IsFrontFace) : SV_Target
 {
     float3 N = normalize(i.nrm);
     float3 V = normalize(-i.rel);
+    // Thin parts (shields, platforms, lofted plating) are drawn double-sided: light the visible side.
+    if (dot(N, V) < 0.0) N = -N;
     float3 albedo = i.color.rgb;
     float rough = i.params.x, metal = i.params.y;
     uint mat = (uint)round(i.params.z * 255.0);
