@@ -76,7 +76,7 @@ if(IRONTIDE_BUILD_TESTS)
   file(GLOB IRONTIDE_TEST_SRC CONFIGURE_DEPENDS tests/*.cpp)
   add_executable(irontide_tests ${IRONTIDE_TEST_SRC})
   target_link_libraries(irontide_tests PRIVATE irontide_ui)
-  target_compile_definitions(irontide_tests PRIVATE IRONTIDE_DATA_DIR="${CMAKE_SOURCE_DIR}/data")
+  target_compile_definitions(irontide_tests PRIVATE IRONTIDE_DATA_DIR="${CMAKE_SOURCE_DIR}/data" IRONTIDE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
   add_test(NAME irontide_tests COMMAND irontide_tests)
 endif()
 
@@ -93,10 +93,11 @@ if(IRONTIDE_BUILD_GAME)
   file(GLOB IRONTIDE_AUDIO_SRC    CONFIGURE_DEPENDS src/audio/*.cpp)
   file(GLOB IRONTIDE_PLATFORM_SRC CONFIGURE_DEPENDS src/platform/win32/*.cpp)
   add_executable(IronTide WIN32
-    ${IRONTIDE_RENDER_SRC} ${IRONTIDE_AUDIO_SRC} ${IRONTIDE_PLATFORM_SRC}
+    ${IRONTIDE_RENDER_SRC} ${IRONTIDE_AUDIO_SRC} ${IRONTIDE_PLATFORM_SRC} src/platform/win32/IronTide.rc
     external/imgui/backends/imgui_impl_win32.cpp
     external/imgui/backends/imgui_impl_dx12.cpp)
-  target_link_libraries(IronTide PRIVATE irontide_ui d3d12 dxgi dxguid xaudio2_9 ole32 winmm shell32)
+  target_include_directories(IronTide PRIVATE external/imgui/backends)
+  target_link_libraries(IronTide PRIVATE irontide_ui d3d12 dxgi dxguid d3dcompiler ole32 winmm shell32 dwmapi)
   if(MINGW)
     target_link_options(IronTide PRIVATE -static -municode)
   endif()

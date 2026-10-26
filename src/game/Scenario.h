@@ -67,6 +67,7 @@ struct Scenario {
     std::vector<ScenarioGroup> groups;
     std::vector<Objective> objectives;
     std::string sourceFile;
+    bool hidden = false;  // internal scenarios (menu backdrop) are not listed
 
     const ScenarioGroup* group(const std::string& id) const;
 };

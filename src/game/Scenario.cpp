@@ -63,6 +63,7 @@ bool loadScenario(const std::string& path, Scenario& sc, std::string* error) {
     sc.sourceFile = path;
     sc.id = jstr(j, "id");
     sc.title = jstr(j, "title", "scenario." + sc.id + ".title");
+    sc.hidden = jbool(j, "hidden", false);
     sc.briefing = jstr(j, "briefing", "scenario." + sc.id + ".briefing");
     sc.history = jstr(j, "history", "scenario." + sc.id + ".history");
     sc.theater = jstr(j, "theater", "pacific");
@@ -150,6 +151,7 @@ Json scenarioToJson(const Scenario& sc) {
     Json j;
     j["id"] = sc.id;
     j["title"] = sc.title;
+    if (sc.hidden) j["hidden"] = true;
     j["briefing"] = sc.briefing;
     j["history"] = sc.history;
     j["theater"] = sc.theater;

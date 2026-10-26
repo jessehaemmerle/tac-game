@@ -1,0 +1,36 @@
+{
+  "id": "menu_backdrop",
+  "hidden": true,
+  "theater": "pacific",
+  "location": { "lat": -9.22, "lon": 159.95 },
+  "terrain": "terrain/ironbottom_sound.json",
+  "date": { "year": 1942, "month": 8, "day": 8, "hour": 17.62, "utc_offset": 11 },
+  "weather": { "cloud_cover": 0.45, "visibility_km": 25, "sea_state": 3, "wind_dir": 110, "wind_kn": 12, "squalls": 2, "squall_intensity": 0.6 },
+  "player_sides": [ "axis" ],
+  "default_player": "axis",
+  "time_limit_s": 100000,
+  "groups": [
+    {
+      "id": "cruisers", "name": "group.savo.mikawa", "side": "axis", "doctrine": "ijn_1942",
+      "formation": "column", "spacing": 900, "crew": "elite",
+      "position": { "lat": -9.02, "lon": 159.52 }, "course": 120, "speed_kn": 22,
+      "ships": [
+        { "class": "ijn_ca_takao", "name": "Chokai" },
+        { "class": "ijn_ca_aoba", "name": "Aoba" },
+        { "class": "ijn_ca_furutaka", "name": "Kako" },
+        { "class": "ijn_cl_tenryu", "name": "Tenryu" }
+      ],
+      "mission": { "type": "patrol", "speed_kn": 22, "loop": true,
+        "waypoints": [ { "lat": -9.10, "lon": 159.72 }, { "lat": -9.18, "lon": 159.55 }, { "lat": -9.00, "lon": 159.50 } ] },
+      "readiness": 0.5
+    },
+    {
+      "id": "transports", "name": "group.savo.transports", "side": "allies", "doctrine": "usn_1942",
+      "formation": "column", "spacing": 800, "crew": "regular",
+      "position": { "lat": -9.40, "lon": 160.30 }, "course": 270, "speed_kn": 0,
+      "ships": [ { "class": "usn_ap_transport", "name": "Barnett" } ],
+      "mission": { "type": "patrol", "speed_kn": 0, "waypoints": [] },
+      "readiness": 0.3
+    }
+  ]
+}
