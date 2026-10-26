@@ -213,6 +213,32 @@ TEST_CASE("integration: Savo Island AI vs AI produces a battle and stays determi
     CHECK(hurt > 0.0);  // somebody got hurt within the first 90 minutes
 }
 
+TEST_CASE("scenario ships can start damaged: Pola lies dead in the water at Matapan") {
+    game::Scenario sc;
+    REQUIRE(game::loadScenario(fs::dataPath("scenarios/cape_matapan.json").string(), sc));
+    game::Session s(db(), doctrines());
+    game::SessionOptions o;
+    o.seed = 7;
+    REQUIRE(s.start(sc, o));
+    const Ship* pola = nullptr;
+    for (auto& sh : s.world().ships())
+        if (sh->name == "Pola") pola = sh.get();
+    REQUIRE(pola);
+    Vec2 start = pola->pos;
+    while (s.world().time() < 300.0) s.step();
+    CHECK(pola->dmg.propulsion == doctest::Approx(0.0));
+    CHECK(pola->maxSpeedNow() == doctest::Approx(0.0));
+    CHECK(distance(pola->pos, start) < 30.0);
+    CHECK(pola->dmg.flooding > 500.0);
+    // The damage survives a round trip through the editor's scenario format.
+    Json j = game::scenarioToJson(sc);
+    bool saved = false;
+    for (auto& g : j["groups"])
+        for (auto& sj : g["ships"])
+            if (sj["name"] == "Pola") saved = sj.contains("damage") && sj["damage"]["propulsion"].get<double>() == 0.0;
+    CHECK(saved);
+}
+
 TEST_CASE("player orders are acknowledged by the bridge") {
     game::Scenario sc;
     REQUIRE(game::loadScenario(fs::dataPath("scenarios/savo_island.json").string(), sc));

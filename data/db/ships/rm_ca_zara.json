@@ -1,0 +1,453 @@
+{
+  "id": "rm_ca_zara",
+  "nation": "rm",
+  "type": "CA",
+  "name": "Zara",
+  "year": 1931,
+  "ships": [
+    "Zara",
+    "Fiume",
+    "Pola",
+    "Gorizia"
+  ],
+  "sources": "Brescia, Mussolini's Navy; Bagnasco & Brescia, Cruisers of the Regia Marina; navweaps.com; Marina Militare",
+  "dimensions": {
+    "length": 182.8,
+    "length_wl": 179.6,
+    "beam": 20.62,
+    "draft": 7.2,
+    "mast_height": 40,
+    "lookout_height": 25,
+    "superstructure_height": 24
+  },
+  "displacement": {
+    "standard": 11680,
+    "full": 14300
+  },
+  "propulsion": {
+    "max_speed_kn": 32.0,
+    "cruise_speed_kn": 16,
+    "shp": 95000,
+    "accel_kn_per_min": 4.5,
+    "tactical_diameter_m": 850,
+    "shafts": 2
+  },
+  "crew": 841,
+  "armor": {
+    "belt": 150,
+    "belt_magazine": 150,
+    "deck": 70,
+    "turret_face": 150,
+    "turret_roof": 80,
+    "barbette": 150,
+    "conning_tower": 150,
+    "torpedo_protection": 0.2
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "rm_203_53",
+      "barrels": 2,
+      "f": 0.175,
+      "arc_min": -150,
+      "arc_max": 150,
+      "ammo": {
+        "AP": 100,
+        "HE": 57
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "rm_203_53",
+      "barrels": 2,
+      "f": 0.235,
+      "arc_min": -150,
+      "arc_max": 150,
+      "superfiring": true,
+      "raise": 0.6,
+      "ammo": {
+        "AP": 100,
+        "HE": 57
+      }
+    },
+    {
+      "id": "3",
+      "weapon": "rm_203_53",
+      "barrels": 2,
+      "f": 0.705,
+      "arc_min": 30,
+      "arc_max": 330,
+      "superfiring": true,
+      "ammo": {
+        "AP": 100,
+        "HE": 57
+      }
+    },
+    {
+      "id": "4",
+      "weapon": "rm_203_53",
+      "barrels": 2,
+      "f": 0.77,
+      "arc_min": 30,
+      "arc_max": 330,
+      "ammo": {
+        "AP": 100,
+        "HE": 57
+      }
+    },
+    {
+      "id": "S1",
+      "weapon": "rm_100_47",
+      "barrels": 2,
+      "f": 0.37,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 7.6,
+      "style": "shield",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 8,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "S2",
+      "weapon": "rm_100_47",
+      "barrels": 2,
+      "f": 0.37,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -7.6,
+      "style": "shield",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 8,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "S3",
+      "weapon": "rm_100_47",
+      "barrels": 2,
+      "f": 0.43,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 7.8,
+      "style": "shield",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 8,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "S4",
+      "weapon": "rm_100_47",
+      "barrels": 2,
+      "f": 0.43,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -7.8,
+      "style": "shield",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 8,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "S5",
+      "weapon": "rm_100_47",
+      "barrels": 2,
+      "f": 0.49,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 7.8,
+      "style": "shield",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 8,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "S6",
+      "weapon": "rm_100_47",
+      "barrels": 2,
+      "f": 0.49,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -7.8,
+      "style": "shield",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 8,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "S7",
+      "weapon": "rm_100_47",
+      "barrels": 2,
+      "f": 0.55,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 7.6,
+      "style": "shield",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 8,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "S8",
+      "weapon": "rm_100_47",
+      "barrels": 2,
+      "f": 0.55,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -7.6,
+      "style": "shield",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 8,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    }
+  ],
+  "torpedo_mounts": [],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 5.0,
+      "height": 26,
+      "f": 0.275
+    },
+    {
+      "id": "sec",
+      "role": "secondary",
+      "rangefinder_m": 3.0,
+      "height": 20,
+      "f": 0.31
+    },
+    {
+      "id": "main_aft",
+      "role": "main",
+      "rangefinder_m": 5.0,
+      "height": 12,
+      "f": 0.635
+    }
+  ],
+  "sensors": [
+    {
+      "id": "rm_lookouts",
+      "height": 25,
+      "f": 0.28
+    }
+  ],
+  "searchlights": 6,
+  "searchlight_cm": 90,
+  "floatplanes": 2,
+  "rcs": 1.1,
+  "reserve_buoyancy": 0.55,
+  "hull_strength": 1.05,
+  "model": {
+    "bow_rake": 0.03,
+    "stern": 0.0,
+    "freeboard_bow": 9.0,
+    "freeboard_mid": 7.0,
+    "freeboard_stern": 5.0,
+    "forecastle_end": 0.6,
+    "forecastle_drop": 2.4,
+    "fineness": 0.52,
+    "flare": 0.12,
+    "hull_paint": "rm_grey",
+    "deck_paint": "teak",
+    "parts": [
+      {
+        "type": "catapult",
+        "f": 0.07,
+        "len": 14,
+        "style": "fixed"
+      },
+      {
+        "type": "aircraft",
+        "f": 0.07,
+        "z": 2.2,
+        "style": "pete"
+      },
+      {
+        "type": "bridge",
+        "f": 0.28,
+        "len": 14,
+        "wid": 12,
+        "h": 3.0,
+        "levels": 5,
+        "style": "rn"
+      },
+      {
+        "type": "director",
+        "f": 0.275,
+        "z": 15.3,
+        "len": 4.4,
+        "wid": 5.0,
+        "h": 2.8
+      },
+      {
+        "type": "director",
+        "f": 0.31,
+        "z": 10.4,
+        "len": 2.6,
+        "wid": 3.0,
+        "h": 2.0
+      },
+      {
+        "type": "tripod",
+        "f": 0.3,
+        "h": 34,
+        "rake": 3
+      },
+      {
+        "type": "funnel",
+        "f": 0.4,
+        "len": 6.6,
+        "wid": 4.8,
+        "h": 12.0,
+        "rake": 0
+      },
+      {
+        "type": "funnel",
+        "f": 0.48,
+        "len": 6.6,
+        "wid": 4.8,
+        "h": 11.5,
+        "rake": 0
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.45,
+        "len": 32,
+        "wid": 11,
+        "h": 2.6,
+        "levels": 1
+      },
+      {
+        "type": "searchlight",
+        "f": 0.355,
+        "y": 4.0,
+        "z": 13,
+        "mirror": true
+      },
+      {
+        "type": "searchlight",
+        "f": 0.44,
+        "y": 3.5,
+        "z": 9.5,
+        "mirror": true
+      },
+      {
+        "type": "searchlight",
+        "f": 0.525,
+        "y": 3.5,
+        "z": 9.0,
+        "mirror": true
+      },
+      {
+        "type": "mast",
+        "f": 0.585,
+        "h": 26,
+        "rake": 0
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.625,
+        "len": 9,
+        "wid": 7,
+        "h": 2.6,
+        "levels": 2
+      },
+      {
+        "type": "director",
+        "f": 0.635,
+        "z": 5.5,
+        "len": 3.6,
+        "wid": 4.6,
+        "h": 2.4
+      },
+      {
+        "type": "boat",
+        "f": 0.465,
+        "y": 6.2,
+        "z": 2.8,
+        "len": 10,
+        "mirror": true
+      },
+      {
+        "type": "boat",
+        "f": 0.525,
+        "y": 6.2,
+        "z": 2.8,
+        "len": 9,
+        "mirror": true
+      },
+      {
+        "type": "crane",
+        "f": 0.555,
+        "y": 5.5,
+        "h": 10,
+        "len": 11,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "rm_37mm_2",
+        "f": 0.335,
+        "y": 5.6,
+        "mirror": true,
+        "z": 3.0
+      },
+      {
+        "type": "aa",
+        "style": "rm_37mm_2",
+        "f": 0.6,
+        "y": 4.5,
+        "mirror": true,
+        "z": 2.8
+      },
+      {
+        "type": "aa",
+        "style": "rm_13mm_2",
+        "f": 0.3,
+        "y": 5.2,
+        "mirror": true,
+        "z": 6.2
+      },
+      {
+        "type": "aa",
+        "style": "rm_13mm_2",
+        "f": 0.575,
+        "y": 3.6,
+        "mirror": true,
+        "z": 4.6
+      }
+    ]
+  }
+}

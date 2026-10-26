@@ -1,0 +1,232 @@
+{
+  "id": "rn_dd_j",
+  "nation": "rn",
+  "type": "DD",
+  "name": "J / K / N",
+  "year": 1939,
+  "ships": [
+    "Jervis",
+    "Janus",
+    "Juno",
+    "Jaguar",
+    "Kelly",
+    "Kandahar",
+    "Kimberley",
+    "Nizam",
+    "Napier"
+  ],
+  "sources": "Whitley, Destroyers of World War Two; English, Amazon to Ivanhoe; navweaps.com",
+  "dimensions": {
+    "length": 108.7,
+    "length_wl": 106.1,
+    "beam": 10.9,
+    "draft": 3.8,
+    "mast_height": 26,
+    "lookout_height": 13,
+    "superstructure_height": 9
+  },
+  "displacement": {
+    "standard": 1690,
+    "full": 2330
+  },
+  "propulsion": {
+    "max_speed_kn": 36.0,
+    "cruise_speed_kn": 15,
+    "shp": 40000,
+    "accel_kn_per_min": 9.0,
+    "tactical_diameter_m": 620,
+    "shafts": 2
+  },
+  "crew": 183,
+  "mounts": [
+    {
+      "id": "A",
+      "weapon": "rn_47in45",
+      "barrels": 2,
+      "f": 0.165,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "dd_turret",
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "B",
+      "weapon": "rn_47in45",
+      "barrels": 2,
+      "f": 0.23,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "dd_turret",
+      "superfiring": true,
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "Y",
+      "weapon": "rn_47in45",
+      "barrels": 2,
+      "f": 0.8,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "dd_turret",
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 20
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "rn_mk9",
+      "tubes": 5,
+      "f": 0.5,
+      "arc_min": 35,
+      "arc_max": 145,
+      "mirrored": true,
+      "reloads": 0
+    },
+    {
+      "id": "T2",
+      "weapon": "rn_mk9",
+      "tubes": 5,
+      "f": 0.625,
+      "arc_min": 35,
+      "arc_max": 145,
+      "mirrored": true,
+      "reloads": 0
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 3.66,
+      "height": 12.5,
+      "f": 0.255
+    }
+  ],
+  "sensors": [
+    {
+      "id": "rn_lookouts",
+      "height": 13,
+      "f": 0.255
+    }
+  ],
+  "model": {
+    "bow_rake": 0.05,
+    "stern": 0.0,
+    "freeboard_bow": 6.2,
+    "freeboard_mid": 4.3,
+    "freeboard_stern": 2.9,
+    "forecastle_end": 0.31,
+    "forecastle_drop": 2.0,
+    "fineness": 0.48,
+    "flare": 0.22,
+    "hull_paint": "rn_507c",
+    "deck_paint": "teak",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.245,
+        "len": 8,
+        "wid": 8,
+        "h": 2.6,
+        "levels": 3,
+        "style": "rn"
+      },
+      {
+        "type": "director",
+        "f": 0.255,
+        "z": 8.0,
+        "len": 3.0,
+        "wid": 3.4,
+        "h": 2.2
+      },
+      {
+        "type": "tripod",
+        "f": 0.29,
+        "h": 21,
+        "rake": 6
+      },
+      {
+        "type": "funnel",
+        "f": 0.42,
+        "len": 6.4,
+        "wid": 3.6,
+        "h": 7.4,
+        "rake": 7
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.4,
+        "len": 14,
+        "wid": 6,
+        "h": 2.4
+      },
+      {
+        "type": "aa",
+        "style": "rn_pompom_4",
+        "f": 0.565,
+        "z": 3.2
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.7,
+        "len": 7,
+        "wid": 5,
+        "h": 2.4
+      },
+      {
+        "type": "searchlight",
+        "f": 0.7,
+        "z": 4.2
+      },
+      {
+        "type": "mast",
+        "f": 0.69,
+        "h": 12,
+        "rake": 6
+      },
+      {
+        "type": "boat",
+        "f": 0.35,
+        "y": 4.1,
+        "z": 1.2,
+        "len": 7,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "rn_05in_4",
+        "f": 0.36,
+        "y": 3.6,
+        "mirror": true,
+        "z": 2.4
+      }
+    ]
+  },
+  "armor": {
+    "belt": 0,
+    "deck": 0,
+    "turret_face": 3,
+    "torpedo_protection": 0.0
+  },
+  "searchlights": 1,
+  "searchlight_cm": 51,
+  "depth_charges": 20,
+  "rcs": 0.34,
+  "reserve_buoyancy": 0.45,
+  "hull_strength": 0.78
+}

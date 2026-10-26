@@ -116,7 +116,7 @@ Gebiet erreichen, überleben).
 | `db/ships/*.json` | Schiffsklassen: Abmessungen, Verdrängung, Antrieb, Panzerung, Geschütz- und Torpedoaufstellungen mit Bestreichungswinkeln, Richtungsgeber, Sensoren, Scheinwerfer, Bordflugzeuge, Modellparameter, Schiffsnamen (Klassengeschichte in den Sprachdateien) |
 | `db/guns.json`, `torpedoes.json`, `sensors.json`, `nations.json` | Geschütze (Ballistik, Granaten, Kadenz), Torpedos (Laufstufen, Kielwasser, Versager), Sensoren, Nationen |
 | `doctrine/*.json` | KI-Doktrinen |
-| `scenarios/*.json` | Missionen: Zeit, Ort, Wetter, Verbände mit Auftrag, Doktrin, Besatzungsgüte, Bereitschaft, Ziele |
+| `scenarios/*.json` | Missionen: Zeit, Ort, Wetter, Verbände mit Auftrag, Doktrin, Besatzungsgüte, Bereitschaft, Ziele; je Schiff Sensor-Umrüstungen und Vorschäden (Antrieb, Strom, Wassereinbruch – z. B. die gestoppte Pola bei Matapan) |
 | `terrain/` | Höhenmodell (Int16, 100 m) mit Georeferenz |
 | `shaders/` | HLSL (SM 5.1), zur Laufzeit kompiliert und zwischengespeichert |
 | `loc/` | Sprachdateien, erzeugt aus `tools/loc/*.py` |

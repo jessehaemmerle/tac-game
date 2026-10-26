@@ -1,0 +1,16 @@
+{
+  "name": "Cape Matapan",
+  "center_lat": 35.400000000000006,
+  "center_lon": 20.950000000000003,
+  "width": 1090,
+  "height": 996,
+  "cell_size_m": 100.0,
+  "heights": "cape_matapan.r16",
+  "bounds": {
+    "lat_min": 34.95,
+    "lat_max": 35.85,
+    "lon_min": 20.35,
+    "lon_max": 21.55
+  },
+  "attribution": "Terrain Tiles (Mapzen/Tilezen, AWS Open Data): SRTM, GMTED2010, ETOPO1 and others; see https://github.com/tilezen/joerd/blob/master/docs/attribution.md"
+}

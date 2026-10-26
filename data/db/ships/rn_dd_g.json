@@ -1,0 +1,249 @@
+{
+  "id": "rn_dd_g",
+  "nation": "rn",
+  "type": "DD",
+  "name": "G / H / I",
+  "year": 1936,
+  "ships": [
+    "Greyhound",
+    "Griffin",
+    "Havock",
+    "Hotspur",
+    "Hasty",
+    "Hereward",
+    "Ilex"
+  ],
+  "sources": "Whitley, Destroyers of World War Two; English, Amazon to Ivanhoe; navweaps.com",
+  "dimensions": {
+    "length": 98.5,
+    "length_wl": 96.0,
+    "beam": 10.1,
+    "draft": 3.8,
+    "mast_height": 25,
+    "lookout_height": 12,
+    "superstructure_height": 8
+  },
+  "displacement": {
+    "standard": 1350,
+    "full": 1860
+  },
+  "propulsion": {
+    "max_speed_kn": 36.0,
+    "cruise_speed_kn": 15,
+    "shp": 34000,
+    "accel_kn_per_min": 9.0,
+    "tactical_diameter_m": 580,
+    "shafts": 2
+  },
+  "crew": 145,
+  "mounts": [
+    {
+      "id": "A",
+      "weapon": "rn_47in45",
+      "barrels": 1,
+      "f": 0.14,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "shield",
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "B",
+      "weapon": "rn_47in45",
+      "barrels": 1,
+      "f": 0.205,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "shield",
+      "superfiring": true,
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "X",
+      "weapon": "rn_47in45",
+      "barrels": 1,
+      "f": 0.675,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "superfiring": true,
+      "raise": 0.6,
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "Y",
+      "weapon": "rn_47in45",
+      "barrels": 1,
+      "f": 0.84,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 20
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "rn_mk9",
+      "tubes": 4,
+      "f": 0.49,
+      "arc_min": 35,
+      "arc_max": 145,
+      "mirrored": true,
+      "reloads": 0
+    },
+    {
+      "id": "T2",
+      "weapon": "rn_mk9",
+      "tubes": 4,
+      "f": 0.585,
+      "arc_min": 35,
+      "arc_max": 145,
+      "mirrored": true,
+      "reloads": 0
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 2.7,
+      "height": 12,
+      "f": 0.25
+    }
+  ],
+  "sensors": [
+    {
+      "id": "rn_lookouts",
+      "height": 12,
+      "f": 0.25
+    }
+  ],
+  "model": {
+    "bow_rake": 0.05,
+    "stern": 0.0,
+    "freeboard_bow": 6.0,
+    "freeboard_mid": 4.1,
+    "freeboard_stern": 2.8,
+    "forecastle_end": 0.3,
+    "forecastle_drop": 1.9,
+    "fineness": 0.47,
+    "flare": 0.22,
+    "hull_paint": "rn_507c",
+    "deck_paint": "teak",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.24,
+        "len": 7,
+        "wid": 7,
+        "h": 2.5,
+        "levels": 3,
+        "style": "rn"
+      },
+      {
+        "type": "director",
+        "f": 0.245,
+        "z": 7.6,
+        "len": 2.6,
+        "wid": 3.0,
+        "h": 2.0
+      },
+      {
+        "type": "mast",
+        "f": 0.285,
+        "h": 20,
+        "rake": 6
+      },
+      {
+        "type": "funnel",
+        "f": 0.355,
+        "len": 4.0,
+        "wid": 2.8,
+        "h": 6.6,
+        "rake": 6
+      },
+      {
+        "type": "funnel",
+        "f": 0.435,
+        "len": 4.0,
+        "wid": 2.8,
+        "h": 6.2,
+        "rake": 6
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.4,
+        "len": 13,
+        "wid": 5.5,
+        "h": 2.3
+      },
+      {
+        "type": "searchlight",
+        "f": 0.54,
+        "z": 4.0
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.655,
+        "len": 6,
+        "wid": 5,
+        "h": 2.3
+      },
+      {
+        "type": "mast",
+        "f": 0.635,
+        "h": 12,
+        "rake": 6
+      },
+      {
+        "type": "boat",
+        "f": 0.33,
+        "y": 3.8,
+        "z": 1.2,
+        "len": 6.5,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "rn_05in_4",
+        "f": 0.4,
+        "y": 3.0,
+        "mirror": true,
+        "z": 2.3
+      }
+    ]
+  },
+  "armor": {
+    "belt": 0,
+    "deck": 0,
+    "turret_face": 3,
+    "torpedo_protection": 0.0
+  },
+  "searchlights": 1,
+  "searchlight_cm": 51,
+  "depth_charges": 20,
+  "rcs": 0.34,
+  "reserve_buoyancy": 0.45,
+  "hull_strength": 0.78
+}

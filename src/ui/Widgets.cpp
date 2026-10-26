@@ -212,9 +212,40 @@ void drawFlag(ImDrawList* dl, ImVec2 p, ImVec2 sz, sim::Nation n) {
             if (!white) dl->AddCircleFilled({p.x + sz.x * 0.75f, p.y + sz.y * 0.62f}, 1.5f, IM_COL32(255, 255, 255, 255));
             break;
         }
+        case sim::Nation::RM: {
+            // Italian naval ensign: tricolour with the crowned shield of Savoy.
+            float w3 = sz.x / 3.0f;
+            dl->AddRectFilled(p, {p.x + w3, q.y}, IM_COL32(0, 140, 69, 255));
+            dl->AddRectFilled({p.x + w3, p.y}, {p.x + 2 * w3, q.y}, IM_COL32(244, 245, 240, 255));
+            dl->AddRectFilled({p.x + 2 * w3, p.y}, q, IM_COL32(205, 33, 42, 255));
+            ImVec2 c{p.x + sz.x * 0.5f, p.y + sz.y * 0.55f};
+            float r = sz.y * 0.2f;
+            dl->AddRectFilled({c.x - r * 0.8f, c.y - r}, {c.x + r * 0.8f, c.y + r}, IM_COL32(30, 60, 150, 255));
+            dl->AddRectFilled({c.x - r * 0.6f, c.y - r * 0.8f}, {c.x + r * 0.6f, c.y + r * 0.8f}, IM_COL32(205, 33, 42, 255));
+            dl->AddRectFilled({c.x - r * 0.12f, c.y - r * 0.8f}, {c.x + r * 0.12f, c.y + r * 0.8f}, IM_COL32(244, 245, 240, 255));
+            dl->AddRectFilled({c.x - r * 0.6f, c.y - r * 0.12f}, {c.x + r * 0.6f, c.y + r * 0.12f}, IM_COL32(244, 245, 240, 255));
+            dl->AddRectFilled({c.x - r * 0.6f, c.y - r * 1.55f}, {c.x + r * 0.6f, c.y - r * 1.1f}, IM_COL32(200, 160, 40, 255));
+            break;
+        }
+        case sim::Nation::KM: {
+            // German war ensign as used in this game: red field, black cross edged in white, the Iron Cross in
+            // the upper hoist (the emblem in the centre is deliberately left out).
+            dl->AddRectFilled(p, q, IM_COL32(200, 16, 30, 255));
+            ImVec2 c{p.x + sz.x * 0.45f, p.y + sz.y * 0.5f};
+            float a = sz.y * 0.09f, b = sz.y * 0.05f;
+            dl->AddRectFilled({p.x, c.y - a}, {q.x, c.y + a}, IM_COL32(245, 245, 245, 255));
+            dl->AddRectFilled({c.x - a, p.y}, {c.x + a, q.y}, IM_COL32(245, 245, 245, 255));
+            dl->AddRectFilled({p.x, c.y - b}, {q.x, c.y + b}, IM_COL32(15, 15, 15, 255));
+            dl->AddRectFilled({c.x - b, p.y}, {c.x + b, q.y}, IM_COL32(15, 15, 15, 255));
+            ImVec2 ic{p.x + sz.x * 0.2f, p.y + sz.y * 0.24f};
+            float k = sz.y * 0.13f;
+            dl->AddRectFilled({ic.x - k, ic.y - k * 0.3f}, {ic.x + k, ic.y + k * 0.3f}, IM_COL32(15, 15, 15, 255));
+            dl->AddRectFilled({ic.x - k * 0.3f, ic.y - k}, {ic.x + k * 0.3f, ic.y + k}, IM_COL32(15, 15, 15, 255));
+            break;
+        }
         default: {
             dl->AddRectFilled(p, q, IM_COL32(90, 96, 100, 255));
-            const char* t = n == sim::Nation::KM ? "KM" : n == sim::Nation::RM ? "RM" : n == sim::Nation::MN ? "MN" : "?";
+            const char* t = n == sim::Nation::MN ? "MN" : "?";
             ImVec2 ts = ImGui::CalcTextSize(t);
             dl->AddText({p.x + (sz.x - ts.x) * 0.5f, p.y + (sz.y - ts.y) * 0.5f}, IM_COL32(240, 240, 240, 255), t);
         }

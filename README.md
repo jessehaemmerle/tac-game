@@ -12,10 +12,11 @@ only knows what its own lookouts and radars report.*
 
 ## Inhalt
 
-- **Fünf historische Missionen** im Ironbottom Sound, jede aus beiden Seiten spielbar:
+- **Sechs historische Missionen**, jede aus beiden Seiten spielbar. Pazifik (Ironbottom Sound):
   Savo Island (8./9. Aug. 1942), Cape Esperance (11./12. Okt. 1942), Erste und Zweite
   Seeschlacht von Guadalcanal (13. und 14./15. Nov. 1942, mit Beschießungsauftrag gegen
-  Henderson Field), Tassafaronga (30. Nov. 1942).
+  Henderson Field), Tassafaronga (30. Nov. 1942). Mittelmeer: Kap Matapan (28./29. März 1941,
+  Cunninghams Schlachtschiffe gegen die Kreuzer Zara, Fiume und die gestoppte Pola).
   Briefing mit Lage, Auftrag, Aufklärung, astronomisch berechneten Lichtverhältnissen und Geschichte.
 - **Szenario-Editor** für eigene Gefechte (Verbände, Wegpunkte, Aufträge, Doktrin, Zeit und Wetter).
 - **Simulation**: Außenballistik und Panzerdurchschlag, Feuerleitung mit Richtungsgeber-Verfolgung
@@ -34,16 +35,20 @@ only knows what its own lookouts and radars report.*
   **Waffenvorführung** (Türme schwenken, Salven mit Rückstoß je Rohr, Mündungsfeuer und
   Pulverrauch, Torpedoausstoß, Katapultstart des Bordflugzeugs), Bestreichungswinkel,
   Durchschlagstabelle gegen gewählte Gegnerklassen, Panzerung, Torpedos, Sensoren und Geschichte
-  für 31 Schiffsklassen.
+  für 38 Schiffsklassen der US Navy, Royal Navy, Royal Australian Navy,
+  Kaiserlich Japanischen Marine und Regia Marina.
 - **Schiffsmodelle**: prozedural aus den Klassendaten, je Marine im eigenen Stil – Rumpf mit
   Panzergürtel bzw. Wulst, Schanzkleid, Wellenbrecher, Anker und Kette, Wellen, Schrauben und
   Ruder; Brücken und Pagodenmasten mit Fensterbändern, Nocken und Splitterschutz; Schornsteine
   mit Kappen, Funkenfängern und Dampfrohren; Masten mit Plattformen, Rahen, Signallampen und
-  Antennendrähten; Feuerleitstände (Mk 33/34/37, Typ 94) mit Entfernungsmessern und
-  Radarantennen (SC, SG, Mk 3, Mk 4); Türme mit Visierhauben, Messgeräte-Ohren und Mündungs-
-  schutzhüllen; leichte Flak (20 mm, 1,1″, 25 mm, 13 mm, Pom-Pom); Bordflugzeuge mit
-  Hoheitszeichen; Beiboote an Davits, Carley-Flöße, Relinge, Niedergänge, Poller, Lüfter,
-  Wasserbomben; wehende Kriegsflagge. Materialtexturen (Plattenstöße, Teak, Linoleum mit
+  Antennendrähten; Feuerleitstände (Mk 33/34/37, Typ 94, britische und italienische Leitstände)
+  mit Entfernungsmessern und Radarantennen (SC, SG, Mk 3, Mk 4, Typ 279/281/286); Türme mit
+  Visierhauben, Messgeräte-Ohren und Mündungsschutzhüllen; Kasematten; leichte Flak (20 mm, 1,1″,
+  25 mm, 13 mm, Pom-Pom, Breda); Bordflugzeuge mit Hoheitszeichen auf drehbaren oder festen
+  Katapulten; Beiboote an Davits, Carley-Flöße, Relinge, Niedergänge, Poller, Lüfter,
+  Wasserbomben; rot-weiße Fliegererkennungsstreifen der Regia Marina; wehende Kriegsflagge
+  (USA, Japan, White Ensign, Italien; die deutsche Reichskriegsflagge ohne das verbotene
+  Zeichen). Materialtexturen (Plattenstöße, Teak, Linoleum mit
   Messingleisten, Rutschbelag, Segeltuch) mit Rost, Salz und Bullaugen; Detailstufen nach
   Bildschirmgröße.
 - **Animationen**: Türme, Rohre und Leitstände folgen der Feuerleitung, jedes Rohr läuft nach dem

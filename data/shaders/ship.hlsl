@@ -99,7 +99,7 @@ Surface triplanar(float3 m, float3 nm, MaterialLayer ml)
 }
 
 // Ensigns (material 15): the vertex colour carries the flag UV (r, g) and the pattern (b: 1 US, 2 IJN,
-// 3 White Ensign). The cloth streams aft and ripples with time.
+// 3 White Ensign, 4 Regia Marina, 5 Kriegsmarine). The cloth streams aft and ripples with time.
 static const uint kMatFlag = 15;
 
 float3 flagRipple(float2 uv, float t, out float3 nrm)
@@ -177,6 +177,49 @@ float3 flagColour(float2 uv, uint id)
         if (length(p) < 0.3) return red;
         float a = atan2(p.y, p.x) / 6.2831853 * 16.0 + 0.5;
         return fmod(floor(a) + 16.0, 2.0) < 0.5 ? red : white;
+    }
+    if (id == 4)
+    {
+        // Regia Marina ensign: green-white-red tricolour, the crowned shield of Savoy in the white band
+        // (aspect 1.5).
+        float3 green = float3(0.02, 0.22, 0.08), red = float3(0.5, 0.03, 0.04), blue = float3(0.05, 0.12, 0.42);
+        float3 gold = float3(0.62, 0.48, 0.12);
+        if (uv.x < 1.0 / 3.0) return green;
+        if (uv.x > 2.0 / 3.0) return red;
+        float2 p = float2((uv.x - 0.5) * 1.5, uv.y - 0.5);  // aspect-correct, centred
+        // Crown above the shield.
+        if (abs(p.x) < 0.085 && p.y > -0.235 && p.y < -0.165) return gold;
+        // Shield: rectangle with a rounded foot, blue border, red field, white cross.
+        float sh = max(abs(p.x) - 0.11, max(-0.16 - p.y, p.y - 0.12));
+        float foot = length(float2(p.x, max(p.y - 0.05, 0.0))) - 0.11;
+        float d = p.y > 0.05 ? foot : sh;
+        if (d < 0.0)
+        {
+            if (d > -0.018) return blue;
+            if (abs(p.x) < 0.022 || abs(p.y + 0.02) < 0.022) return white;
+            return red;
+        }
+        return white;
+    }
+    if (id == 5)
+    {
+        // German war ensign of 1938 as shown in this game: red field, black cross edged in white, the
+        // Iron Cross in the upper hoist. The emblem in the centre is deliberately omitted (aspect 5:3).
+        float3 red = float3(0.55, 0.03, 0.03), black = float3(0.02, 0.02, 0.02);
+        float2 p = float2(uv.x * 5.0 / 3.0, uv.y);  // 0..1.667 x 0..1
+        float2 c = float2(0.75, 0.5);                // the cross sits slightly towards the hoist
+        float2 d = abs(p - c);
+        if (min(d.x, d.y) < 0.045) return black;
+        if (min(d.x, d.y) < 0.065) return white;
+        // Iron Cross in the upper hoist quarter.
+        float2 q = p - float2(0.36, 0.23);
+        float2 aq = abs(q);
+        float arm = 0.05 + 0.6 * max(aq.x, aq.y);   // flared arms
+        bool inCross = (aq.x < arm * 0.5 && aq.y < 0.15) || (aq.y < arm * 0.5 && aq.x < 0.15);
+        bool inRim = (aq.x < arm * 0.5 + 0.02 && aq.y < 0.17) || (aq.y < arm * 0.5 + 0.02 && aq.x < 0.17);
+        if (inCross) return black;
+        if (inRim) return white;
+        return red;
     }
     // White Ensign: red St George's cross, Union Flag in the canton (aspect 2).
     float3 red = float3(0.5, 0.02, 0.04), blue = float3(0.02, 0.03, 0.14);

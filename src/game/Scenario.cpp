@@ -120,6 +120,10 @@ bool loadScenario(const std::string& path, Scenario& sc, std::string* error) {
             for (auto& sen : jarr(sj, "sensors")) s.sensors.push_back(sen.get<std::string>());
             s.fcRadar = jbool(sj, "fc_radar", true);
             s.torpedoReloads = jbool(sj, "torpedo_reloads", true);
+            const Json& dj = jobj(sj, "damage");
+            s.propulsion = clamp(jnum(dj, "propulsion", 1.0), 0.0, 1.0);
+            s.power = clamp(jnum(dj, "power", 1.0), 0.0, 1.0);
+            s.flooding = std::max(0.0, jnum(dj, "flooding_t", 0.0));
             g.ships.push_back(s);
         }
         const Json& mj = jobj(gj, "mission");
@@ -198,6 +202,8 @@ Json scenarioToJson(const Scenario& sc) {
             if (!s.sensors.empty()) sj["sensors"] = s.sensors;
             if (!s.fcRadar) sj["fc_radar"] = false;
             if (!s.torpedoReloads) sj["torpedo_reloads"] = false;
+            if (s.propulsion < 1.0 || s.power < 1.0 || s.flooding > 0.0)
+                sj["damage"] = Json{{"propulsion", s.propulsion}, {"power", s.power}, {"flooding_t", s.flooding}};
             ships.push_back(sj);
         }
         gj["ships"] = ships;

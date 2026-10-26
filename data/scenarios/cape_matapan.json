@@ -1,0 +1,381 @@
+{
+  "id": "cape_matapan",
+  "theater": "mediterranean",
+  "location": {
+    "lat": 35.4,
+    "lon": 20.95
+  },
+  "terrain": "terrain/cape_matapan.json",
+  "date": {
+    "year": 1941,
+    "month": 3,
+    "day": 28,
+    "hour": 22.0,
+    "utc_offset": 2
+  },
+  "weather": {
+    "cloud_cover": 0.2,
+    "visibility_km": 9,
+    "sea_state": 2,
+    "wind_dir": 300,
+    "wind_kn": 8,
+    "squalls": 0,
+    "squall_intensity": 0.0
+  },
+  "player_sides": [
+    "allies",
+    "axis"
+  ],
+  "default_player": "allies",
+  "time_limit_s": 7200,
+  "groups": [
+    {
+      "id": "cunningham",
+      "name": "group.cape_matapan.cunningham",
+      "side": "allies",
+      "doctrine": "rn_1941",
+      "formation": "column",
+      "spacing": 650,
+      "crew": "veteran",
+      "position": {
+        "lat": 35.385,
+        "lon": 21.1
+      },
+      "course": 285,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "rn_bb_queen_elizabeth",
+          "name": "Warspite"
+        },
+        {
+          "class": "rn_bb_queen_elizabeth",
+          "name": "Valiant",
+          "sensors": [
+            "rn_lookouts",
+            "rn_279"
+          ]
+        },
+        {
+          "class": "rn_bb_queen_elizabeth",
+          "name": "Barham"
+        }
+      ],
+      "mission": {
+        "type": "patrol",
+        "speed_kn": 20,
+        "attack_speed_kn": 22,
+        "loop": false,
+        "waypoints": [
+          {
+            "lat": 35.375,
+            "lon": 20.98
+          },
+          {
+            "lat": 35.39,
+            "lon": 20.8
+          },
+          {
+            "lat": 35.45,
+            "lon": 20.6
+          }
+        ]
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "screen",
+      "name": "group.cape_matapan.screen",
+      "side": "allies",
+      "doctrine": "rn_1941",
+      "formation": "line_abreast",
+      "spacing": 1100,
+      "crew": "veteran",
+      "position": {
+        "lat": 35.39,
+        "lon": 21.12
+      },
+      "course": 285,
+      "speed_kn": 20,
+      "ships": [
+        {
+          "class": "rn_dd_g",
+          "name": "Greyhound"
+        },
+        {
+          "class": "rn_dd_g",
+          "name": "Griffin"
+        },
+        {
+          "class": "ran_dd_scott",
+          "name": "Stuart"
+        },
+        {
+          "class": "rn_dd_g",
+          "name": "Havock"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "cunningham",
+        "speed_kn": 20,
+        "attack_speed_kn": 30,
+        "escort_offset_m": 2200
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "mack",
+      "name": "group.cape_matapan.mack",
+      "side": "allies",
+      "doctrine": "rn_1941",
+      "formation": "column",
+      "spacing": 550,
+      "crew": "veteran",
+      "position": {
+        "lat": 35.62,
+        "lon": 20.55
+      },
+      "course": 135,
+      "speed_kn": 28,
+      "ships": [
+        {
+          "class": "rn_dd_j",
+          "name": "Jervis"
+        },
+        {
+          "class": "rn_dd_j",
+          "name": "Janus"
+        },
+        {
+          "class": "rn_dd_tribal",
+          "name": "Nubian"
+        },
+        {
+          "class": "rn_dd_tribal",
+          "name": "Mohawk"
+        }
+      ],
+      "mission": {
+        "type": "patrol",
+        "speed_kn": 26,
+        "attack_speed_kn": 32,
+        "loop": true,
+        "waypoints": [
+          {
+            "lat": 35.42,
+            "lon": 20.85
+          },
+          {
+            "lat": 35.33,
+            "lon": 20.98
+          },
+          {
+            "lat": 35.42,
+            "lon": 20.98
+          }
+        ]
+      },
+      "readiness": 1.0,
+      "appear_s": 3000
+    },
+    {
+      "id": "pola",
+      "name": "group.cape_matapan.pola",
+      "side": "axis",
+      "doctrine": "rm_1941",
+      "formation": "column",
+      "spacing": 700,
+      "crew": "regular",
+      "position": {
+        "lat": 35.36,
+        "lon": 20.93
+      },
+      "course": 120,
+      "speed_kn": 0,
+      "ships": [
+        {
+          "class": "rm_ca_zara",
+          "name": "Pola",
+          "damage": {
+            "propulsion": 0.0,
+            "power": 0.15,
+            "flooding_t": 900
+          }
+        }
+      ],
+      "mission": {
+        "type": "hold"
+      },
+      "readiness": 0.25
+    },
+    {
+      "id": "cattaneo",
+      "name": "group.cape_matapan.cattaneo",
+      "side": "axis",
+      "doctrine": "rm_1941",
+      "formation": "column",
+      "spacing": 900,
+      "crew": "regular",
+      "position": {
+        "lat": 35.465,
+        "lon": 20.775
+      },
+      "course": 125,
+      "speed_kn": 16,
+      "ships": [
+        {
+          "class": "rm_ca_zara",
+          "name": "Zara"
+        },
+        {
+          "class": "rm_ca_zara",
+          "name": "Fiume"
+        }
+      ],
+      "mission": {
+        "type": "patrol",
+        "speed_kn": 16,
+        "attack_speed_kn": 26,
+        "loop": true,
+        "waypoints": [
+          {
+            "lat": 35.375,
+            "lon": 20.915
+          },
+          {
+            "lat": 35.345,
+            "lon": 20.95
+          },
+          {
+            "lat": 35.38,
+            "lon": 20.96
+          }
+        ],
+        "exit": [
+          {
+            "lat": 35.55,
+            "lon": 20.6
+          },
+          {
+            "lat": 35.8,
+            "lon": 20.4
+          }
+        ]
+      },
+      "readiness": 0.2
+    },
+    {
+      "id": "alfieri",
+      "name": "group.cape_matapan.alfieri",
+      "side": "axis",
+      "doctrine": "rm_1941",
+      "formation": "column",
+      "spacing": 700,
+      "crew": "regular",
+      "position": {
+        "lat": 35.475,
+        "lon": 20.765
+      },
+      "course": 125,
+      "speed_kn": 16,
+      "ships": [
+        {
+          "class": "rm_dd_oriani",
+          "name": "Vittorio Alfieri"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "cattaneo",
+        "speed_kn": 16,
+        "attack_speed_kn": 30,
+        "escort_offset_m": 1400
+      },
+      "readiness": 0.3
+    },
+    {
+      "id": "dd9",
+      "name": "group.cape_matapan.dd9",
+      "side": "axis",
+      "doctrine": "rm_1941",
+      "formation": "column",
+      "spacing": 600,
+      "crew": "regular",
+      "position": {
+        "lat": 35.45,
+        "lon": 20.79
+      },
+      "course": 125,
+      "speed_kn": 16,
+      "ships": [
+        {
+          "class": "rm_dd_oriani",
+          "name": "Vincenzo Gioberti"
+        },
+        {
+          "class": "rm_dd_oriani",
+          "name": "Giosuè Carducci"
+        },
+        {
+          "class": "rm_dd_oriani",
+          "name": "Alfredo Oriani"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "cattaneo",
+        "speed_kn": 16,
+        "attack_speed_kn": 30,
+        "escort_offset_m": -2800
+      },
+      "readiness": 0.3
+    }
+  ],
+  "objectives": [
+    {
+      "id": "sink",
+      "side": "allies",
+      "type": "destroy_tonnage",
+      "value": 20000,
+      "points": 150
+    },
+    {
+      "id": "cruisers",
+      "side": "allies",
+      "type": "destroy_group",
+      "group": "cattaneo",
+      "value": 0.5,
+      "points": 150
+    },
+    {
+      "id": "preserve",
+      "side": "allies",
+      "type": "preserve",
+      "value": 0.85,
+      "points": 100
+    },
+    {
+      "id": "pola",
+      "side": "axis",
+      "type": "protect_group",
+      "group": "pola",
+      "value": 1.0,
+      "points": 100
+    },
+    {
+      "id": "sink",
+      "side": "axis",
+      "type": "destroy_tonnage",
+      "value": 3000,
+      "points": 150
+    },
+    {
+      "id": "preserve",
+      "side": "axis",
+      "type": "preserve",
+      "value": 0.5,
+      "points": 150
+    }
+  ]
+}

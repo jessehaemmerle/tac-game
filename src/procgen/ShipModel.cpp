@@ -59,6 +59,8 @@ Ctx::Ctx(const sim::ShipClassDef& cls, const ShipModelOptions& o)
       usn(cls.nation == sim::Nation::USN),
       ijn(cls.nation == sim::Nation::IJN),
       rn(cls.nation == sim::Nation::RN || cls.nation == sim::Nation::RAN),
+      rm(cls.nation == sim::Nation::RM),
+      km(cls.nation == sim::Nation::KM),
       destroyer(cls.type == sim::ShipType::DD || cls.type == sim::ShipType::DE),
       cruiser(cls.type == sim::ShipType::CA || cls.type == sim::ShipType::CL || cls.type == sim::ShipType::CLAA),
       capital(cls.type == sim::ShipType::BB || cls.type == sim::ShipType::BC),
@@ -149,6 +151,10 @@ PaintScheme paintScheme(const std::string& hullPaint, const std::string& deckPai
     else if (hullPaint == "ijn_kure_grey") hull = srgb(112, 114, 114);
     else if (hullPaint == "ijn_sasebo_grey") hull = srgb(98, 100, 98);
     else if (hullPaint == "rn_507a") hull = srgb(92, 95, 98);
+    else if (hullPaint == "rn_507b") hull = srgb(112, 117, 120);    // Home Fleet medium grey
+    else if (hullPaint == "rn_507c") hull = srgb(150, 155, 158);    // Mediterranean light grey
+    else if (hullPaint == "rm_grey") hull = srgb(138, 142, 143);    // grigio chiaro
+    else if (hullPaint == "km_grey") hull = srgb(126, 129, 131);    // Hellgrau 50 / Dunkelgrau 51
     Vec3f deck = srgb(150, 120, 85);
     if (deckPaint == "usn_deck_blue") deck = srgb(56, 62, 72);  // Deck Blue 20-B
     else if (deckPaint == "ijn_linoleum") deck = srgb(104, 70, 54);
@@ -167,7 +173,12 @@ PaintScheme paintScheme(const std::string& hullPaint, const std::string& deckPai
     p.glass = mat(srgb(18, 24, 30), 0.12f, 0.0f, kGlass);
     p.canvas = mat(srgb(168, 166, 156), 0.9f, 0.0f, kCanvas);
     p.lens = mat(srgb(235, 232, 210), 0.2f, 0.0f, kLens);
-    p.aircraft = mat(hullPaint.rfind("ijn", 0) == 0 ? srgb(150, 155, 140) : srgb(120, 130, 145), 0.55f, 0.05f, kAircraft);
+    Vec3f plane = srgb(120, 130, 145);
+    if (hullPaint.rfind("ijn", 0) == 0) plane = srgb(150, 155, 140);
+    else if (hullPaint.rfind("rm", 0) == 0) plane = srgb(168, 170, 166);  // aluminium grey Ro.43
+    else if (hullPaint.rfind("km", 0) == 0) plane = srgb(74, 86, 78);     // RLM 72/73 sea greens
+    else if (hullPaint.rfind("rn", 0) == 0) plane = srgb(118, 122, 112);  // Walrus extra dark sea grey/slate
+    p.aircraft = mat(plane, 0.55f, 0.05f, kAircraft);
     p.linoleumStrip = mat(srgb(170, 140, 70), 0.4f, 0.7f, kStrip);
     p.wood = mat(srgb(150, 112, 72), 0.75f, 0.0f, kWood);
     p.dark = mat(srgb(10, 11, 12), 0.85f, 0.0f, kPlain);
@@ -241,6 +252,7 @@ Model buildShipModel(const sim::ShipClassDef& cls, const ShipModelOptions& opt) 
         deckFittings(cx);
         railings(cx);
         ensign(cx);
+        recognitionStripes(cx);
     }
     cx.model.computeBounds();
     return std::move(cx.model);

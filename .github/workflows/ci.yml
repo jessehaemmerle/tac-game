@@ -35,7 +35,7 @@ jobs:
 
       - name: AI-vs-AI batches
         run: |
-          for s in savo_island cape_esperance first_guadalcanal second_guadalcanal tassafaronga; do
+          for s in savo_island cape_esperance first_guadalcanal second_guadalcanal tassafaronga cape_matapan; do
             ./build/linux-release/irontide_headless --data data --scenario "$s" --runs 3 --seed 1 | tail -n 10
           done
 

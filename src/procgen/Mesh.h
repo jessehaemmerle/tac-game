@@ -53,7 +53,7 @@ enum class PartKind : uint8_t {
 struct MeshPart {
     std::string name;
     PartKind kind = PartKind::Static;
-    int mount = -1;         // index into the class mounts / torpedo mounts this part animates with
+    int mount = -1;         // index into the class mounts / torpedo mounts this part animates with (catapults: 1 = fixed)
     int parent = -1;        // parent part (barrels belong to a turret)
     int sub = -1;           // barrel or torpedo index within the mount
     uint8_t lod = 0;        // 0: always drawn, 1: only when near (fittings, light AA), 2: close-ups only (railings, rigging)

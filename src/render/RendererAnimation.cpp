@@ -263,7 +263,7 @@ void partTransforms(const GpuMesh& mesh, const ShipPose& pose, std::vector<Mat4f
             }
             case procgen::PartKind::AAGuns: m = aboutPivot(part.pivot, rotY(-at(pose.aaElev, part.mount, 0.0f))); break;
             case procgen::PartKind::Catapult: {
-                float out = at(pose.catapultTrain, part.sub, 0.0f);
+                float out = part.mount == 1 ? 0.0f : at(pose.catapultTrain, part.sub, 0.0f);  // fixed catapults do not train
                 m = aboutPivot(part.pivot, rotZ(part.pivot.y >= 0.0f ? out : -out));
                 break;
             }

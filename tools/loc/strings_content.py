@@ -181,6 +181,37 @@ S = {
 "group.second_guadalcanal.sendai": ("Sweeping unit (Sendai)", "Säuberungsgruppe (Sendai)"),
 "group.second_guadalcanal.nagara": ("Screening unit (Nagara)", "Sicherungsgruppe (Nagara)"),
 "group.second_guadalcanal.ayanami": ("Ayanami (advance)", "Ayanami (vorgeschoben)"),
+# --- scenario: Cape Matapan
+"scenario.cape_matapan.title": ("Battle of Cape Matapan", "Schlacht bei Kap Matapan"),
+"scenario.cape_matapan.briefing": (
+ "Night of 28 March 1941, south-west of Cape Matapan, the southern tip of Greece. All day Admiral Cunningham's Mediterranean Fleet has chased Admiral Iachino's fleet westwards. In the afternoon torpedo bombers from HMS Formidable hit the battleship Vittorio Veneto, and at dusk another torpedo stopped the heavy cruiser Pola dead in the water. Believing the British battleships far away, Iachino has sent the cruisers Zara and Fiume and four destroyers back to help her. Cunningham, with Warspite, Valiant and Barham and four destroyers, is steering west towards the place where Pola lies. The sea is calm, the night dark.",
+ "Nacht vom 28. auf den 29. März 1941, südwestlich von Kap Matapan an der Südspitze Griechenlands. Den ganzen Tag hat Admiral Cunninghams Mittelmeerflotte Admiral Iachinos Flotte nach Westen gejagt. Am Nachmittag trafen Torpedobomber der HMS Formidable das Schlachtschiff Vittorio Veneto, in der Dämmerung brachte ein weiterer Torpedo den Schweren Kreuzer Pola zum Stehen. Im Glauben, die britischen Schlachtschiffe seien weit entfernt, hat Iachino die Kreuzer Zara und Fiume mit vier Zerstörern zurückgeschickt, um ihr zu helfen. Cunningham läuft mit Warspite, Valiant und Barham und vier Zerstörern nach Westen, dorthin, wo die Pola liegt. Die See ist ruhig, die Nacht dunkel."),
+"scenario.cape_matapan.orders_allies": (
+ "Find the stopped enemy cruiser and destroy whatever comes to her aid. Valiant's Type 279 radar can find a cruiser at about 11 km. Let the destroyers lead, close to point-blank range unseen, illuminate with searchlights and open fire with all three battleships together. The 14th Flotilla (Jervis) is returning from the hunt for Vittorio Veneto and will join later in the night.",
+ "Finde den gestoppten feindlichen Kreuzer und vernichte, was ihm zu Hilfe kommt. Das Typ-279-Radar der Valiant erfasst einen Kreuzer auf etwa 11 km. Lass die Zerstörer vorausgehen, nähere dich ungesehen auf kürzeste Entfernung, beleuchte mit Scheinwerfern und eröffne mit allen drei Schlachtschiffen gemeinsam das Feuer. Die 14. Flottille (Jervis) kehrt von der Jagd auf die Vittorio Veneto zurück und stößt später in der Nacht dazu."),
+"scenario.cape_matapan.orders_axis": (
+ "Return to the stopped Pola with Zara, Fiume and the 9th Destroyer Division, take her in tow or take off her crew, and rejoin the fleet. The enemy battle fleet is believed to be far to the east; at most light forces may be about. Your heavy guns are secured fore and aft and the crews are at cruising stations - night action is not part of your training.",
+ "Kehre mit Zara, Fiume und der 9. Zerstörerdivision zur gestoppten Pola zurück, nimm sie in Schlepp oder ihre Besatzung an Bord und schließe wieder zur Flotte auf. Die feindliche Schlachtflotte wird weit im Osten vermutet; höchstens leichte Kräfte könnten in der Nähe sein. Deine schweren Geschütze sind längsschiffs gezurrt, die Besatzungen auf Marschwache – Nachtgefechte gehören nicht zu deiner Ausbildung."),
+"scenario.cape_matapan.intel_allies": (
+ "Aircraft reported the enemy battleship damaged and slowing. Shortly after dark the cruiser Ajax's radar found a large ship lying stopped some six miles off her track. More enemy cruisers may be in the area.",
+ "Flugzeuge meldeten das feindliche Schlachtschiff beschädigt und langsamer werdend. Kurz nach Einbruch der Dunkelheit fand das Radar des Kreuzers Ajax ein großes, gestopptes Schiff etwa sechs Meilen abseits seines Kurses. Weitere feindliche Kreuzer könnten in der Nähe sein."),
+"scenario.cape_matapan.intel_axis": (
+ "Air reconnaissance this afternoon reported an aircraft carrier and battleships, but the staff believes them far to the east. Nothing indicates a British force close by. None of our ships carries radar.",
+ "Die Luftaufklärung meldete heute Nachmittag einen Flugzeugträger und Schlachtschiffe, doch der Stab vermutet sie weit im Osten. Nichts deutet auf einen nahen britischen Verband hin. Keines unserer Schiffe hat Radar."),
+"scenario.cape_matapan.history": (
+ "Valiant's radar found the stopped Pola shortly after 22:00. Minutes later the destroyer Stuart sighted large ships crossing ahead: Zara and Fiume with their destroyers, completely unaware. At 22:27 Greyhound switched on her searchlight, and Warspite, Valiant and Barham fired full broadsides at under 4 km. Fiume sank within the hour; Zara was left burning and was finished by Jervis's torpedoes in the early morning. The destroyers Alfieri and Carducci were sunk as they counter-attacked. Jervis and Nubian took off Pola's crew and sank her at about 04:00. Some 2,300 Italian sailors died; the British lost a single aircraft. After Matapan the Italian battle fleet rarely ventured into the eastern Mediterranean again.",
+ "Das Radar der Valiant erfasste die gestoppte Pola kurz nach 22:00 Uhr. Minuten später sichtete der Zerstörer Stuart große Schiffe, die vorausquerten: Zara und Fiume mit ihren Zerstörern, völlig ahnungslos. Um 22:27 Uhr schaltete die Greyhound ihren Scheinwerfer ein, und Warspite, Valiant und Barham feuerten volle Breitseiten auf unter 4 km. Die Fiume sank binnen einer Stunde; die brennende Zara wurde am frühen Morgen von den Torpedos der Jervis erledigt. Die Zerstörer Alfieri und Carducci sanken beim Gegenangriff. Jervis und Nubian nahmen die Besatzung der Pola auf und versenkten sie gegen 04:00 Uhr. Rund 2.300 italienische Seeleute starben; die Briten verloren ein einziges Flugzeug. Nach Matapan wagte sich die italienische Schlachtflotte kaum noch ins östliche Mittelmeer."),
+"objective.cape_matapan.sink": ("Sink enemy tonnage", "Gegnerische Tonnage versenken"),
+"objective.cape_matapan.cruisers": ("Destroy the Italian cruiser division", "Die italienische Kreuzerdivision vernichten"),
+"objective.cape_matapan.preserve": ("Preserve your own force", "Eigenen Verband erhalten"),
+"objective.cape_matapan.pola": ("Keep Pola afloat", "Die Pola über Wasser halten"),
+"group.cape_matapan.cunningham": ("Battle fleet (Cunningham)", "Schlachtflotte (Cunningham)"),
+"group.cape_matapan.screen": ("Battle fleet screen", "Sicherung der Schlachtflotte"),
+"group.cape_matapan.mack": ("14th Destroyer Flotilla (Mack)", "14. Zerstörerflottille (Mack)"),
+"group.cape_matapan.pola": ("Pola (stopped)", "Pola (gestoppt)"),
+"group.cape_matapan.cattaneo": ("1st Cruiser Division (Cattaneo)", "1. Kreuzerdivision (Cattaneo)"),
+"group.cape_matapan.alfieri": ("Alfieri (leading)", "Alfieri (an der Spitze)"),
+"group.cape_matapan.dd9": ("9th Destroyer Division", "9. Zerstörerdivision"),
 # --- torpedo notes
 "torpedo.ijn_type93.note": (
  "The 'Long Lance': a 61 cm oxygen-fuelled torpedo with enormous range and a heavy warhead. It leaves almost no wake - at night it arrives unseen. The Allies did not know of its performance in 1942 and kept mistaking torpedo hits for submarine attacks.",
@@ -188,7 +219,41 @@ S = {
 "torpedo.usn_mk15.note": (
  "The standard US destroyer torpedo. In 1942 its Mark 6 exploder and depth control were unreliable: many hits failed to explode or the torpedoes ran too deep.",
  "Der Standardtorpedo der US-Zerstörer. 1942 waren Zündpistole Mark 6 und Tiefensteuerung unzuverlässig: Viele Treffer zündeten nicht oder die Torpedos liefen zu tief."),
+"torpedo.rn_mk9.note": (
+ "The Royal Navy's destroyer torpedo of the war years: reliable, with a heavy warhead, but leaving a clear wake.",
+ "Der Zerstörertorpedo der Royal Navy in den Kriegsjahren: zuverlässig, mit schwerem Gefechtskopf, aber mit deutlicher Blasenbahn."),
+"torpedo.rm_si_270.note": (
+ "Italian 53.3 cm torpedo from Silurificio Italiano: very fast at short range, with a lighter warhead than its British and Japanese counterparts.",
+ "Italienischer 53,3-cm-Torpedo des Silurificio Italiano: auf kurze Entfernung sehr schnell, mit leichterem Gefechtskopf als britische und japanische Gegenstücke."),
 # --- class histories & tactics
+# --- Mediterranean 1941 classes
+"class.rn_bb_queen_elizabeth.history": (
+ "The first fast battleships: oil-fired, eight 15-inch guns and 24 knots in 1915. Warspite, damaged at Jutland, was rebuilt from 1934 to 1937 with new machinery, a tower bridge, longer-ranged guns and thicker decks; Valiant and Queen Elizabeth were rebuilt even more thoroughly, Barham and Malaya only in part. At Cape Matapan Warspite, Valiant and Barham wrecked two Italian heavy cruisers at point-blank range within minutes.",
+ "Die ersten schnellen Schlachtschiffe: Ölfeuerung, acht 38,1-cm-Geschütze und 24 Knoten im Jahr 1915. Die im Skagerrak beschädigte Warspite wurde 1934–37 mit neuen Maschinen, einem Turmaufbau, weiter reichenden Geschützen und stärkeren Decks umgebaut; Valiant und Queen Elizabeth noch gründlicher, Barham und Malaya nur teilweise. Bei Kap Matapan zerschossen Warspite, Valiant und Barham zwei italienische Schwere Kreuzer auf kürzeste Entfernung binnen Minuten."),
+"class.rn_bb_queen_elizabeth.tactics": (
+ "Slow, but heavily armed and armoured. At night let the destroyers and the radar find the enemy, close to point-blank range unseen and open fire together on searchlight illumination: a 15-inch broadside wrecks a cruiser.",
+ "Langsam, aber schwer bewaffnet und gepanzert. Nachts Zerstörer und Radar den Gegner finden lassen, ungesehen auf kürzeste Entfernung herangehen und im Scheinwerferlicht gemeinsam das Feuer eröffnen: Eine 38,1-cm-Breitseite zerschlägt einen Kreuzer."),
+"class.rn_dd_tribal.history": (
+ "Large destroyers built to answer the big Japanese and Italian designs: eight 4.7-inch guns in four twin mounts but only four torpedo tubes - gun ships rather than torpedo boats. Sixteen served in the Royal Navy and twelve were lost. Nubian and Mohawk joined the hunt for the crippled Italian cruisers after Matapan; Mohawk was sunk off Sfax three weeks later.",
+ "Große Zerstörer als Antwort auf die großen japanischen und italienischen Entwürfe: acht 12-cm-Geschütze in vier Doppeltürmen, aber nur vier Torpedorohre – eher Artillerieschiffe als Torpedoboote. Sechzehn dienten in der Royal Navy, zwölf gingen verloren. Nubian und Mohawk jagten nach Matapan die verbliebenen italienischen Kreuzer; die Mohawk sank drei Wochen später vor Sfax."),
+"class.rn_dd_j.history": (
+ "Mountbatten's Kelly and her sisters introduced longitudinal framing and the single large funnel to British destroyers, with six 4.7-inch guns and ten torpedo tubes. Jervis led the 14th Flotilla at Matapan; after midnight she took off survivors and torpedoed the burning Zara and the abandoned Pola.",
+ "Mountbattens Kelly und ihre Schwestern brachten britischen Zerstörern den Längsspantenbau und den einzelnen großen Schornstein, mit sechs 12-cm-Geschützen und zehn Torpedorohren. Die Jervis führte bei Matapan die 14. Flottille; nach Mitternacht nahm sie Überlebende auf und torpedierte die brennende Zara und die verlassene Pola."),
+"class.rn_dd_g.history": (
+ "The standard British fleet destroyer of the late 1930s: four single 4.7-inch guns and two quadruple torpedo mounts on a handy hull. Greyhound's searchlight picked out Fiume for the battleships' first broadside at Matapan; Havock helped to sink the destroyer Carducci.",
+ "Der britische Standard-Flottenzerstörer der späten 1930er: vier einzelne 12-cm-Geschütze und zwei Vierlings-Torpedorohrsätze auf einem handlichen Rumpf. Der Scheinwerfer der Greyhound erfasste bei Matapan die Fiume für die erste Breitseite der Schlachtschiffe; die Havock half, den Zerstörer Carducci zu versenken."),
+"class.ran_dd_scott.history": (
+ "A First World War flotilla leader, lent to Australia with the old destroyers that Axis propaganda mocked as the 'Scrap Iron Flotilla' - a name their crews adopted with pride. Old and worn, HMAS Stuart fought through the whole Mediterranean campaign of 1940-41; at Matapan she engaged Zara and the destroyer Alfieri at close range.",
+ "Ein Flottillenführer aus dem Ersten Weltkrieg, mit den alten Zerstörern an Australien verliehen, die die Propaganda der Achsenmächte als „Schrotteisen-Flottille“ verspottete – ein Name, den die Besatzungen mit Stolz übernahmen. Alt und verschlissen, kämpfte die HMAS Stuart den ganzen Mittelmeerfeldzug 1940/41 durch; bei Matapan beschoss sie die Zara und den Zerstörer Alfieri auf kurze Entfernung."),
+"class.rm_ca_zara.history": (
+ "Italy's best-protected treaty cruisers: the designers saved weight wherever they could to give them a 150 mm belt, more armour than any other cruiser of the treaty generation. Their 203 mm guns were powerful but scattered badly, because both barrels of a turret shared one cradle. On the night of 28 March 1941 Zara and Fiume were sent back to help the crippled Pola - with their guns trained fore and aft they met three British battleships at 3,000 m and were sunk together with Pola.",
+ "Italiens am besten geschützte Vertragskreuzer: Die Konstrukteure sparten überall Gewicht, um ihnen einen 150-mm-Gürtel zu geben – mehr Panzerung als jeder andere Kreuzer dieser Generation. Ihre 20,3-cm-Geschütze waren stark, streuten aber erheblich, weil beide Rohre eines Turms in einer gemeinsamen Wiege lagen. In der Nacht zum 29. März 1941 wurden Zara und Fiume zurückgeschickt, um der manövrierunfähigen Pola zu helfen – mit längsschiffs gezurrten Türmen trafen sie auf 3.000 m auf drei britische Schlachtschiffe und sanken zusammen mit der Pola."),
+"class.rm_ca_zara.tactics": (
+ "Strong armour for a cruiser and long-range guns: fight in daylight and at long range. At night keep away from heavy ships - you have no radar and no flashless powder, and your main armament has not trained for it.",
+ "Für einen Kreuzer starke Panzerung und weit reichende Geschütze: bei Tag und auf große Entfernung kämpfen. Nachts schweren Schiffen ausweichen – du hast kein Radar und kein mündungsfeuerarmes Pulver, und die Hauptartillerie ist dafür nicht ausgebildet."),
+"class.rm_dd_oriani.history": (
+ "The last of a line of Italian destroyers derived from the Maestrale class: fast, with two twin 120 mm turrets and two triple torpedo mounts, but lightly built. At Matapan Alfieri and Carducci were sunk covering the cruisers; Oriani escaped damaged and Gioberti unharmed.",
+ "Die letzten einer Reihe italienischer Zerstörer nach dem Vorbild der Maestrale-Klasse: schnell, mit zwei 12-cm-Doppeltürmen und zwei Drillings-Torpedorohrsätzen, aber leicht gebaut. Bei Matapan sanken Alfieri und Carducci, als sie die Kreuzer deckten; die Oriani entkam beschädigt, die Gioberti unversehrt."),
 "class.ijn_ca_takao.history": (
  "The Takao class combined ten 20 cm guns with a towering bridge that housed the most elaborate fire-control and command spaces of any cruiser of her time. Chokai was Mikawa's flagship at Savo Island and was hit several times by Quincy's last salvoes.",
  "Die Takao-Klasse vereinte zehn 20-cm-Geschütze mit einem gewaltigen Brückenaufbau, der die aufwendigsten Feuerleit- und Führungsräume aller Kreuzer ihrer Zeit beherbergte. Die Chokai war Mikawas Flaggschiff bei Savo und erhielt mehrere Treffer aus den letzten Salven der Quincy."),

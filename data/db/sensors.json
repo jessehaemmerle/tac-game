@@ -19,5 +19,10 @@
   { "id": "rn_lookouts", "name": "Lookouts (7x50 binoculars)", "kind": "optical", "nation": "rn",
     "magnification": 7, "night_factor": 1.0, "sweep_s": 4, "bearing_acc_deg": 1.0 },
   { "id": "ijn_lookouts", "name": "Night lookouts (12 cm / 18 cm binoculars)", "kind": "optical", "nation": "ijn",
-    "magnification": 18, "night_factor": 1.45, "sweep_s": 4, "bearing_acc_deg": 0.8 }
+    "magnification": 18, "night_factor": 1.45, "sweep_s": 4, "bearing_acc_deg": 0.8 },
+  { "id": "rn_279", "name": "Type 279 (air warning, 7.5 m)", "kind": "radar", "nation": "rn",
+    "range_large_m": 12000, "range_small_m": 6500, "range_acc_m": 60, "bearing_acc_deg": 5.0, "sweep_s": 15,
+    "land_clutter": 0.9, "reliability": 0.85, "surface": true, "air": true, "year": 1940 },
+  { "id": "rm_lookouts", "name": "Lookouts (7x50 binoculars)", "kind": "optical", "nation": "rm",
+    "magnification": 7, "night_factor": 0.85, "sweep_s": 5, "bearing_acc_deg": 1.0 }
 ]

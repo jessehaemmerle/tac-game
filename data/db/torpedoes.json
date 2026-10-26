@@ -1,4 +1,4 @@
-// Torpedoes. Sources: navweaps.com (WTJAP_WWII, WTJAP_PreWWII, WTUS_WWII).
+// Torpedoes. Sources: navweaps.com (WTJAP_WWII, WTJAP_PreWWII, WTUS_WWII, WTBR_WWII, WTIT_WWII).
 // wake: visibility of the track (1 = air/steam torpedo, Type 93 oxygen torpedo is nearly wakeless).
 // dud/deep_run reflect 1942 reliability (US Mark 15 exploder and depth-keeping problems).
 [
@@ -16,5 +16,11 @@
     "settings": [ { "speed_kn": 35, "range_m": 7000 }, { "speed_kn": 32, "range_m": 10000 }, { "speed_kn": 26, "range_m": 15000 } ] },
   { "id": "usn_mk15", "name": "Mark 15 Mod 0 (21 in)", "nation": "usn", "diameter_mm": 533, "mass_kg": 1559,
     "warhead_kg": 224, "wake": 1.0, "dud": 0.22, "deep_run": 0.15, "erratic": 0.04, "wander": 0.03,
-    "settings": [ { "speed_kn": 45, "range_m": 5486 }, { "speed_kn": 33.5, "range_m": 9144 }, { "speed_kn": 26.5, "range_m": 13716 } ] }
+    "settings": [ { "speed_kn": 45, "range_m": 5486 }, { "speed_kn": 33.5, "range_m": 9144 }, { "speed_kn": 26.5, "range_m": 13716 } ] },
+  { "id": "rn_mk9", "name": "Mark IX (21 in)", "nation": "rn", "diameter_mm": 533, "mass_kg": 1693,
+    "warhead_kg": 340, "wake": 1.0, "dud": 0.05, "deep_run": 0.03, "erratic": 0.02, "wander": 0.025,
+    "settings": [ { "speed_kn": 41, "range_m": 10970 }, { "speed_kn": 36, "range_m": 13700 } ] },
+  { "id": "rm_si_270", "name": "SI 270/533.4 x 7.2 (53.3 cm)", "nation": "rm", "diameter_mm": 533, "mass_kg": 1700,
+    "warhead_kg": 270, "wake": 1.0, "dud": 0.08, "deep_run": 0.04, "erratic": 0.03, "wander": 0.03,
+    "settings": [ { "speed_kn": 50, "range_m": 4000 }, { "speed_kn": 38, "range_m": 8000 }, { "speed_kn": 30, "range_m": 12000 } ] }
 ]

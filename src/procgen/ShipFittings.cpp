@@ -79,6 +79,7 @@ void catapult(Ctx& cx, const sim::ModelPart& pt) {
     int ci = cx.part("catapult", PartKind::Catapult, 0);
     MeshPart& p = cx.P(ci);
     p.pivot = v3(x, y, z0);
+    if (pt.style == "fixed") p.mount = 1;  // on the forecastle, pointing over the bow (Zara class)
     p.sub = int(cx.catapults.size());
     cx.catapults.push_back({v3(x, y, z0), ci});
     MeshBuilder mb(p);
@@ -137,16 +138,56 @@ void wing(MeshBuilder& mb, Vec3f root, float rootChord, float tipChord, float sp
     mb.loft(a, b, true, true);
 }
 
-void marking(MeshBuilder& mb, bool ijn, Vec3f c, Vec3f n, float r) {
+void marking(MeshBuilder& mb, sim::Nation nation, Vec3f c, Vec3f n, float r) {
     Vec3f w = normalize(n);
     Vec3f helper = std::fabs(w.z) < 0.9f ? Vec3f{0, 0, 1} : Vec3f{1, 0, 0};
     Vec3f u = normalize(cross(helper, w)), v = cross(w, u);
-    if (ijn) {
-        mb.setMaterial(mat(srgb(235, 232, 225), 0.6f, 0.0f, kPlain));
-        mb.disc(c, n, r * 1.12f, 16);
-        mb.setMaterial(mat(srgb(185, 28, 30), 0.6f, 0.0f, kPlain));
-        mb.disc(c + w * 0.004f, n, r, 16);
-        return;
+    // A flat rectangle in the marking plane, lifted by `lift` along the normal.
+    auto rect = [&](float u0, float v0, float u1, float v1, float lift) {
+        Vec3f o = c + w * lift;
+        mb.flatQuad(o + u * u0 + v * v0, o + u * u1 + v * v0, o + u * u1 + v * v1, o + u * u0 + v * v1);
+    };
+    switch (nation) {
+        case sim::Nation::IJN:
+            mb.setMaterial(mat(srgb(235, 232, 225), 0.6f, 0.0f, kPlain));
+            mb.disc(c, n, r * 1.12f, 16);
+            mb.setMaterial(mat(srgb(185, 28, 30), 0.6f, 0.0f, kPlain));
+            mb.disc(c + w * 0.004f, n, r, 16);
+            return;
+        case sim::Nation::RN:
+        case sim::Nation::RAN:
+            // Type B roundel of the upper wing, with the white ring of the Type A on the fuselage.
+            mb.setMaterial(mat(srgb(34, 44, 92), 0.6f, 0.0f, kPlain));
+            mb.disc(c, n, r, 16);
+            mb.setMaterial(mat(srgb(225, 225, 220), 0.6f, 0.0f, kPlain));
+            mb.disc(c + w * 0.003f, n, r * 0.62f, 16);
+            mb.setMaterial(mat(srgb(150, 30, 34), 0.6f, 0.0f, kPlain));
+            mb.disc(c + w * 0.006f, n, r * 0.38f, 16);
+            return;
+        case sim::Nation::RM:
+            // Fasces roundel: three black fasces on a white disc with a black rim.
+            mb.setMaterial(mat(srgb(20, 20, 22), 0.6f, 0.0f, kPlain));
+            mb.disc(c, n, r, 16);
+            mb.setMaterial(mat(srgb(232, 232, 226), 0.6f, 0.0f, kPlain));
+            mb.disc(c + w * 0.003f, n, r * 0.88f, 16);
+            mb.setMaterial(mat(srgb(20, 20, 22), 0.6f, 0.0f, kPlain));
+            for (int k = -1; k <= 1; ++k) {
+                float a = float(k) * 0.42f;
+                float cu = std::sin(a) * r * 0.45f, cv = -std::cos(a) * r * 0.1f;
+                rect(cu - r * 0.07f, cv - r * 0.5f, cu + r * 0.07f, cv + r * 0.5f, 0.006f);
+                rect(cu - r * 0.11f, cv + r * 0.32f, cu + r * 0.11f, cv + r * 0.5f, 0.007f);  // axe head
+            }
+            return;
+        case sim::Nation::KM:
+            // Balkenkreuz: a black cross with a white outline.
+            mb.setMaterial(mat(srgb(232, 232, 226), 0.6f, 0.0f, kPlain));
+            rect(-r * 0.95f, -r * 0.3f, r * 0.95f, r * 0.3f, 0.0f);
+            rect(-r * 0.3f, -r * 0.95f, r * 0.3f, r * 0.95f, 0.001f);
+            mb.setMaterial(mat(srgb(20, 20, 22), 0.6f, 0.0f, kPlain));
+            rect(-r * 0.8f, -r * 0.16f, r * 0.8f, r * 0.16f, 0.004f);
+            rect(-r * 0.16f, -r * 0.8f, r * 0.16f, r * 0.8f, 0.005f);
+            return;
+        default: break;
     }
     mb.setMaterial(mat(srgb(30, 52, 110), 0.6f, 0.0f, kPlain));
     mb.disc(c, n, r, 16);
@@ -164,7 +205,7 @@ void marking(MeshBuilder& mb, bool ijn, Vec3f c, Vec3f n, float r) {
 }
 
 /// Floatplane in a local frame: x forward, origin under the main float, z up.
-void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style, bool ijn) {
+void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style, sim::Nation nation) {
     bool biplane = style == "soc" || style == "pete" || style == "walrus";
     bool walrus = style == "walrus";
     bool kingfisher = style == "kingfisher";  // Vought OS2U: monoplane, central float, long canopy
@@ -280,11 +321,11 @@ void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style,
     // National markings on the upper wing surfaces and the fuselage sides.
     float topZ = biplane ? wz + 1.75f : wz;
     float mx = wingX - chord * 0.45f;
-    float r = ijn ? 0.5f : 0.55f;
+    float r = nation == sim::Nation::IJN ? 0.5f : 0.55f;
     for (int s : {1, -1}) {
         float rise = (biplane ? 0.15f : 0.25f) * 0.72f;  // dihedral at 72 % of the half span
-        marking(mb, ijn, {mx, s * span * 0.36f, topZ + rise + 0.15f}, {0, 0, 1}, r);
-        if (!walrus) marking(mb, ijn, {tail + len * 0.32f, s * 0.36f, fz + 0.28f}, {0, float(s), 0.1f}, 0.32f);
+        marking(mb, nation, {mx, s * span * 0.36f, topZ + rise + 0.15f}, {0, 0, 1}, r);
+        if (!walrus) marking(mb, nation, {tail + len * 0.32f, s * 0.36f, fz + 0.28f}, {0, float(s), 0.1f}, 0.32f);
     }
     (void)dark;
 }
@@ -307,7 +348,7 @@ void aircraft(Ctx& cx, const sim::ModelPart& pt) {
     p.pivot = at;  // the aircraft's own reference point (under the float) for drawing it in flight
     MeshBuilder mb(p);
     mb.setTransform(Mat4f::translation(at));
-    floatplane(mb, cx.paint, pt.style, cx.ijn);
+    floatplane(mb, cx.paint, pt.style, cx.c.nation);
     mb.clearTransform();
     if (parent < 0) {
         // Parked on deck: a trolley under the float.
@@ -652,8 +693,10 @@ void ensign(Ctx& cx) {
         fb.tube(foot, foot + Vec3f{-0.4f, 0, 4.0f}, 0.06f, 0.035f, 6, true);
         hoist = foot + Vec3f{-0.45f, 0, 4.0f};
     }
-    float w = cx.destroyer ? 2.0f : 3.0f, h = w * (cx.ijn ? 0.667f : 0.53f);
-    uint8_t flagId = cx.usn ? 1 : (cx.ijn ? 2 : 3);
+    // Pattern ids (see ship.hlsl): 1 Stars and Stripes, 2 Rising Sun, 3 White Ensign, 4 Italian naval
+    // ensign, 5 German war ensign (shown without its prohibited emblem).
+    float w = cx.destroyer ? 2.0f : 3.0f, h = w * (cx.ijn || cx.rm ? 0.667f : (cx.km ? 0.6f : 0.53f));
+    uint8_t flagId = cx.usn ? 1 : (cx.ijn ? 2 : (cx.rm ? 4 : (cx.km ? 5 : 3)));
     int fi = cx.part("ensign", PartKind::Flag, 1);
     MeshPart& p = cx.P(fi);
     p.pivot = hoist;
@@ -687,6 +730,34 @@ void ensign(Ctx& cx) {
     MeshBuilder kb = cx.at(2);
     kb.setMaterial(cx.paint.rope);
     kb.tube(hoist, hoist - Vec3f{0, 0, h + 0.2f}, 0.012f, 0.012f, 3, false);
+}
+
+void recognitionStripes(Ctx& cx) {
+    if (!cx.rm) return;
+    // From the stem back to the first turret: diagonal bands, all slanting the same way.
+    double fwdMount = -1e9;
+    for (const auto& m : cx.c.mounts)
+        if (std::fabs(m.y) < 1.0) fwdMount = std::max(fwdMount, m.x);
+    double xEnd = fwdMount > -1e8 ? fwdMount + (cx.destroyer ? 3.5 : 5.5) : cx.x(0.18);
+    double xStart = cx.x(0.012);
+    if (xStart - xEnd < 6.0) return;
+    float band = cx.destroyer ? 1.6f : 2.4f;
+    double half = cx.B * 0.5, step = 0.35;
+    MeshBuilder mb = cx.at(1);
+    Material red = mat(srgb(152, 32, 30), 0.82f, 0.0f, kPlain), white = mat(srgb(214, 211, 202), 0.82f, 0.0f, kPlain);
+    auto inside = [&](double xx, double yy) { return xx >= xEnd && xx <= xStart && std::fabs(yy) < cx.edgeY(xx) - 0.25; };
+    auto at = [&](double xx, double yy) { return v3(xx, yy, cx.deckZ(xx, yy) + 0.03); };
+    int k = 0;
+    for (double d0 = xEnd - half; d0 < xStart + half; d0 += band, ++k) {
+        mb.setMaterial(k % 2 ? white : red);
+        for (double y0 = -half; y0 < half; y0 += step) {
+            double y1 = y0 + step;
+            // Band edges: x + y = d0 and x + y = d0 + band.
+            double a0 = d0 - y0, a1 = d0 - y1, b0 = d0 + band - y0, b1 = d0 + band - y1;
+            if (!inside(a0, y0) || !inside(a1, y1) || !inside(b0, y0) || !inside(b1, y1)) continue;
+            mb.flatQuad(at(a0, y0), at(b0, y0), at(b1, y1), at(a1, y1));
+        }
+    }
 }
 
 }  // namespace it::procgen::detail

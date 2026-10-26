@@ -1,0 +1,16 @@
+// Regia Marina 1941: a fleet built and trained for daylight gunnery at long range. Heavy ships did
+// not expect to fight at night - guns were secured fore and aft, no flashless powder, no night
+// training for the main armament and no radar. Ships coming out of the dark were assumed to be
+// friendly; commanders were cautious and slow to commit.
+{
+  "id": "rm_1941", "nation": "rm",
+  "aggression": 0.35, "caution": 0.7, "night_preference": 0.15, "initiative": 0.35,
+  "gun_range_night_m": 5000, "gun_range_day_m": 22000,
+  "require_identification": true, "illumination": "starshell", "use_aircraft_flares": false, "chase_salvos": false,
+  "torpedo_first": false, "hold_fire_until_torpedo_impact": false,
+  "torpedo_range_night_m": 3500, "torpedo_range_day_m": 7000, "torpedo_spacing_lengths": 1.2,
+  "reload_and_reattack": false, "torpedoes_per_spread": 3,
+  "reaction_time_s": 25, "report_delay_min_s": 60, "report_delay_max_s": 240, "report_reliability": 0.6, "assume_hostile": 0.25, "evasion_skill": 0.45, "formation": "column", "column_spacing_m": 800,
+  "withdraw_before_dawn_min": 0, "force_ratio_engage": 1.0, "force_ratio_withdraw": 0.6,
+  "target_priority": { "BB": 1.3, "CV": 1.4, "CA": 1.1, "CL": 1.0, "DD": 0.7, "AP": 0.6 }
+}

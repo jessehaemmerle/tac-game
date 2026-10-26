@@ -95,6 +95,10 @@ void Session::spawnGroup(size_t index) {
             for (auto& d : s.directors) d.radarFitted = false;
         if (!ss.torpedoReloads)
             for (auto& tm : s.torpedoMounts) tm.reloads = 0;
+        s.dmg.propulsion = ss.propulsion;
+        s.dmg.power = ss.power;
+        s.dmg.flooding = ss.flooding;
+        if (ss.propulsion < 0.08) s.speed = 0.0;  // dead in the water
         if (!ss.sensors.empty()) {
             s.sensors.clear();
             // Period refits: the session owns the replacement sensor mount definitions.

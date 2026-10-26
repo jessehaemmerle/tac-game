@@ -49,7 +49,7 @@ struct Ctx {
     const ShipModelOptions& opt;
     PaintScheme paint;
     double L, B, T;
-    bool usn, ijn, rn, destroyer, cruiser, capital;
+    bool usn, ijn, rn, rm, km, destroyer, cruiser, capital;
     Model model;
     std::mt19937 rng;
     int hull = 0, fittings = 1, fine = 2;  // static parts by level of detail
@@ -129,6 +129,8 @@ void deckFittings(Ctx& cx);   // bollards, fairleads, vents, hatches, lockers (f
 void railings(Ctx& cx);
 void depthCharges(Ctx& cx);
 void ensign(Ctx& cx);
+/// Red and white air-recognition bands across the forecastle (Regia Marina, from late 1940).
+void recognitionStripes(Ctx& cx);
 /// Inclined ladder with handrails from (x0, y, z0) up to (x1, y, z1).
 void ladder(MeshBuilder& mb, const PaintScheme& p, Vec3f lo, Vec3f hi, float width);
 /// Railing of stanchions and `rails` wires along a polyline (open), height h.

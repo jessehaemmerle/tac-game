@@ -51,10 +51,13 @@ Shape shapeFor(const Ctx& cx, const sim::MountDef& m) {
         float h = k > 1.0f ? tall : std::max(0.85f, k), sp = k > 1.0f ? wide : std::max(0.85f, k);
         s = {9.8f * g, 8.8f * g, 3.1f * h, 6.2f * g, 1.4f * g, 1.2f * g, 0.08f, 1.4f * g, 2.0f * g, 1.6f * sp};
         if (cx.usn && cal < 170) s.wid *= 1.05f;  // Brooklyn: wide, flat-faced 6" turrets
+        if (cx.km) s.frontSlope = 0.9f * g, s.rearRadius = 2.8f * g;  // Scharnhorst: flat roof, rounded rear
     } else if (st == "turret2") {
         float g = k > 1.0f ? big : std::max(0.68f, k);
         float h = k > 1.0f ? tall : std::max(0.8f, k);
         if (cx.ijn) s = {8.6f * g, 7.0f * g, 3.0f * h, 3.6f * g, 2.0f * g, 1.4f * g, 0.1f, 1.6f * g, 2.2f * g, 1.9f * g};
+        else if (cx.rm) s = {8.8f * g, 7.4f * g, 3.1f * h, 6.0f * g, 0.7f * g, 1.8f * g, 0.12f, 1.8f * g, 2.3f * g, 2.0f * g};  // Ansaldo: long sloped face
+        else if (cx.km) s = {9.6f * g, 7.6f * g, 3.2f * h, 5.0f * g, 1.3f * g, 0.9f * g, 0.05f, 2.6f * g, 2.2f * g, 2.0f * g};  // flat roof, rounded rear
         else s = {8.4f * g, 7.0f * g, 3.0f * h, 5.2f * g, 1.0f * g, 1.1f * g, 0.06f, 2.0f * g, 2.0f * g, 1.9f * g};
     } else if (st == "dd_turret") {
         s = {6.6f, 4.9f, 2.6f, 2.8f, 1.4f, 1.0f, 0.06f, 1.2f, 1.5f, 1.25f};
@@ -439,7 +442,11 @@ AAType aaType(const std::string& st) {
     if (st.rfind("ijn_25mm_3", 0) == 0) return {25, 3, 1, 1.9f, 0.32f, false, false, true, true, 0.0f};
     if (st.rfind("ijn_25mm", 0) == 0) return {25, 2, 1, 1.9f, 0.36f, false, false, true, true, 0.0f};
     if (st.rfind("ijn_13mm", 0) == 0) return {13.2f, 2, 1, 1.25f, 0.3f, false, false, false, true, 0.0f};
+    if (st.rfind("rn_pompom_4", 0) == 0) return {40, 2, 2, 1.6f, 0.3f, true, true, false, false, 2.2f};  // quad Mk VII (destroyers)
     if (st.rfind("rn_pompom", 0) == 0) return {40, 4, 2, 1.6f, 0.3f, true, true, false, false, 2.8f};
+    if (st.rfind("rm_37mm", 0) == 0) return {37, 2, 1, 2.0f, 0.42f, true, false, true, true, 0.0f};    // Breda 37/54 twin
+    if (st.rfind("rm_20mm", 0) == 0) return {20, 2, 1, 1.3f, 0.28f, true, false, true, true, 0.0f};    // Breda 20/65 twin
+    if (st.rfind("rm_13mm", 0) == 0) return {13.2f, 2, 1, 1.25f, 0.3f, false, false, false, true, 0.0f};  // Breda 13.2 twin
     if (st.rfind("rn_05in", 0) == 0) return {12.7f, 4, 1, 1.1f, 0.14f, false, false, false, false, 0.0f};
     return {20, 1, 1, 2.2f, 0.0f, true, st.find("tub") != std::string::npos, true, true, 1.3f};  // 20 mm Oerlikon
 }

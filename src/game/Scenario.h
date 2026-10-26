@@ -19,6 +19,9 @@ struct ScenarioShip {
     std::vector<std::string> sensors;       // overrides class sensors (period refits)
     bool fcRadar = true;                    // false: directors without fire-control radar
     bool torpedoReloads = true;             // false: reload torpedoes landed (deck cargo, e.g. supply drums)
+    // Damage the ship starts with (an earlier action): health of propulsion and electrical power
+    // (1 = intact) and water already in the hull (t).
+    double propulsion = 1.0, power = 1.0, flooding = 0.0;
 };
 
 struct ScenarioGroup {

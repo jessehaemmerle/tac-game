@@ -847,6 +847,28 @@ void director(Ctx& cx, const sim::ModelPart& pt) {
         mb.lathe(v3(x, 0, z), {0, 0, 1}, {{L * 0.5f, 0}, {L * 0.5f, H * 0.55f}, {L * 0.42f, H * 0.8f}, {L * 0.2f, H * 0.98f}, {0.0f, H}}, 16, false);
         for (int side : {1, -1}) mb.box(v3(x + L * 0.1f, side * L * 0.25f - 0.3f, z + H * 0.6f), v3(x + L * 0.5f + 0.2f, side * L * 0.25f + 0.3f, z + H * 0.9f));
         rangefinder(mb, cx.paint, v3(x - L * 0.15f, 0, z + H * 0.45f), base, 0.2f);
+    } else if (cx.rm) {
+        // Galileo/San Giorgio director: a drum with a shallow domed roof, the rangefinder through it.
+        float r = L * 0.5f;
+        mb.lathe(v3(x, 0, z), {0, 0, 1}, {{r, 0}, {r, H * 0.7f}, {r * 0.85f, H * 0.92f}, {r * 0.4f, H}, {0.0f, H * 1.02f}}, 18, false);
+        rangefinder(mb, cx.paint, v3(x - r * 0.1f, 0, z + H * 0.55f), std::max(base, W), 0.2f);
+        for (int side : {1, -1}) mb.box(v3(x + r * 0.3f, side * r * 0.35f - 0.25f, z + H * 0.75f), v3(x + r + 0.15f, side * r * 0.35f + 0.25f, z + H * 0.95f));
+    } else if (cx.km) {
+        // Kommandogeraet: a rotating hood with a domed roof and the long rangefinder across it.
+        float r = L * 0.5f;
+        mb.lathe(v3(x, 0, z), {0, 0, 1}, {{r, 0}, {r, H * 0.45f}, {r * 0.92f, H * 0.7f}, {r * 0.7f, H * 0.9f}, {r * 0.35f, H}, {0.0f, H * 1.02f}}, 20, false);
+        rangefinder(mb, cx.paint, v3(x - r * 0.15f, 0, z + H * 0.5f), std::max(base, W), 0.26f);
+        if (radarId == "km_fumo") {
+            // FuMO "mattress" (Matratze) aerial on the front of the hood.
+            mb.setMaterial(cx.paint.metal);
+            float aw = std::min(W * 0.7f, 6.0f), ah = 2.0f;
+            Vec3f c = v3(x + r * 0.6f, 0, z + H + ah * 0.5f + 0.3f);
+            mb.box(c + Vec3f{-0.1f, -aw * 0.5f, -ah * 0.5f}, c + Vec3f{0.0f, aw * 0.5f, ah * 0.5f});
+            mb.setMaterial(cx.paint.superstructure);
+            for (int k = 0; k <= 6; ++k)
+                mb.bar(c + Vec3f{0.12f, -aw * 0.5f + aw * float(k) / 6.0f, -ah * 0.5f}, c + Vec3f{0.12f, -aw * 0.5f + aw * float(k) / 6.0f, ah * 0.5f}, 0.04f, 0.04f, {1, 0, 0});
+            mb.bar(c + Vec3f{-0.3f, 0, -ah * 0.5f - 0.3f}, c + Vec3f{-0.3f, 0, -ah * 0.5f}, 0.12f, 0.12f);
+        }
     } else if (cx.rn) {
         // Director control tower: squat house with a sloped face and a hood.
         auto o = gunhouseOutline(x, 0, L, W * 0.75f, W * 0.55f, L * 0.2f, 0.5f);
@@ -877,7 +899,7 @@ void radar(Ctx& cx, const sim::ModelPart& pt) {
     int ri = cx.part("radar_" + pt.style, PartKind::Radar, 0);
     MeshPart& p = cx.P(ri);
     p.pivot = v3(xx, 0, z0);
-    p.sub = pt.style == "sg" ? 1 : 0;  // the SG turns faster than the air-search SC
+    p.sub = pt.style == "sg" || pt.style == "rn_273" ? 1 : 0;  // surface sets turn faster than air search
     MeshBuilder mb(p);
     mb.setMaterial(cx.paint.superstructure);
     float x = float(xx), z = float(z0);
@@ -903,6 +925,36 @@ void radar(Ctx& cx, const sim::ModelPart& pt) {
         mb.box(focus - Vec3f{0.1f, 0.12f, 0.1f}, focus + Vec3f{0.1f, 0.12f, 0.1f});
         mb.setMaterial(cx.paint.superstructure);
         mb.lathe(v3(x - 0.3f, 0, z - 0.6f), {0, 0, 1}, {{0.35f, 0}, {0.35f, 0.7f}, {0.2f, 0.9f}, {0.0f, 0.92f}}, 10, false);
+    } else if (pt.style == "rn_279" || pt.style == "rn_281") {
+        // Masthead array of the Type 279/281: two booms of horizontal dipoles with reflector rods behind.
+        float bz = z + 0.3f;
+        mb.tube(v3(x, 0, z - 0.6f), v3(x, 0, bz + H), 0.09f, 0.07f, 8, true);
+        for (int row = 0; row < 2; ++row) {
+            float zz = bz + H * (0.15f + 0.7f * float(row));
+            mb.bar(v3(x, -W * 0.5f, zz), v3(x, W * 0.5f, zz), 0.06f, 0.06f);
+            for (int k = 0; k < 4; ++k) {
+                float yy = -W * 0.5f + W * (float(k) + 0.5f) / 4.0f;
+                mb.bar(v3(x + 0.25f, yy - W * 0.11f, zz), v3(x + 0.25f, yy + W * 0.11f, zz), 0.03f, 0.03f);  // dipole
+                mb.bar(v3(x, yy, zz), v3(x + 0.25f, yy, zz), 0.025f, 0.025f);
+                mb.bar(v3(x - 0.35f, yy - W * 0.12f, zz), v3(x - 0.35f, yy + W * 0.12f, zz), 0.025f, 0.025f);  // reflector
+            }
+            mb.bar(v3(x, 0, zz), v3(x - 0.35f, 0, zz), 0.04f, 0.04f);
+        }
+    } else if (pt.style == "rn_286") {
+        // Type 286: a fixed "bedstead" of dipoles on the foremast head (a converted aircraft set).
+        float bz = z + 0.2f;
+        mb.bar(v3(x, -W * 0.5f, bz), v3(x, W * 0.5f, bz), 0.06f, 0.06f);
+        mb.bar(v3(x, -W * 0.5f, bz + H), v3(x, W * 0.5f, bz + H), 0.06f, 0.06f);
+        for (int k = 0; k <= 4; ++k) {
+            float yy = -W * 0.5f + W * float(k) / 4.0f;
+            mb.bar(v3(x, yy, bz), v3(x, yy, bz + H), 0.04f, 0.04f, {1, 0, 0});
+        }
+        for (int r = 0; r < 3; ++r)
+            for (int k = 0; k < 4; ++k) {
+                Vec3f d = v3(x + 0.3f, -W * 0.5f + W * (float(k) + 0.5f) / 4.0f, bz + H * (float(r) + 0.5f) / 3.0f);
+                mb.bar(d - Vec3f{0, W * 0.1f, 0}, d + Vec3f{0, W * 0.1f, 0}, 0.025f, 0.025f);
+                mb.bar(d - Vec3f{0.3f, 0, 0}, d, 0.02f, 0.02f);
+            }
     } else {
         // SC "bedspring": a frame of dipoles in front of a wire-mesh reflector.
         float bz = z + 0.4f;
