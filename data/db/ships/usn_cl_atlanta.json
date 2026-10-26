@@ -1,0 +1,380 @@
+{
+  "id": "usn_cl_atlanta",
+  "nation": "usn",
+  "type": "CLAA",
+  "name": "Atlanta",
+  "year": 1941,
+  "ships": [
+    "Atlanta",
+    "Juneau",
+    "San Diego",
+    "San Juan"
+  ],
+  "sources": "Friedman, U.S. Cruisers; navweaps.com; DANFS (Atlanta CL-51 at Guadalcanal, 13 Nov 1942)",
+  "dimensions": {
+    "length": 165.0,
+    "length_wl": 161.5,
+    "beam": 16.2,
+    "draft": 6.2,
+    "mast_height": 32,
+    "lookout_height": 22,
+    "superstructure_height": 15
+  },
+  "displacement": {
+    "standard": 6000,
+    "full": 8340
+  },
+  "propulsion": {
+    "max_speed_kn": 32.5,
+    "cruise_speed_kn": 15,
+    "shp": 75000,
+    "accel_kn_per_min": 5.5,
+    "tactical_diameter_m": 700,
+    "shafts": 2
+  },
+  "crew": 673,
+  "armor": {
+    "belt": 95,
+    "belt_magazine": 95,
+    "deck": 32,
+    "turret_face": 32,
+    "turret_roof": 32,
+    "barbette": 32,
+    "conning_tower": 64,
+    "torpedo_protection": 0.1
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.13,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "dp_twin",
+      "armor": 32,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.185,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "dp_twin",
+      "superfiring": true,
+      "armor": 32,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "3",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.245,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "dp_twin",
+      "superfiring": true,
+      "raise": 2.6,
+      "armor": 32,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "4",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.735,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "dp_twin",
+      "superfiring": true,
+      "raise": 2.6,
+      "armor": 32,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "5",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.79,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "dp_twin",
+      "superfiring": true,
+      "armor": 32,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "6",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.85,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "dp_twin",
+      "armor": 32,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "W1",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.6,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 5.6,
+      "style": "dp_twin",
+      "director": "sec",
+      "raise": 2.6,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "W2",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.6,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -5.6,
+      "style": "dp_twin",
+      "director": "sec",
+      "raise": 2.6,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "usn_mk15",
+      "tubes": 4,
+      "f": 0.585,
+      "y": 6.2,
+      "arc_min": 30,
+      "arc_max": 150
+    },
+    {
+      "id": "T2",
+      "weapon": "usn_mk15",
+      "tubes": 4,
+      "f": 0.585,
+      "y": -6.2,
+      "arc_min": -150,
+      "arc_max": -30
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 4.6,
+      "height": 22,
+      "radar": "usn_fd_mk4",
+      "f": 0.31
+    },
+    {
+      "id": "sec",
+      "role": "secondary",
+      "rangefinder_m": 4.6,
+      "height": 15,
+      "radar": "usn_fd_mk4",
+      "f": 0.68
+    }
+  ],
+  "sensors": [
+    {
+      "id": "usn_lookouts",
+      "height": 22,
+      "f": 0.31
+    },
+    {
+      "id": "usn_sc",
+      "height": 30,
+      "f": 0.33
+    }
+  ],
+  "searchlights": 2,
+  "searchlight_cm": 61,
+  "depth_charges": 12,
+  "rcs": 0.8,
+  "reserve_buoyancy": 0.5,
+  "hull_strength": 0.9,
+  "model": {
+    "bow_rake": 0.035,
+    "stern": 0.0,
+    "freeboard_bow": 8.2,
+    "freeboard_mid": 6.0,
+    "freeboard_stern": 4.4,
+    "forecastle_end": 0.55,
+    "forecastle_drop": 2.4,
+    "fineness": 0.5,
+    "flare": 0.2,
+    "hull_paint": "usn_ms21",
+    "deck_paint": "usn_deck_blue",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.305,
+        "len": 12,
+        "wid": 10,
+        "h": 2.8,
+        "levels": 4,
+        "style": "usn"
+      },
+      {
+        "type": "director",
+        "f": 0.31,
+        "z": 14.8,
+        "len": 3.2,
+        "wid": 4.6,
+        "h": 2.6,
+        "ref": "usn_fd_mk4"
+      },
+      {
+        "type": "tripod",
+        "f": 0.335,
+        "h": 25,
+        "rake": 0
+      },
+      {
+        "type": "radar",
+        "f": 0.335,
+        "z": 24.5,
+        "len": 0.6,
+        "wid": 4.6,
+        "h": 3.4,
+        "style": "sc",
+        "ref": "usn_sc"
+      },
+      {
+        "type": "funnel",
+        "f": 0.43,
+        "len": 5.4,
+        "wid": 4.0,
+        "h": 9.0,
+        "rake": 0
+      },
+      {
+        "type": "funnel",
+        "f": 0.52,
+        "len": 5.4,
+        "wid": 4.0,
+        "h": 8.6,
+        "rake": 0
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.47,
+        "len": 30,
+        "wid": 10,
+        "h": 2.6,
+        "levels": 1
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.665,
+        "len": 13,
+        "wid": 8,
+        "h": 2.6,
+        "levels": 2
+      },
+      {
+        "type": "director",
+        "f": 0.68,
+        "z": 7.6,
+        "len": 3.2,
+        "wid": 4.6,
+        "h": 2.6,
+        "ref": "usn_fd_mk4"
+      },
+      {
+        "type": "mast",
+        "f": 0.635,
+        "h": 18,
+        "rake": 0
+      },
+      {
+        "type": "searchlight",
+        "f": 0.48,
+        "y": 3.0,
+        "z": 8.5,
+        "mirror": true
+      },
+      {
+        "type": "boat",
+        "f": 0.47,
+        "y": 5.0,
+        "z": 2.6,
+        "len": 8,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_28mm_4",
+        "f": 0.38,
+        "y": 3.6,
+        "mirror": true,
+        "z": 2.8
+      },
+      {
+        "type": "aa",
+        "style": "usn_28mm_4",
+        "f": 0.62,
+        "z": 5.2
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.29,
+        "y": 5.6,
+        "mirror": true,
+        "z": 2.8
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.56,
+        "y": 7.0,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.7,
+        "y": 5.0,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.92,
+        "y": 3.5,
+        "mirror": true
+      }
+    ]
+  }
+}

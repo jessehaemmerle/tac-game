@@ -64,6 +64,12 @@ struct BeltSpec {
 
 BeltSpec beltSpec(const Ctx& cx) {
     BeltSpec b;
+    if (cx.capital) {
+        // Japanese battleships: deep bulges added in their reconstructions; US fast battleships carried
+        // their belt inside the hull.
+        if (cx.ijn || cx.rn) b = {0.16, 0.8, -cx.T * 0.8, 1.2, 0.7, true};
+        return b;
+    }
     if (!cx.cruiser) return b;
     if (cx.ijn) b = {0.2, 0.78, -cx.T * 0.75, 0.9, 0.38, true};          // anti-torpedo bulge
     else if (cx.rn) b = {0.24, 0.74, -cx.T * 0.7, 1.1, 0.3, true};      // County class bulges

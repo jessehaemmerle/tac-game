@@ -74,6 +74,7 @@ public:
 private:
     void spawnGroup(size_t index);
     void checkEnd();
+    void trackObjectives(double dt);
     /// The bridge repeats a player order (voice reply, engine telegraph).
     void acknowledge(sim::EntityId ship, const char* reply);
 
@@ -88,6 +89,7 @@ private:
     std::vector<std::unique_ptr<sim::SensorMountDef>> sensorPool_;
     double accumulator_ = 0;
     double quietSince_ = 0;
+    std::vector<double> objectiveTime_;  // seconds spent in the area, per (bombardment) objective
     bool finished_ = false;
     std::string endReason_;
 };

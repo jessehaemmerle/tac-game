@@ -70,5 +70,35 @@
     "max_range_m": 15600, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true,
     "shells": [
       { "kind": "Common", "name": "Common", "mass_kg": 20.4, "mv": 825, "burster_kg": 1.5 },
-      { "kind": "Starshell", "name": "Illuminating", "mass_kg": 19.0, "mv": 650, "burster_kg": 0.0 } ] }
+      { "kind": "Starshell", "name": "Illuminating", "mass_kg": 19.0, "mv": 650, "burster_kg": 0.0 } ] },
+  { "id": "usn_16in45", "name": "16\"/45 Mark 6", "nation": "usn", "caliber_mm": 406.4, "calibres": 45,
+    "rof_rpm": 2.0, "elev_max": 45, "elev_min": -2, "traverse_dps": 4, "elev_dps": 12,
+    "max_range_m": 36700, "max_range_elev": 45, "dispersion": 0.006,
+    "shells": [
+      { "kind": "AP", "name": "AP Mark 8 (2,700 lb)", "mass_kg": 1225.0, "mv": 701, "burster_kg": 18.5 },
+      { "kind": "Common", "name": "HC Mark 13 (1,900 lb)", "mass_kg": 862.0, "mv": 803, "burster_kg": 69.5 } ] },
+  { "id": "ijn_356_45", "name": "35.6 cm/45 41st Year Type", "nation": "ijn", "caliber_mm": 355.6, "calibres": 45,
+    "rof_rpm": 2.0, "elev_max": 43, "elev_min": -5, "loading_elev": 5, "traverse_dps": 3, "elev_dps": 5,
+    "max_range_m": 35450, "max_range_elev": 43, "dispersion": 0.0075,
+    "shells": [
+      { "kind": "AP", "name": "Type 91 AP", "mass_kg": 673.5, "mv": 775, "burster_kg": 11.0, "diving": true },
+      { "kind": "Common", "name": "Type 0 Common / Type 3 incendiary", "mass_kg": 625.0, "mv": 805, "burster_kg": 38.0 } ] },
+  { "id": "ijn_152_50", "name": "15.2 cm/50 41st Year Type", "nation": "ijn", "caliber_mm": 152.4, "calibres": 50,
+    "rof_rpm": 6.0, "elev_max": 30, "elev_min": -7, "traverse_dps": 5, "elev_dps": 5,
+    "max_range_m": 21000, "max_range_elev": 30, "dispersion": 0.0075,
+    "shells": [
+      { "kind": "Common", "name": "Common", "mass_kg": 45.4, "mv": 855, "burster_kg": 3.0 },
+      { "kind": "Starshell", "name": "Illuminating", "mass_kg": 41.0, "mv": 700, "burster_kg": 0.0 } ] },
+  { "id": "ijn_127_40", "name": "12.7 cm/40 Type 89 HA", "nation": "ijn", "caliber_mm": 127.0, "calibres": 40,
+    "rof_rpm": 14.0, "elev_max": 90, "elev_min": -8, "traverse_dps": 16, "elev_dps": 12,
+    "max_range_m": 14800, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true,
+    "shells": [
+      { "kind": "Common", "name": "Type 0 HE", "mass_kg": 23.0, "mv": 725, "burster_kg": 1.8 },
+      { "kind": "Starshell", "name": "Illuminating", "mass_kg": 21.0, "mv": 650, "burster_kg": 0.0 } ] },
+  { "id": "ijn_10cm65", "name": "10 cm/65 Type 98", "nation": "ijn", "caliber_mm": 100.0, "calibres": 65,
+    "rof_rpm": 19.0, "elev_max": 90, "elev_min": -10, "traverse_dps": 16, "elev_dps": 16,
+    "max_range_m": 19500, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true,
+    "shells": [
+      { "kind": "Common", "name": "Type 98 HE", "mass_kg": 13.0, "mv": 1010, "burster_kg": 0.95 },
+      { "kind": "Starshell", "name": "Illuminating", "mass_kg": 12.5, "mv": 800, "burster_kg": 0.0 } ] }
 ]

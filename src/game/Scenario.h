@@ -40,13 +40,15 @@ struct ScenarioGroup {
     double lat = 0, lon = 0;
 };
 
-enum class ObjectiveType : uint8_t { DestroyTonnage, DestroyGroup, ProtectGroup, Preserve, ExitArea, Survive };
+/// Bombard: ships of `group` spend `value` seconds within `radius` of `area` (a shore bombardment);
+/// PreventBombard: the enemy's `group` does not manage that.
+enum class ObjectiveType : uint8_t { DestroyTonnage, DestroyGroup, ProtectGroup, Preserve, ExitArea, Survive, Bombard, PreventBombard };
 
 struct Objective {
     std::string id;
     sim::Side side = sim::Side::Allies;
     ObjectiveType type = ObjectiveType::DestroyTonnage;
-    double value = 0;          // tonnage / ratio
+    double value = 0;          // tonnage / ratio / seconds
     std::string group;         // group id for group objectives
     Vec2 area;
     double radius = 5000;

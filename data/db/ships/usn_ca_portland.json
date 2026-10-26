@@ -1,0 +1,440 @@
+{
+  "id": "usn_ca_portland",
+  "nation": "usn",
+  "type": "CA",
+  "name": "Portland",
+  "year": 1933,
+  "ships": [
+    "Portland",
+    "Indianapolis"
+  ],
+  "sources": "Friedman, U.S. Cruisers; navweaps.com; DANFS (Portland CA-33)",
+  "dimensions": {
+    "length": 185.9,
+    "length_wl": 179.8,
+    "beam": 20.1,
+    "draft": 6.4,
+    "mast_height": 38,
+    "lookout_height": 29,
+    "superstructure_height": 15
+  },
+  "displacement": {
+    "standard": 10258,
+    "full": 12775
+  },
+  "propulsion": {
+    "max_speed_kn": 32.7,
+    "cruise_speed_kn": 15,
+    "shp": 107000,
+    "accel_kn_per_min": 5.0,
+    "tactical_diameter_m": 850,
+    "shafts": 4
+  },
+  "crew": 952,
+  "armor": {
+    "belt": 127,
+    "belt_magazine": 146,
+    "deck": 51,
+    "turret_face": 64,
+    "turret_roof": 51,
+    "barbette": 38,
+    "conning_tower": 32,
+    "torpedo_protection": 0.1
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "usn_8in55",
+      "barrels": 3,
+      "f": 0.2,
+      "arc_min": -150,
+      "arc_max": 150,
+      "ammo": {
+        "AP": 100,
+        "Common": 50
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "usn_8in55",
+      "barrels": 3,
+      "f": 0.27,
+      "superfiring": true,
+      "arc_min": -150,
+      "arc_max": 150,
+      "ammo": {
+        "AP": 100,
+        "Common": 50
+      }
+    },
+    {
+      "id": "3",
+      "weapon": "usn_8in55",
+      "barrels": 3,
+      "f": 0.79,
+      "arc_min": 30,
+      "arc_max": 330,
+      "ammo": {
+        "AP": 100,
+        "Common": 50
+      }
+    },
+    {
+      "id": "S1",
+      "weapon": "usn_5in25",
+      "f": 0.42,
+      "y": 7.8,
+      "director": "sec",
+      "arc_min": 0,
+      "arc_max": 180,
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 260,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S2",
+      "weapon": "usn_5in25",
+      "f": 0.42,
+      "y": -7.8,
+      "director": "sec",
+      "arc_min": -180,
+      "arc_max": 0,
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 260,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S3",
+      "weapon": "usn_5in25",
+      "f": 0.48,
+      "y": 8.2,
+      "director": "sec",
+      "arc_min": 0,
+      "arc_max": 180,
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 260,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S4",
+      "weapon": "usn_5in25",
+      "f": 0.48,
+      "y": -8.2,
+      "director": "sec",
+      "arc_min": -180,
+      "arc_max": 0,
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 260,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S5",
+      "weapon": "usn_5in25",
+      "f": 0.54,
+      "y": 8.2,
+      "director": "sec",
+      "arc_min": 0,
+      "arc_max": 180,
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 260,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S6",
+      "weapon": "usn_5in25",
+      "f": 0.54,
+      "y": -8.2,
+      "director": "sec",
+      "arc_min": -180,
+      "arc_max": 0,
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 260,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S7",
+      "weapon": "usn_5in25",
+      "f": 0.6,
+      "y": 7.8,
+      "director": "sec",
+      "arc_min": 0,
+      "arc_max": 180,
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 260,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S8",
+      "weapon": "usn_5in25",
+      "f": 0.6,
+      "y": -7.8,
+      "director": "sec",
+      "arc_min": -180,
+      "arc_max": 0,
+      "style": "open",
+      "armor": 0,
+      "ammo": {
+        "Common": 260,
+        "Starshell": 40
+      }
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 5.0,
+      "height": 33,
+      "radar": "usn_fc_mk3",
+      "f": 0.33
+    },
+    {
+      "id": "sec",
+      "role": "secondary",
+      "rangefinder_m": 3.0,
+      "height": 22,
+      "f": 0.36
+    }
+  ],
+  "sensors": [
+    {
+      "id": "usn_lookouts",
+      "height": 29,
+      "f": 0.33
+    },
+    {
+      "id": "usn_sc",
+      "height": 38,
+      "f": 0.33
+    }
+  ],
+  "searchlights": 4,
+  "searchlight_cm": 91,
+  "floatplanes": 4,
+  "rcs": 1.0,
+  "reserve_buoyancy": 0.5,
+  "hull_strength": 0.9,
+  "model": {
+    "bow_rake": 0.03,
+    "stern": 0.0,
+    "freeboard_bow": 9.0,
+    "freeboard_mid": 7.4,
+    "freeboard_stern": 5.0,
+    "forecastle_end": 0.66,
+    "forecastle_drop": 2.5,
+    "fineness": 0.52,
+    "flare": 0.16,
+    "hull_paint": "usn_ms21",
+    "deck_paint": "usn_deck_blue",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.32,
+        "len": 13,
+        "wid": 11,
+        "h": 3.0,
+        "levels": 3,
+        "style": "usn"
+      },
+      {
+        "type": "tripod",
+        "f": 0.335,
+        "h": 30,
+        "rake": 0
+      },
+      {
+        "type": "director",
+        "f": 0.335,
+        "z": 24,
+        "len": 3.5,
+        "wid": 5.0,
+        "h": 2.6,
+        "ref": "usn_fc_mk3"
+      },
+      {
+        "type": "radar",
+        "f": 0.335,
+        "z": 30,
+        "len": 0.6,
+        "wid": 4.6,
+        "h": 3.4,
+        "style": "sc",
+        "ref": "usn_sc"
+      },
+      {
+        "type": "funnel",
+        "f": 0.43,
+        "len": 6.5,
+        "wid": 4.6,
+        "h": 11.5,
+        "rake": 4
+      },
+      {
+        "type": "funnel",
+        "f": 0.515,
+        "len": 6.5,
+        "wid": 4.6,
+        "h": 11.0,
+        "rake": 4
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.47,
+        "len": 30,
+        "wid": 10,
+        "h": 2.6
+      },
+      {
+        "type": "hangar",
+        "f": 0.55,
+        "len": 14,
+        "wid": 13,
+        "h": 5.5
+      },
+      {
+        "type": "catapult",
+        "f": 0.59,
+        "y": 6.2,
+        "len": 15
+      },
+      {
+        "type": "catapult",
+        "f": 0.59,
+        "y": -6.2,
+        "len": 15
+      },
+      {
+        "type": "aircraft",
+        "f": 0.59,
+        "y": -6.2,
+        "z": 2.2,
+        "style": "soc"
+      },
+      {
+        "type": "tripod",
+        "f": 0.62,
+        "h": 22,
+        "rake": 0
+      },
+      {
+        "type": "crane",
+        "f": 0.605,
+        "h": 12,
+        "len": 13
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.7,
+        "len": 8,
+        "wid": 7,
+        "h": 2.6,
+        "levels": 2
+      },
+      {
+        "type": "director",
+        "f": 0.7,
+        "z": 7.0,
+        "len": 3.0,
+        "wid": 4.0,
+        "h": 2.3
+      },
+      {
+        "type": "searchlight",
+        "f": 0.47,
+        "y": 3.2,
+        "z": 8.5
+      },
+      {
+        "type": "searchlight",
+        "f": 0.47,
+        "y": -3.2,
+        "z": 8.5
+      },
+      {
+        "type": "boat",
+        "f": 0.47,
+        "y": 5.5,
+        "z": 2.6,
+        "len": 10
+      },
+      {
+        "type": "boat",
+        "f": 0.47,
+        "y": -5.5,
+        "z": 2.6,
+        "len": 10
+      },
+      {
+        "type": "aa",
+        "style": "usn_28mm_4",
+        "f": 0.4,
+        "y": 3.0,
+        "mirror": true,
+        "z": 2.6
+      },
+      {
+        "type": "aa",
+        "style": "usn_28mm_4",
+        "f": 0.745,
+        "y": 4.4,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.24,
+        "y": 7.6,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.45,
+        "y": 8.6,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.51,
+        "y": 8.6,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.57,
+        "y": 8.6,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.87,
+        "y": 5.2,
+        "mirror": true
+      }
+    ]
+  }
+}

@@ -60,7 +60,8 @@ Ctx::Ctx(const sim::ShipClassDef& cls, const ShipModelOptions& o)
       ijn(cls.nation == sim::Nation::IJN),
       rn(cls.nation == sim::Nation::RN || cls.nation == sim::Nation::RAN),
       destroyer(cls.type == sim::ShipType::DD || cls.type == sim::ShipType::DE),
-      cruiser(cls.type == sim::ShipType::CA || cls.type == sim::ShipType::CL),
+      cruiser(cls.type == sim::ShipType::CA || cls.type == sim::ShipType::CL || cls.type == sim::ShipType::CLAA),
+      capital(cls.type == sim::ShipType::BB || cls.type == sim::ShipType::BC),
       rng(fnv1a(cls.id)) {
     model.parts.reserve(4096);
     hull = part("hull", PartKind::Static, 0);

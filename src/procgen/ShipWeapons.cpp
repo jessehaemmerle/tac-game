@@ -44,14 +44,18 @@ Shape shapeFor(const Ctx& cx, const sim::MountDef& m) {
     float k = float(cal / 203.0);
     const std::string& st = m.style;
     Shape s{};
+    // Battleship turrets do not grow in proportion to the calibre.
+    float big = k > 1.0f ? std::pow(k, 0.55f) : 1.0f, tall = k > 1.0f ? std::pow(k, 0.5f) : 1.0f, wide = k > 1.0f ? std::pow(k, 0.8f) : 1.0f;
     if (st == "turret3") {
-        float g = std::max(0.78f, k);
-        s = {9.8f * g, 8.8f * g, 3.1f * std::max(0.85f, k), 6.2f * g, 1.4f * g, 1.2f * g, 0.08f, 1.4f * g, 2.0f * g, 1.6f * std::max(0.85f, k)};
+        float g = k > 1.0f ? big : std::max(0.78f, k);
+        float h = k > 1.0f ? tall : std::max(0.85f, k), sp = k > 1.0f ? wide : std::max(0.85f, k);
+        s = {9.8f * g, 8.8f * g, 3.1f * h, 6.2f * g, 1.4f * g, 1.2f * g, 0.08f, 1.4f * g, 2.0f * g, 1.6f * sp};
         if (cx.usn && cal < 170) s.wid *= 1.05f;  // Brooklyn: wide, flat-faced 6" turrets
     } else if (st == "turret2") {
-        float g = std::max(0.68f, k);
-        if (cx.ijn) s = {8.6f * g, 7.0f * g, 3.0f * std::max(0.8f, k), 3.6f * g, 2.0f * g, 1.4f * g, 0.1f, 1.6f * g, 2.2f * g, 1.9f * g};
-        else s = {8.4f * g, 7.0f * g, 3.0f * std::max(0.8f, k), 5.2f * g, 1.0f * g, 1.1f * g, 0.06f, 2.0f * g, 2.0f * g, 1.9f * g};
+        float g = k > 1.0f ? big : std::max(0.68f, k);
+        float h = k > 1.0f ? tall : std::max(0.8f, k);
+        if (cx.ijn) s = {8.6f * g, 7.0f * g, 3.0f * h, 3.6f * g, 2.0f * g, 1.4f * g, 0.1f, 1.6f * g, 2.2f * g, 1.9f * g};
+        else s = {8.4f * g, 7.0f * g, 3.0f * h, 5.2f * g, 1.0f * g, 1.1f * g, 0.06f, 2.0f * g, 2.0f * g, 1.9f * g};
     } else if (st == "dd_turret") {
         s = {6.6f, 4.9f, 2.6f, 2.8f, 1.4f, 1.0f, 0.06f, 1.2f, 1.5f, 1.25f};
     } else if (st == "dd_turret1") {
@@ -62,8 +66,12 @@ Shape shapeFor(const Ctx& cx, const sim::MountDef& m) {
         s = {5.0f, 3.6f, 2.45f, 2.2f, 0.9f, 0.75f, 0.1f, 1.2f, 1.3f, 0.0f};
     } else if (st == "shield") {
         s = {3.2f, 2.8f, 2.25f, 2.0f, 0.6f, 0.45f, 0.05f, 0.6f, 0.5f, 0.0f};
+        if (m.barrels > 1) s.wid = 3.6f, s.spacing = 0.9f;  // twin HA mounts with a shield
         s.enclosed = false;
         s.shield = true;
+    } else if (st == "casemate") {
+        s = {2.0f, 2.0f, 1.8f, 2.0f, 0.0f, 0.0f, 0.0f, 0.3f, 0.6f, 0.0f};
+        s.enclosed = false;
     } else {
         s = {2.4f, 1.8f, 1.5f, 1.6f, 0.3f, 0.0f, 0.0f, 0.3f, 0.3f, 0.0f};
         s.enclosed = false;
@@ -123,12 +131,13 @@ void buildMount(Ctx& cx, size_t mi) {
     float x = float(m.x), y = float(m.y), z = float(m.z);
     double deckZ = cx.deckZ(m.x, m.y);
     float gz0 = s.enclosed ? z - s.h * 0.45f : float(deckZ);
-    if (!s.enclosed) gz0 = std::max(float(deckZ), z - 1.6f);
+    bool casemate = m.style == "casemate";
+    if (!s.enclosed) gz0 = casemate ? z - 0.5f : std::max(float(deckZ), z - 1.6f);
     float barrelLen = m.gun ? float(m.gun->caliberMm / 1000.0 * m.gun->calibres) : 5.0f;
     float rM = float(cal / 1000.0) * 0.82f, rB = float(cal / 1000.0) * (cal > 150 ? 1.55f : 1.35f);
     bool swell = cx.ijn && cal > 130;
     float r = std::max(s.len, s.wid) * 0.5f;
-    cx.takeCircle(x, y, s.enclosed ? r : 1.6f);
+    if (m.style != "casemate") cx.takeCircle(x, y, s.enclosed ? r : 1.6f);
 
     // Barbette or gun platform (static).
     {
@@ -216,6 +225,18 @@ void buildMount(Ctx& cx, size_t mi) {
             fb.setMaterial(cx.paint.superstructure);
             fb.polyline(top, 0.05f, 4, true);
         }
+    } else if (casemate) {
+        // Casemate gun in the hull side: an embrasure in the plating, the gun's armoured mantlet flush
+        // with the side (it turns with the gun), the barrel poking out.
+        float side = y >= 0.0f ? 1.0f : -1.0f;
+        MeshBuilder hb = cx.at(0);
+        hb.setMaterial(cx.paint.dark);
+        float hy = side * (float(cx.sideY(m.x, z)) + 0.03f);
+        hb.flatQuad(v3(x - 1.3f, hy, z - 1.0f), v3(x + 1.3f, hy, z - 1.0f), v3(x + 1.3f, hy, z + 1.0f), v3(x - 1.3f, hy, z + 1.0f));
+        mb.setMaterial(cx.paint.hull);
+        mb.box(v3(x + 0.85f, y - 1.0f, z - 0.85f), v3(x + 1.2f, y + 1.0f, z + 0.85f));
+        mb.setMaterial(cx.paint.dark);
+        mb.box(v3(x + 1.2f, y - 0.25f, z - 0.35f), v3(x + 1.22f, y + 0.25f, z + 0.45f));
     } else {
         // Open mount: carriage on a pedestal; shielded mounts add the bent-plate shield and a roof.
         carriage(mb, kb, cx.paint, v3(x, y, gz0), z, s.shield ? 1.4f : 1.2f, true);

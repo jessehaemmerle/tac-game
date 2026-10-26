@@ -36,11 +36,13 @@ ObjectiveType objectiveFromString(const std::string& s) {
     if (s == "preserve") return ObjectiveType::Preserve;
     if (s == "exit_area") return ObjectiveType::ExitArea;
     if (s == "survive") return ObjectiveType::Survive;
+    if (s == "bombard") return ObjectiveType::Bombard;
+    if (s == "prevent_bombard") return ObjectiveType::PreventBombard;
     return ObjectiveType::DestroyTonnage;
 }
 
 const char* objectiveId(ObjectiveType t) {
-    static const char* k[] = {"destroy_tonnage", "destroy_group", "protect_group", "preserve", "exit_area", "survive"};
+    static const char* k[] = {"destroy_tonnage", "destroy_group", "protect_group", "preserve", "exit_area", "survive", "bombard", "prevent_bombard"};
     return k[int(t)];
 }
 
@@ -224,7 +226,7 @@ Json scenarioToJson(const Scenario& sc) {
     for (auto& o : sc.objectives) {
         Json oj{{"id", o.id}, {"side", sideId(o.side)}, {"type", objectiveId(o.type)}, {"value", o.value}, {"points", o.points}, {"text", o.text}};
         if (!o.group.empty()) oj["group"] = o.group;
-        if (o.type == ObjectiveType::ExitArea) {
+        if (o.type == ObjectiveType::ExitArea || o.type == ObjectiveType::Bombard || o.type == ObjectiveType::PreventBombard) {
             oj["area"] = point(o.area);
             oj["radius"] = o.radius;
         }

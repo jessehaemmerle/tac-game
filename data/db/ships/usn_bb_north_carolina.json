@@ -1,0 +1,519 @@
+{
+  "id": "usn_bb_north_carolina",
+  "nation": "usn",
+  "type": "BB",
+  "name": "North Carolina",
+  "year": 1941,
+  "ships": [
+    "Washington",
+    "North Carolina"
+  ],
+  "sources": "Friedman, U.S. Battleships; Garzke & Dulin, Battleships: Allied Battleships of WWII; navweaps.com; DANFS",
+  "dimensions": {
+    "length": 222.1,
+    "length_wl": 217.9,
+    "beam": 33.0,
+    "draft": 10.0,
+    "mast_height": 46,
+    "lookout_height": 36,
+    "superstructure_height": 30
+  },
+  "displacement": {
+    "standard": 36600,
+    "full": 44800
+  },
+  "propulsion": {
+    "max_speed_kn": 28.0,
+    "cruise_speed_kn": 15,
+    "shp": 121000,
+    "accel_kn_per_min": 3.5,
+    "tactical_diameter_m": 830,
+    "shafts": 4
+  },
+  "crew": 1880,
+  "armor": {
+    "belt": 305,
+    "belt_magazine": 305,
+    "deck": 140,
+    "turret_face": 406,
+    "turret_roof": 178,
+    "barbette": 406,
+    "conning_tower": 373,
+    "torpedo_protection": 0.6
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "usn_16in45",
+      "barrels": 3,
+      "f": 0.215,
+      "arc_min": -150,
+      "arc_max": 150,
+      "ammo": {
+        "AP": 100,
+        "Common": 40
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "usn_16in45",
+      "barrels": 3,
+      "f": 0.285,
+      "arc_min": -150,
+      "arc_max": 150,
+      "superfiring": true,
+      "raise": 1.0,
+      "ammo": {
+        "AP": 100,
+        "Common": 40
+      }
+    },
+    {
+      "id": "3",
+      "weapon": "usn_16in45",
+      "barrels": 3,
+      "f": 0.77,
+      "arc_min": 30,
+      "arc_max": 330,
+      "ammo": {
+        "AP": 100,
+        "Common": 40
+      }
+    },
+    {
+      "id": "S1",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.37,
+      "arc_min": -10,
+      "arc_max": 180,
+      "y": 11.6,
+      "style": "dp_twin",
+      "director": "sec",
+      "raise": 2.4,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S2",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.37,
+      "arc_min": -180,
+      "arc_max": 10,
+      "y": -11.6,
+      "style": "dp_twin",
+      "director": "sec",
+      "raise": 2.4,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S3",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.42,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 12.0,
+      "style": "dp_twin",
+      "director": "sec",
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S4",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.42,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -12.0,
+      "style": "dp_twin",
+      "director": "sec",
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S5",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.47,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 12.0,
+      "style": "dp_twin",
+      "director": "sec",
+      "raise": 2.4,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S6",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.47,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -12.0,
+      "style": "dp_twin",
+      "director": "sec",
+      "raise": 2.4,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S7",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.53,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 12.0,
+      "style": "dp_twin",
+      "director": "sec",
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S8",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.53,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -12.0,
+      "style": "dp_twin",
+      "director": "sec",
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S9",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.585,
+      "arc_min": 0,
+      "arc_max": 190,
+      "y": 11.6,
+      "style": "dp_twin",
+      "director": "sec",
+      "raise": 2.4,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "S10",
+      "weapon": "usn_5in38",
+      "barrels": 2,
+      "f": 0.585,
+      "arc_min": -190,
+      "arc_max": 0,
+      "y": -11.6,
+      "style": "dp_twin",
+      "director": "sec",
+      "raise": 2.4,
+      "ammo": {
+        "Common": 400,
+        "Starshell": 40
+      }
+    }
+  ],
+  "torpedo_mounts": [],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 7.9,
+      "height": 35,
+      "radar": "usn_fc_mk3",
+      "f": 0.35
+    },
+    {
+      "id": "sec",
+      "role": "secondary",
+      "rangefinder_m": 4.6,
+      "height": 25,
+      "radar": "usn_fd_mk4",
+      "f": 0.31
+    },
+    {
+      "id": "main_aft",
+      "role": "main",
+      "rangefinder_m": 7.9,
+      "height": 27,
+      "radar": "usn_fc_mk3",
+      "f": 0.58
+    },
+    {
+      "id": "sec_aft",
+      "role": "secondary",
+      "rangefinder_m": 4.6,
+      "height": 16,
+      "radar": "usn_fd_mk4",
+      "f": 0.62
+    }
+  ],
+  "sensors": [
+    {
+      "id": "usn_lookouts",
+      "height": 36,
+      "f": 0.33
+    },
+    {
+      "id": "usn_sg",
+      "height": 41,
+      "f": 0.34
+    },
+    {
+      "id": "usn_sc",
+      "height": 46,
+      "f": 0.345
+    }
+  ],
+  "searchlights": 4,
+  "searchlight_cm": 91,
+  "floatplanes": 3,
+  "rcs": 3.2,
+  "reserve_buoyancy": 0.78,
+  "hull_strength": 2.4,
+  "model": {
+    "bow_rake": 0.035,
+    "stern": 1.0,
+    "freeboard_bow": 11.0,
+    "freeboard_mid": 7.6,
+    "freeboard_stern": 6.0,
+    "forecastle_end": 0.0,
+    "fineness": 0.6,
+    "flare": 0.12,
+    "hull_paint": "usn_ms21",
+    "deck_paint": "usn_deck_blue",
+    "parts": [
+      {
+        "type": "deckhouse",
+        "f": 0.475,
+        "len": 52,
+        "wid": 18,
+        "h": 3.0,
+        "levels": 2
+      },
+      {
+        "type": "bridge",
+        "f": 0.335,
+        "len": 20,
+        "wid": 15,
+        "h": 3.0,
+        "levels": 5,
+        "style": "usn"
+      },
+      {
+        "type": "tower",
+        "f": 0.35,
+        "len": 7,
+        "wid": 7,
+        "h": 30,
+        "style": "usn_tower"
+      },
+      {
+        "type": "director",
+        "f": 0.35,
+        "z": 26.0,
+        "len": 4.6,
+        "wid": 8.0,
+        "h": 3.0,
+        "ref": "usn_fc_mk3"
+      },
+      {
+        "type": "director",
+        "f": 0.31,
+        "z": 15.4,
+        "len": 3.2,
+        "wid": 4.6,
+        "h": 2.6,
+        "ref": "usn_fd_mk4"
+      },
+      {
+        "type": "radar",
+        "f": 0.35,
+        "z": 37.5,
+        "len": 0.6,
+        "wid": 5.2,
+        "h": 3.6,
+        "style": "sc",
+        "ref": "usn_sc"
+      },
+      {
+        "type": "radar",
+        "f": 0.34,
+        "z": 33.5,
+        "len": 1.2,
+        "wid": 2.0,
+        "h": 1.4,
+        "style": "sg",
+        "ref": "usn_sg"
+      },
+      {
+        "type": "funnel",
+        "f": 0.445,
+        "len": 8.0,
+        "wid": 6.4,
+        "h": 15.0,
+        "rake": 0
+      },
+      {
+        "type": "funnel",
+        "f": 0.525,
+        "len": 8.0,
+        "wid": 6.4,
+        "h": 14.0,
+        "rake": 0
+      },
+      {
+        "type": "tower",
+        "f": 0.58,
+        "len": 6.0,
+        "wid": 6.0,
+        "h": 21,
+        "style": "usn_tower"
+      },
+      {
+        "type": "director",
+        "f": 0.58,
+        "z": 18.4,
+        "len": 4.6,
+        "wid": 8.0,
+        "h": 3.0,
+        "ref": "usn_fc_mk3"
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.615,
+        "len": 9,
+        "wid": 8,
+        "h": 3.0,
+        "levels": 2
+      },
+      {
+        "type": "director",
+        "f": 0.62,
+        "z": 6.4,
+        "len": 3.2,
+        "wid": 4.6,
+        "h": 2.6,
+        "ref": "usn_fd_mk4"
+      },
+      {
+        "type": "searchlight",
+        "f": 0.49,
+        "y": 5.0,
+        "z": 15,
+        "mirror": true
+      },
+      {
+        "type": "boat",
+        "f": 0.5,
+        "y": 6.5,
+        "z": 6.2,
+        "len": 12,
+        "mirror": true
+      },
+      {
+        "type": "catapult",
+        "f": 0.935,
+        "y": 6.0,
+        "len": 20,
+        "mirror": true
+      },
+      {
+        "type": "aircraft",
+        "f": 0.935,
+        "y": 6.0,
+        "z": 2.2,
+        "style": "kingfisher",
+        "mirror": true
+      },
+      {
+        "type": "crane",
+        "f": 0.985,
+        "h": 13,
+        "len": 15
+      },
+      {
+        "type": "aa",
+        "style": "usn_28mm_4",
+        "f": 0.39,
+        "y": 7.0,
+        "mirror": true,
+        "z": 6.0
+      },
+      {
+        "type": "aa",
+        "style": "usn_28mm_4",
+        "f": 0.565,
+        "y": 7.0,
+        "mirror": true,
+        "z": 6.0
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.18,
+        "y": 9.0,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.25,
+        "y": 12.5,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.65,
+        "y": 13.5,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.71,
+        "y": 13.0,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.85,
+        "y": 11.0,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.89,
+        "y": 9.5,
+        "mirror": true
+      }
+    ]
+  }
+}

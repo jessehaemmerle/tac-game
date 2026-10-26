@@ -167,8 +167,9 @@ void marking(MeshBuilder& mb, bool ijn, Vec3f c, Vec3f n, float r) {
 void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style, bool ijn) {
     bool biplane = style == "soc" || style == "pete" || style == "walrus";
     bool walrus = style == "walrus";
-    float len = walrus ? 11.4f : (style == "jake" ? 11.3f : (style == "pete" ? 9.5f : 9.5f));
-    float span = walrus ? 13.97f : (style == "jake" ? 14.5f : (style == "pete" ? 11.0f : 10.97f));
+    bool kingfisher = style == "kingfisher";  // Vought OS2U: monoplane, central float, long canopy
+    float len = walrus ? 11.4f : (style == "jake" ? 11.3f : (kingfisher ? 10.3f : 9.5f));
+    float span = walrus ? 13.97f : (style == "jake" ? 14.5f : (style == "pete" ? 11.0f : (kingfisher ? 10.95f : 10.97f)));
     float fz = walrus ? 0.9f : 2.1f;  // fuselage axis height
     Material skin = p.aircraft;
     Material dark = p.dark;
@@ -194,7 +195,7 @@ void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style,
         }
         // Canopy: a long glazed greenhouse on the Jake, open cockpits with windscreens on the biplanes.
         mb.setMaterial(p.glass);
-        if (style == "jake") {
+        if (style == "jake" || kingfisher) {
             mb.sphere({tail + len * 0.62f, 0, fz + 0.78f}, len * 0.17f, 0.38f, 0.33f, 12, 6);
         } else {
             for (float cxp : {0.66f, 0.5f}) mb.sphere({tail + len * cxp, 0, fz + 0.82f}, 0.45f, 0.33f, 0.25f, 10, 5);

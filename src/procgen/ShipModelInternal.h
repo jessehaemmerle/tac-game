@@ -49,7 +49,7 @@ struct Ctx {
     const ShipModelOptions& opt;
     PaintScheme paint;
     double L, B, T;
-    bool usn, ijn, rn, destroyer, cruiser;
+    bool usn, ijn, rn, destroyer, cruiser, capital;
     Model model;
     std::mt19937 rng;
     int hull = 0, fittings = 1, fine = 2;  // static parts by level of detail

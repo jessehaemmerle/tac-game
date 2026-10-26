@@ -1,0 +1,331 @@
+{
+  "id": "ijn_cl_nagara",
+  "nation": "ijn",
+  "type": "CL",
+  "name": "Nagara",
+  "year": 1922,
+  "ships": [
+    "Nagara",
+    "Isuzu",
+    "Natori",
+    "Yura",
+    "Kinu",
+    "Abukuma"
+  ],
+  "sources": "Lacroix & Wells, Japanese Cruisers of the Pacific War; Jentschura et al.; combinedfleet.com; navweaps.com",
+  "dimensions": {
+    "length": 162.15,
+    "length_wl": 158.5,
+    "beam": 14.17,
+    "draft": 4.8,
+    "mast_height": 30,
+    "lookout_height": 24,
+    "superstructure_height": 14
+  },
+  "displacement": {
+    "standard": 5195,
+    "full": 5570
+  },
+  "propulsion": {
+    "max_speed_kn": 36.0,
+    "cruise_speed_kn": 14,
+    "shp": 90000,
+    "accel_kn_per_min": 6.0,
+    "tactical_diameter_m": 760,
+    "shafts": 4
+  },
+  "crew": 450,
+  "armor": {
+    "belt": 63,
+    "belt_magazine": 63,
+    "deck": 29,
+    "turret_face": 20,
+    "conning_tower": 51,
+    "torpedo_protection": 0.1
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.115,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "shield",
+      "armor": 20,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.175,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "shield",
+      "superfiring": true,
+      "armor": 20,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "3",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.3,
+      "arc_min": 5,
+      "arc_max": 175,
+      "y": 5.0,
+      "style": "shield",
+      "raise": 2.4,
+      "armor": 20,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "4",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.3,
+      "arc_min": -175,
+      "arc_max": -5,
+      "y": -5.0,
+      "style": "shield",
+      "raise": 2.4,
+      "armor": 20,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "5",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.66,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "raise": 1.2,
+      "armor": 20,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "6",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.79,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "superfiring": true,
+      "armor": 20,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "7",
+      "weapon": "ijn_14cm50",
+      "barrels": 1,
+      "f": 0.87,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "armor": 20,
+      "ammo": {
+        "Common": 150,
+        "Starshell": 30
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "ijn_type93",
+      "tubes": 2,
+      "f": 0.45,
+      "y": 4.4,
+      "arc_min": 30,
+      "arc_max": 150,
+      "reloads": 2,
+      "reload_s": 1500
+    },
+    {
+      "id": "T2",
+      "weapon": "ijn_type93",
+      "tubes": 2,
+      "f": 0.45,
+      "y": -4.4,
+      "arc_min": -150,
+      "arc_max": -30,
+      "reloads": 2,
+      "reload_s": 1500
+    },
+    {
+      "id": "T3",
+      "weapon": "ijn_type93",
+      "tubes": 2,
+      "f": 0.58,
+      "y": 4.4,
+      "arc_min": 30,
+      "arc_max": 150,
+      "reloads": 2,
+      "reload_s": 1500
+    },
+    {
+      "id": "T4",
+      "weapon": "ijn_type93",
+      "tubes": 2,
+      "f": 0.58,
+      "y": -4.4,
+      "arc_min": -150,
+      "arc_max": -30,
+      "reloads": 2,
+      "reload_s": 1500
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 4.5,
+      "height": 20,
+      "f": 0.25
+    }
+  ],
+  "sensors": [
+    {
+      "id": "ijn_lookouts",
+      "height": 24,
+      "f": 0.25
+    }
+  ],
+  "searchlights": 2,
+  "searchlight_cm": 90,
+  "floatplanes": 1,
+  "rcs": 0.6,
+  "reserve_buoyancy": 0.5,
+  "hull_strength": 0.8,
+  "model": {
+    "bow_rake": 0.045,
+    "stern": 0.0,
+    "freeboard_bow": 7.6,
+    "freeboard_mid": 5.4,
+    "freeboard_stern": 4.0,
+    "forecastle_end": 0.27,
+    "forecastle_drop": 2.2,
+    "fineness": 0.48,
+    "flare": 0.26,
+    "hull_paint": "ijn_kure_grey",
+    "deck_paint": "ijn_linoleum",
+    "parts": [
+      {
+        "type": "pagoda",
+        "f": 0.235,
+        "len": 10,
+        "wid": 8.5,
+        "h": 2.8,
+        "levels": 4,
+        "taper": 0.25,
+        "style": "ijn"
+      },
+      {
+        "type": "tripod",
+        "f": 0.275,
+        "h": 24,
+        "rake": 6
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.42,
+        "len": 34,
+        "wid": 7,
+        "h": 2.4
+      },
+      {
+        "type": "funnel",
+        "f": 0.345,
+        "len": 4.4,
+        "wid": 3.4,
+        "h": 9.0,
+        "rake": 6
+      },
+      {
+        "type": "funnel",
+        "f": 0.405,
+        "len": 4.4,
+        "wid": 3.4,
+        "h": 9.0,
+        "rake": 6
+      },
+      {
+        "type": "funnel",
+        "f": 0.465,
+        "len": 4.4,
+        "wid": 3.4,
+        "h": 9.0,
+        "rake": 6
+      },
+      {
+        "type": "searchlight",
+        "f": 0.39,
+        "y": 0.0,
+        "z": 5.6
+      },
+      {
+        "type": "catapult",
+        "f": 0.725,
+        "y": 0.0,
+        "len": 14
+      },
+      {
+        "type": "aircraft",
+        "f": 0.725,
+        "z": 2.2,
+        "style": "pete"
+      },
+      {
+        "type": "mast",
+        "f": 0.82,
+        "h": 18,
+        "rake": 6
+      },
+      {
+        "type": "boat",
+        "f": 0.5,
+        "y": 4.6,
+        "z": 1.3,
+        "len": 9,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "ijn_25mm_2",
+        "f": 0.52,
+        "y": 2.8,
+        "mirror": true,
+        "z": 2.4
+      },
+      {
+        "type": "aa",
+        "style": "ijn_13mm_2",
+        "f": 0.24,
+        "y": 3.4,
+        "mirror": true,
+        "z": 5.6
+      }
+    ]
+  }
+}

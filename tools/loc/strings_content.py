@@ -201,4 +201,40 @@ S = {
 "class.usn_ap_transport.history": (
  "Converted liners and freighters that carried the Marines to Guadalcanal. Their protection was the reason the cruisers stood guard around Savo Island.",
  "Umgebaute Passagier- und Frachtschiffe, die die Marines nach Guadalcanal brachten. Ihr Schutz war der Grund, warum die Kreuzer um Savo Wache standen."),
+"class.usn_bb_north_carolina.history": (
+ "The first US battleships built after the naval treaties, armed with nine 16-inch guns and twenty 5-inch/38s. On the night of 14/15 November 1942 Washington, guided by her SG radar, wrecked the battleship Kirishima in seven minutes at about 8,000 yards - the only time a US battleship sank an enemy battleship in a gun duel.",
+ "Die ersten nach den Flottenverträgen gebauten US-Schlachtschiffe, bewaffnet mit neun 16-Zoll- und zwanzig 5-Zoll/38-Geschützen. In der Nacht vom 14. auf den 15. November 1942 zerschoss die Washington, geführt von ihrem SG-Radar, das Schlachtschiff Kirishima in sieben Minuten auf etwa 7.300 m – das einzige Mal, dass ein US-Schlachtschiff ein gegnerisches im Artillerieduell versenkte."),
+"class.usn_bb_north_carolina.tactics": (
+ "Radar-directed main battery outranges anything the enemy can show at night. Keep the destroyers ahead as a screen and open fire before the enemy's searchlights find you.",
+ "Die radargeleitete Hauptartillerie übertrifft nachts alles, was der Gegner aufbieten kann. Die Zerstörer als Sicherung vorausschicken und das Feuer eröffnen, bevor feindliche Scheinwerfer das Schiff finden."),
+"class.usn_bb_south_dakota.history": (
+ "A shorter, more heavily protected design with a single funnel. At the Second Naval Battle of Guadalcanal South Dakota lost all electrical power at the critical moment, was illuminated and hit 26 times - but survived while Washington destroyed Kirishima.",
+ "Ein kürzerer, stärker gepanzerter Entwurf mit nur einem Schornstein. In der zweiten Seeschlacht von Guadalcanal fiel auf der South Dakota im entscheidenden Moment der gesamte Strom aus; sie wurde angeleuchtet und 26-mal getroffen – überlebte aber, während die Washington die Kirishima vernichtete."),
+"class.ijn_bb_kongo.history": (
+ "Designed in Britain as battlecruisers in 1911 and twice rebuilt into fast battleships. On 13 November 1942 Hiei, sent to bombard Henderson Field with incendiary shells, ran into a US cruiser force at point-blank range; crippled, she was sunk by aircraft the next day. Kirishima was lost to Washington two nights later.",
+ "1911 in Großbritannien als Schlachtkreuzer entworfen und zweimal zu schnellen Schlachtschiffen umgebaut. Am 13. November 1942 geriet die Hiei, die Henderson Field mit Brandgranaten beschießen sollte, auf kürzeste Distanz in einen US-Kreuzerverband; schwer beschädigt wurde sie am nächsten Tag von Flugzeugen versenkt. Die Kirishima ging zwei Nächte später gegen die Washington verloren."),
+"class.ijn_bb_kongo.tactics": (
+ "Fast and heavily armed but thinly armoured for a battleship. Bombardment shells loaded for a shore target are of little use against ships - change to armour-piercing early.",
+ "Schnell und schwer bewaffnet, für ein Schlachtschiff aber dünn gepanzert. Für ein Landziel geladene Bombardierungsgranaten nützen gegen Schiffe wenig – früh auf Panzersprenggranaten umladen."),
+"class.usn_cl_atlanta.history": (
+ "Built as anti-aircraft cruisers and destroyer leaders, with sixteen 5-inch/38 guns and torpedo tubes but very light armour. Atlanta was wrecked by a torpedo and by gunfire - partly from San Francisco - at the First Naval Battle of Guadalcanal; Juneau was sunk by a submarine as she withdrew.",
+ "Als Flakkreuzer und Zerstörerführer gebaut, mit sechzehn 5-Zoll/38-Geschützen und Torpedorohren, aber sehr leichter Panzerung. Die Atlanta wurde in der ersten Seeschlacht von Guadalcanal von einem Torpedo und Geschützfeuer – teils von der San Francisco – zerstört; die Juneau wurde beim Rückzug von einem U-Boot versenkt."),
+"class.usn_ca_portland.history": (
+ "Two improved Northamptons. Portland lost her stern steering to a torpedo off Guadalcanal on 13 November 1942, circled helplessly - and still fired six salvos into the crippled Hiei.",
+ "Zwei verbesserte Northamptons. Die Portland verlor am 13. November 1942 vor Guadalcanal durch einen Torpedo die Steuerfähigkeit, drehte hilflos im Kreis – und schoss dennoch sechs Salven auf die angeschlagene Hiei."),
+"class.ijn_cl_nagara.history": (
+ "The 5,500-ton light cruisers led the destroyer squadrons. Nagara led Abe's screen at the First Naval Battle of Guadalcanal and Kondo's at the second.",
+ "Die Leichten Kreuzer der 5.500-Tonnen-Klasse führten die Zerstörergeschwader. Die Nagara führte die Sicherung Abes in der ersten und die Kondos in der zweiten Seeschlacht von Guadalcanal."),
+"class.ijn_cl_sendai.history": (
+ "The last and most refined of the 5,500-ton cruisers, recognisable by their four funnels. Sendai led the sweeping force around Savo Island on 14 November 1942.",
+ "Die letzten und ausgereiftesten Kreuzer der 5.500-Tonnen-Klasse, erkennbar an ihren vier Schornsteinen. Die Sendai führte am 14. November 1942 die Vorausgruppe um Savo."),
+"class.ijn_dd_akatsuki.history": (
+ "The last group of the Special Type destroyers. Akatsuki illuminated Atlanta with her searchlight at the start of the First Naval Battle of Guadalcanal and was sunk within minutes.",
+ "Die letzte Gruppe der Spezialtyp-Zerstörer. Die Akatsuki leuchtete zu Beginn der ersten Seeschlacht von Guadalcanal die Atlanta mit ihrem Scheinwerfer an und wurde binnen Minuten versenkt."),
+"class.ijn_dd_asashio.history": (
+ "The first destroyers built after the treaty limits fell away, forerunners of the Kagero class. Asagumo fought in both naval battles of Guadalcanal in November 1942.",
+ "Die ersten Zerstörer nach dem Wegfall der Vertragsgrenzen, Vorläufer der Kagero-Klasse. Die Asagumo kämpfte im November 1942 in beiden Seeschlachten von Guadalcanal."),
+"class.ijn_dd_akizuki.history": (
+ "Large destroyers built around eight 10 cm high-velocity dual-purpose guns to escort carriers. Teruzuki was brand new at the First Naval Battle of Guadalcanal and was sunk by a PT boat a month later.",
+ "Große Zerstörer, gebaut um acht 10-cm-Mehrzweckgeschütze mit hoher Mündungsgeschwindigkeit zum Schutz der Träger. Die Teruzuki war in der ersten Seeschlacht von Guadalcanal fabrikneu und wurde einen Monat später von einem Schnellboot versenkt."),
 }

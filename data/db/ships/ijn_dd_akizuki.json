@@ -1,0 +1,210 @@
+{
+  "id": "ijn_dd_akizuki",
+  "nation": "ijn",
+  "type": "DD",
+  "name": "Akizuki",
+  "year": 1942,
+  "ships": [
+    "Akizuki",
+    "Teruzuki",
+    "Suzutsuki",
+    "Hatsuzuki"
+  ],
+  "sources": "Jentschura et al.; Whitley, Destroyers of World War Two; combinedfleet.com (Teruzuki TROM); navweaps.com",
+  "dimensions": {
+    "length": 134.2,
+    "length_wl": 132.0,
+    "beam": 11.6,
+    "draft": 4.15,
+    "mast_height": 26,
+    "lookout_height": 16,
+    "superstructure_height": 10
+  },
+  "displacement": {
+    "standard": 2701,
+    "full": 3700
+  },
+  "propulsion": {
+    "max_speed_kn": 33.0,
+    "cruise_speed_kn": 18,
+    "shp": 52000,
+    "accel_kn_per_min": 8.0,
+    "tactical_diameter_m": 700,
+    "shafts": 2
+  },
+  "crew": 263,
+  "armor": {
+    "belt": 0,
+    "deck": 0,
+    "turret_face": 0,
+    "torpedo_protection": 0.0
+  },
+  "mounts": [
+    {
+      "id": "1",
+      "weapon": "ijn_10cm65",
+      "barrels": 2,
+      "f": 0.115,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "dd_turret",
+      "armor": 3,
+      "ammo": {
+        "Common": 300,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "2",
+      "weapon": "ijn_10cm65",
+      "barrels": 2,
+      "f": 0.18,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "dd_turret",
+      "superfiring": true,
+      "armor": 3,
+      "ammo": {
+        "Common": 300,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "3",
+      "weapon": "ijn_10cm65",
+      "barrels": 2,
+      "f": 0.735,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "dd_turret",
+      "superfiring": true,
+      "armor": 3,
+      "ammo": {
+        "Common": 300,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "4",
+      "weapon": "ijn_10cm65",
+      "barrels": 2,
+      "f": 0.81,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "dd_turret",
+      "armor": 3,
+      "ammo": {
+        "Common": 300,
+        "Starshell": 20
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "ijn_type93",
+      "tubes": 4,
+      "f": 0.5,
+      "arc_min": 40,
+      "arc_max": 140,
+      "mirrored": true,
+      "reloads": 4,
+      "reload_s": 1200
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 4.5,
+      "height": 14,
+      "f": 0.225
+    }
+  ],
+  "sensors": [
+    {
+      "id": "ijn_lookouts",
+      "height": 16,
+      "f": 0.225
+    }
+  ],
+  "searchlights": 1,
+  "searchlight_cm": 90,
+  "depth_charges": 54,
+  "rcs": 0.35,
+  "reserve_buoyancy": 0.45,
+  "hull_strength": 0.8,
+  "model": {
+    "bow_rake": 0.05,
+    "stern": 0.0,
+    "freeboard_bow": 6.4,
+    "freeboard_mid": 4.4,
+    "freeboard_stern": 2.8,
+    "forecastle_end": 0.29,
+    "forecastle_drop": 2.3,
+    "fineness": 0.48,
+    "flare": 0.3,
+    "hull_paint": "ijn_kure_grey",
+    "deck_paint": "ijn_linoleum",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.225,
+        "len": 8,
+        "wid": 7.5,
+        "h": 2.6,
+        "levels": 3,
+        "style": "ijn_dd"
+      },
+      {
+        "type": "tripod",
+        "f": 0.265,
+        "h": 19,
+        "rake": 5
+      },
+      {
+        "type": "funnel",
+        "f": 0.39,
+        "f2": 0.43,
+        "len": 4.6,
+        "wid": 3.8,
+        "h": 8.0,
+        "rake": 12,
+        "style": "trunked"
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.45,
+        "len": 22,
+        "wid": 6,
+        "h": 2.2
+      },
+      {
+        "type": "searchlight",
+        "f": 0.47,
+        "z": 4.6
+      },
+      {
+        "type": "mast",
+        "f": 0.63,
+        "h": 12,
+        "rake": 5
+      },
+      {
+        "type": "boat",
+        "f": 0.37,
+        "y": 4.0,
+        "z": 1.2,
+        "len": 7
+      },
+      {
+        "type": "aa",
+        "style": "ijn_25mm_3",
+        "f": 0.455,
+        "y": 2.2,
+        "mirror": true,
+        "z": 2.2
+      }
+    ]
+  }
+}

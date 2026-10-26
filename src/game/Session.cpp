@@ -52,6 +52,7 @@ bool Session::start(const Scenario& sc, const SessionOptions& opt, std::string* 
     endReason_.clear();
     accumulator_ = 0;
     quietSince_ = 0;
+    objectiveTime_.assign(sc.objectives.size(), 0.0);
     return true;
 }
 
@@ -159,7 +160,27 @@ void Session::step() {
     for (auto& a : ai_)
         if (a) a->update();
     if (pending_.size() < 20000) pending_.insert(pending_.end(), events.begin(), events.end());
-    if (w.tick() % 20 == 0) checkEnd();
+    if (w.tick() % 20 == 0) {
+        trackObjectives(20 * sim::kStep);
+        checkEnd();
+    }
+}
+
+void Session::trackObjectives(double dt) {
+    const sim::World& w = *world_;
+    for (size_t i = 0; i < scenario_.objectives.size() && i < objectiveTime_.size(); ++i) {
+        const Objective& o = scenario_.objectives[i];
+        if (o.type != ObjectiveType::Bombard && o.type != ObjectiveType::PreventBombard) continue;
+        int gid = worldGroup(o.group);
+        const sim::Group* g = gid >= 0 ? w.group(gid) : nullptr;
+        if (!g) continue;
+        // A bombardment needs a ship with guns in action inside the area.
+        for (auto id : g->members)
+            if (const sim::Ship* sh = w.ship(id); sh && sh->operational() && !sh->mounts.empty() && distance(sh->pos, o.area) < o.radius) {
+                objectiveTime_[i] += dt;
+                break;
+            }
+    }
 }
 
 void Session::checkEnd() {
@@ -236,6 +257,13 @@ SideResult Session::result(sim::Side s) const {
                         }
                 double frac = all ? double(alive) / all : 0.0;
                 met = o.type == ObjectiveType::DestroyGroup ? frac <= 1.0 - o.value : frac >= o.value;
+                break;
+            }
+            case ObjectiveType::Bombard:
+            case ObjectiveType::PreventBombard: {
+                size_t i = size_t(&o - scenario_.objectives.data());
+                double t = i < objectiveTime_.size() ? objectiveTime_[i] : 0.0;
+                met = o.type == ObjectiveType::Bombard ? t >= o.value : t < o.value;
                 break;
             }
             case ObjectiveType::ExitArea:
