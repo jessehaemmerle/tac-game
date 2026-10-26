@@ -265,9 +265,9 @@ MapOutput TacticalMap::draw(const char* id, ImVec2 size, const MapInput& in) {
             if (s.dmg.sinking) sc = {0.5f, 0.5f, 0.5f, 1.0f};
             bool sel = s.id == in.selectedShip;
             bool inGroup = in.selectedGroup >= 0 && s.groupId == in.selectedGroup;
-            float size = s.cls && (s.cls->type == sim::ShipType::DD || s.cls->type == sim::ShipType::DE) ? 5.5f : 7.5f;
+            float sz = s.cls && (s.cls->type == sim::ShipType::DD || s.cls->type == sim::ShipType::DE) ? 5.5f : 7.5f;
             if (s.speed > 0.5) dl->AddLine(c, toScreen(s.pos + s.velocity() * 180.0), toU32(sc, 0.8f), 1.2f);
-            drawShipSymbol(dl, c, size, float(s.heading * kDegToRad), toU32(sc), true);
+            drawShipSymbol(dl, c, sz, float(s.heading * kDegToRad), toU32(sc), true);
             if (sel) dl->AddCircle(c, 14.0f, toU32(col::kBrass), 24, 2.0f);
             else if (inGroup && !in.compact) dl->AddCircle(c, 9.0f, toU32(col::kBrassDim, 0.35f), 16, 1.0f);
             if (!s.dmg.fires.empty()) dl->AddCircleFilled({c.x + 8, c.y - 8}, 3.0f, IM_COL32(255, 120, 40, 230));

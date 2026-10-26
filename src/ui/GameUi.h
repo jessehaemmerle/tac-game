@@ -31,6 +31,7 @@ struct Automation {
     int frames = 30;               // frames to render before the capture
     double camYaw = -1, camPitch = -100, camDistance = -1;
     bool insight = false;          // open the AI insight window
+    int insightFilter = 0;         // 0 own AI, 1 enemy AI, 2 all (enemy views need umpire mode: --side none)
 };
 
 struct LogLine {

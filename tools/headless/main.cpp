@@ -115,10 +115,10 @@ int main(int argc, char** argv) {
                         case sim::EventType::TorpedoHit: std::printf("  [%5.0fs] torpedo from %s hits %s\n", e.time, name(e.a), name(e.b)); break;
                         case sim::EventType::ShellHit: {
                             const sim::Ship *f = w.ship(e.a), *t = w.ship(e.b);
-                            double r = f && t ? distance(f->pos, t->pos) : 0.0;
+                            double range = f && t ? distance(f->pos, t->pos) : 0.0;
                             double land = t ? w.terrain().distanceToLand(t->pos, 20000.0) : 0.0;
                             std::printf("  [%5.0fs] %s hits %s (%.0f mm%s) at %.1f km, target %.1f km off land, light %.2f, fire %.2f\n", e.time, name(e.a),
-                                        name(e.b), e.value, e.value2 > 0.5 ? ", pen" : "", r / 1000.0, land / 1000.0, t ? w.illuminationOn(*t) : 0.0,
+                                        name(e.b), e.value, e.value2 > 0.5 ? ", pen" : "", range / 1000.0, land / 1000.0, t ? w.illuminationOn(*t) : 0.0,
                                         t ? t->dmg.totalFireIntensity() : 0.0);
                             break;
                         }

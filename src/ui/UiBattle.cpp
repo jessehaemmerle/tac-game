@@ -149,7 +149,8 @@ void GameUi::drawBattle() {
         ImGui::SetNextWindowSize({L.W * 0.36f, L.H * 0.55f}, ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowPos({L.leftW + 20, L.top + 40}, ImGuiCond_FirstUseEver);
         if (ImGui::Begin(tr("insight.title"), &showInsight_, ImGuiWindowFlags_NoSavedSettings)) {
-            if (!settings.revealEnemyAi && insightFilter_ != 0) insightFilter_ = 0;
+            // The enemy's reasoning stays hidden during a battle unless revealed in the settings (umpire view: all).
+            if (!settings.revealEnemyAi && playerSide() != sim::Side::Neutral && insightFilter_ != 0) insightFilter_ = 0;
             drawAiInsight();
         }
         ImGui::End();
@@ -870,7 +871,11 @@ void GameUi::drawAiInsight() {
     for (const ai::DecisionRecord* r : recs) {
         if (++shown > 300) break;
         ImGui::PushID(r);
-        std::string head = fmtDuration(r->time) + "  " + r->actor + ": " + loc::format(r->decision, r->args);
+        // Group names are localisation keys; ship names are not.
+        auto name = [](const std::string& k) { return loc::has(k) ? std::string(tr(k.c_str())) : k; };
+        std::vector<std::string> args;
+        for (const auto& a : r->args) args.push_back(name(a));
+        std::string head = fmtDuration(r->time) + "  " + name(r->actor) + ": " + loc::format(r->decision, args);
         ImGui::PushStyleColor(ImGuiCol_Text, sideColor(r->side));
         bool open = ImGui::TreeNodeEx("##r", ImGuiTreeNodeFlags_SpanAvailWidth, "%s", head.c_str());
         ImGui::PopStyleColor();

@@ -524,6 +524,7 @@ void GameUi::runAutomation() {
                 if (sh->name == a.focus) selectShip(sh->id);
         view_ = s == "map" ? View::Map : s == "split" ? View::Split : View::Scene3D;
         showInsight_ = a.insight;
+        insightFilter_ = a.insightFilter;
         if (s == "debrief") endBattle();
     }
     if (a.camYaw >= 0) ctl_.orbitYaw = a.camYaw;

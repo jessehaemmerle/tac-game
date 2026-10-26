@@ -109,6 +109,8 @@ if(IRONTIDE_BUILD_GAME)
   endif()
   if(MSVC)
     set_property(TARGET IronTide PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+    # IronTide.rc embeds its own manifest (DPI awareness, UTF-8 code page, supported OS).
+    target_link_options(IronTide PRIVATE /MANIFEST:NO)
   endif()
   # Copy data next to the executable so the build output is self-contained.
   add_custom_command(TARGET IronTide POST_BUILD

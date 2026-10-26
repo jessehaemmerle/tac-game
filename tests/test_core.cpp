@@ -19,7 +19,7 @@ TEST_CASE("angles wrap and bearings are nautical") {
 }
 
 TEST_CASE("intercept solution hits a moving target") {
-    double t;
+    double t = 0;
     Vec2 aim;
     REQUIRE(solveIntercept({0, 0}, 20.0, {1000, 0}, {0, 10}, t, aim));
     CHECK(length(aim) == doctest::Approx(20.0 * t).epsilon(1e-6));

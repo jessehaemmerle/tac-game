@@ -235,24 +235,24 @@ void Database::parseShipClass(const Json& j, ShipClassDef& c) {
         md.parts.push_back(mp);
     }
     for (auto& m : jarr(j, "mounts")) {
-        MountDef md;
-        md.id = jstr(m, "id");
-        md.weapon = jstr(m, "weapon");
-        md.barrels = jint(m, "barrels", 1);
+        MountDef mt;
+        mt.id = jstr(m, "id");
+        mt.weapon = jstr(m, "weapon");
+        mt.barrels = jint(m, "barrels", 1);
         double f = jnum(m, "f", 0.5);
-        md.x = (0.5 - f) * c.length;
-        md.y = jnum(m, "y", 0);
-        md.superfiring = jbool(m, "superfiring");
-        md.z = jnum(m, "z", c.model.deckHeightAt(f) + (md.superfiring ? 3.6 : 1.6) + jnum(m, "raise", 0));
-        md.arcMin = jnum(m, "arc_min", -150);
-        md.arcMax = jnum(m, "arc_max", 150);
-        md.mirrored = jbool(m, "mirrored");
-        md.armorFace = jnum(m, "armor", c.armor.turretFace);
-        md.director = jstr(m, "director", "main");
-        md.style = jstr(m, "style", md.barrels >= 3 ? "turret3" : (md.barrels == 2 ? "turret2" : "shield"));
+        mt.x = (0.5 - f) * c.length;
+        mt.y = jnum(m, "y", 0);
+        mt.superfiring = jbool(m, "superfiring");
+        mt.z = jnum(m, "z", c.model.deckHeightAt(f) + (mt.superfiring ? 3.6 : 1.6) + jnum(m, "raise", 0));
+        mt.arcMin = jnum(m, "arc_min", -150);
+        mt.arcMax = jnum(m, "arc_max", 150);
+        mt.mirrored = jbool(m, "mirrored");
+        mt.armorFace = jnum(m, "armor", c.armor.turretFace);
+        mt.director = jstr(m, "director", "main");
+        mt.style = jstr(m, "style", mt.barrels >= 3 ? "turret3" : (mt.barrels == 2 ? "turret2" : "shield"));
         const Json& ammo = jobj(m, "ammo");
-        for (auto it = ammo.begin(); it != ammo.end(); ++it) md.ammo[shellKindFromString(it.key())] = it->get<int>();
-        c.mounts.push_back(md);
+        for (auto it = ammo.begin(); it != ammo.end(); ++it) mt.ammo[shellKindFromString(it.key())] = it->get<int>();
+        c.mounts.push_back(mt);
     }
     for (auto& m : jarr(j, "torpedo_mounts")) {
         TorpedoMountDef td;

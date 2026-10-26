@@ -69,6 +69,7 @@ Options parseOptions(const std::vector<std::string>& args) {
     a.camPitch = std::atof(argValue(args, "--pitch", "-100").c_str());
     a.camDistance = std::atof(argValue(args, "--distance", "-1").c_str());
     a.insight = argFlag(args, "--insight");
+    a.insightFilter = std::atoi(argValue(args, "--insight-filter", "0").c_str());
     o.screenshot = argValue(args, "--screenshot");
     o.language = argValue(args, "--lang");
     o.debugLayer = argFlag(args, "--d3d-debug");
