@@ -32,7 +32,8 @@ struct Material {
 enum class PartKind : uint8_t {
     Static,
     Turret,        // trains with mount `mount`
-    Barrel,        // elevates (and recoils, barrel `sub`) with mount `mount`, child of its turret
+    Barrel,        // gun cradle: elevates with mount `mount`, child of its turret
+    Gun,           // one barrel `sub` of mount `mount`: recoils along its axis, child of the cradle
     TorpedoMount,  // trains with torpedo mount `mount`
     Searchlight,
     Radar,         // rotating search radar antenna
@@ -43,8 +44,10 @@ enum class PartKind : uint8_t {
     AAGuns,        // its guns: elevate, child of the mount
     Torpedo,       // torpedo `sub` in the tubes of torpedo mount `mount`: slides out on launch, child of the mount
     Flag,          // ensign: flutters in the vertex shader
-    Propeller,     // spins about its shaft (x axis)
+    Propeller,     // spins about its shaft (x axis); `sub` = 1 turns the other way
     Rudder,        // turns about a vertical axis
+    SearchlightLamp,  // the lamp barrel: elevates, child of its searchlight
+    Shell,         // shell or cartridge in a loading tray (close-ups only)
 };
 
 struct MeshPart {
@@ -53,8 +56,9 @@ struct MeshPart {
     int mount = -1;         // index into the class mounts / torpedo mounts this part animates with
     int parent = -1;        // parent part (barrels belong to a turret)
     int sub = -1;           // barrel or torpedo index within the mount
-    uint8_t lod = 0;        // 0: always drawn, 1: only when near (fittings, railings, rigging), 2: close-ups only
+    uint8_t lod = 0;        // 0: always drawn, 1: only when near (fittings, light AA), 2: close-ups only (railings, rigging)
     Vec3f pivot;            // rotation pivot in model space
+    Vec3f axis{1, 0, 0};    // recoil / launch direction (guns, torpedoes) or spin axis (propellers)
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     Aabb bounds() const;
@@ -64,7 +68,9 @@ struct MeshPart {
 struct AAMountInfo {
     Vec3f pos;
     float baseTrain = 0;  // stowed direction (deg, starboard positive)
+    float arc = 150;      // training limit either side of baseTrain (deg)
     int barrels = 1;
+    float calibreMm = 20;
 };
 
 struct Model {
@@ -82,6 +88,13 @@ public:
     explicit MeshBuilder(MeshPart& part) : p_(part) {}
     void setMaterial(const Material& m) { mat_ = m; }
     const Material& material() const { return mat_; }
+    /// Rigid transform applied to everything built afterwards (local frames for fittings).
+    void setTransform(const Mat4f& m) {
+        xf_ = m;
+        hasXf_ = true;
+    }
+    void clearTransform() { hasXf_ = false; }
+    MeshPart& part() { return p_; }
 
     uint32_t vertex(const Vec3f& pos, const Vec3f& n);
     void tri(uint32_t a, uint32_t b, uint32_t c) { p_.indices.insert(p_.indices.end(), {a, b, c}); }
@@ -119,9 +132,18 @@ public:
     /// Convex flat polygon (fan).
     void polygon(const std::vector<Vec3f>& pts);
 
+    /// Box from its centre, half extents and an orientation (x along `fwd`, z along `up`).
+    void orientedBox(const Vec3f& c, const Vec3f& half, const Vec3f& fwd, const Vec3f& up = {0, 0, 1});
+    /// Closed tube ring (torus) around `axis`.
+    void torus(const Vec3f& c, const Vec3f& axis, float R, float r, int segs = 16, int sides = 6);
+    /// Thin flat strip (double-sided rendering) between two points, `w` wide across `side`.
+    void strip(const Vec3f& a, const Vec3f& b, float w, const Vec3f& side);
+
 private:
     MeshPart& p_;
     Material mat_;
+    Mat4f xf_;
+    bool hasXf_ = false;
 };
 
 /// Recompute smooth vertex normals from triangles (for lofted surfaces).

@@ -47,7 +47,14 @@
       { "type": "aircraft", "f": 0.93, "y": 5.5, "z": 2.2, "style": "soc" },
       { "type": "crane", "f": 0.985, "h": 9, "len": 12 },
       { "type": "searchlight", "f": 0.48, "y": 3.0, "z": 8.0 }, { "type": "searchlight", "f": 0.48, "y": -3.0, "z": 8.0 },
-      { "type": "boat", "f": 0.48, "y": 5.2, "z": 2.6, "len": 10 }, { "type": "boat", "f": 0.48, "y": -5.2, "z": 2.6, "len": 10 }
+      { "type": "boat", "f": 0.48, "y": 5.2, "z": 2.6, "len": 10 }, { "type": "boat", "f": 0.48, "y": -5.2, "z": 2.6, "len": 10 },
+      { "type": "aa", "style": "usn_28mm_4", "f": 0.385, "y": 3.2, "mirror": true, "z": 2.6 },
+      { "type": "aa", "style": "usn_28mm_4", "f": 0.66, "y": 4.2, "mirror": true },
+      { "type": "aa", "style": "usn_20mm", "f": 0.31, "y": 7.6, "mirror": true },
+      { "type": "aa", "style": "usn_20mm", "f": 0.45, "y": 8.4, "mirror": true },
+      { "type": "aa", "style": "usn_20mm", "f": 0.515, "y": 8.4, "mirror": true },
+      { "type": "aa", "style": "usn_20mm", "f": 0.575, "y": 8.4, "mirror": true },
+      { "type": "aa", "style": "usn_20mm", "f": 0.86, "y": 6.5, "mirror": true }
     ]
   }
 }

@@ -216,7 +216,10 @@ const GpuMesh* shipMeshFor(Renderer::Impl& P, GpuDevice& dev, const sim::ShipCla
         gp.kind = part.kind;
         gp.mount = part.mount;
         gp.parent = part.parent;
+        gp.sub = part.sub;
+        gp.lod = part.lod;
         gp.pivot = part.pivot;
+        gp.axis = part.axis;
         uint32_t base = uint32_t(verts.size());
         verts.insert(verts.end(), part.vertices.begin(), part.vertices.end());
         for (uint32_t i : part.indices) idx.push_back(base + i);
@@ -224,6 +227,7 @@ const GpuMesh* shipMeshFor(Renderer::Impl& P, GpuDevice& dev, const sim::ShipCla
     }
     model.computeBounds();
     mesh->bounds = model.bounds;
+    mesh->aa = model.aa;
     if (verts.empty() || idx.empty()) return nullptr;
     size_t vb = verts.size() * sizeof(procgen::Vertex), ib = idx.size() * 4;
     if (!dev.createBuffer(mesh->vb, vb, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, c.id.c_str()) ||
@@ -297,33 +301,62 @@ Mat4f shipWorldMatrix(const sim::Ship& s, const Vec3& camPos, double t, double s
 }
 
 void drawShipModel(Renderer::Impl& P, GpuDevice& dev, const GpuMesh& mesh, const Mat4f& world, const Vec4f& tint, const Vec4f& params,
-                   const ShipPose& pose) {
+                   const ShipPose& pose, int maxLod) {
     auto* cmd = dev.cmd();
     cmd->IASetVertexBuffers(0, 1, &mesh.vbv);
     cmd->IASetIndexBuffer(&mesh.ibv);
     std::vector<Mat4f> local(mesh.parts.size());
+    std::vector<uint8_t> hidden(mesh.parts.size(), 0);
     auto angle = [](const std::vector<float>& v, int i) { return (i >= 0 && size_t(i) < v.size()) ? v[size_t(i)] : 0.0f; };
+    auto nested = [](const std::vector<std::vector<float>>& v, int i, int j, float fallback) {
+        if (i < 0 || size_t(i) >= v.size() || j < 0 || size_t(j) >= v[size_t(i)].size()) return fallback;
+        return v[size_t(i)][size_t(j)];
+    };
     for (size_t i = 0; i < mesh.parts.size(); ++i) {
         const auto& part = mesh.parts[i];
         Mat4f m;
         switch (part.kind) {
             case procgen::PartKind::Turret: m = aboutPivot(part.pivot, rotZ(angle(pose.train, part.mount))); break;
-            case procgen::PartKind::Barrel: {
-                Mat4f parent = (part.parent >= 0 && size_t(part.parent) < i) ? local[size_t(part.parent)] : Mat4f{};
-                m = parent * aboutPivot(part.pivot, rotY(-angle(pose.elev, part.mount)));
+            case procgen::PartKind::Barrel: m = aboutPivot(part.pivot, rotY(-angle(pose.elev, part.mount))); break;
+            case procgen::PartKind::Gun: m = Mat4f::translation(part.axis * -nested(pose.recoil, part.mount, part.sub, 0.0f)); break;
+            case procgen::PartKind::TorpedoMount: m = aboutPivot(part.pivot, rotZ(angle(pose.torpTrain, part.mount))); break;
+            case procgen::PartKind::Torpedo: {
+                float out = nested(pose.torpedoOut, part.mount, part.sub, 0.0f);
+                hidden[i] = out < 0.0f || out > 40.0f;
+                m = Mat4f::translation(part.axis * std::max(0.0f, out));
                 break;
             }
-            case procgen::PartKind::TorpedoMount: m = aboutPivot(part.pivot, rotZ(angle(pose.torpTrain, part.mount))); break;
             case procgen::PartKind::Searchlight: m = aboutPivot(part.pivot, rotZ(pose.searchlightTrain)); break;
+            case procgen::PartKind::SearchlightLamp: m = aboutPivot(part.pivot, rotY(-pose.searchlightElev)); break;
             case procgen::PartKind::Director: m = aboutPivot(part.pivot, rotZ(pose.directorTrain)); break;
             case procgen::PartKind::Radar: m = aboutPivot(part.pivot, rotZ(pose.radarAngle)); break;
+            case procgen::PartKind::AAMount: {
+                float base = part.mount >= 0 && size_t(part.mount) < mesh.aa.size() ? mesh.aa[size_t(part.mount)].baseTrain : 0.0f;
+                float t = size_t(part.mount) < pose.aaTrain.size() ? pose.aaTrain[size_t(part.mount)] : base;
+                m = aboutPivot(part.pivot, rotZ(t));
+                break;
+            }
+            case procgen::PartKind::AAGuns: m = aboutPivot(part.pivot, rotY(-angle(pose.aaElev, part.mount))); break;
+            case procgen::PartKind::Catapult: m = aboutPivot(part.pivot, rotZ(part.pivot.y >= 0 ? pose.catapultTrain : -pose.catapultTrain)); break;
+            case procgen::PartKind::Aircraft:
+                if (pose.aircraftLaunch >= 0.0f) {
+                    hidden[i] = pose.aircraftLaunch > 60.0f;
+                    m = Mat4f::translation(Vec3f{std::min(pose.aircraftLaunch, 12.0f), 0, 0} + pose.aircraftFlight);
+                }
+                break;
+            case procgen::PartKind::Propeller: m = aboutPivot(part.pivot, rotX(part.sub == 1 ? -pose.propAngle : pose.propAngle)); break;
+            case procgen::PartKind::Rudder: m = aboutPivot(part.pivot, rotZ(pose.rudder)); break;
             default: break;
         }
+        if (part.parent >= 0 && size_t(part.parent) < i) {
+            m = local[size_t(part.parent)] * m;
+            hidden[i] |= hidden[size_t(part.parent)];
+        }
         local[i] = m;
-        if (!part.indexCount) continue;
+        if (!part.indexCount || hidden[i] || part.lod > maxLod) continue;
         ObjectConstants oc{world * m, tint, params};
-        if (part.kind == procgen::PartKind::Searchlight) oc.tint.w = pose.searchlightOn ? 1.0f : 0.0f;
-        else oc.tint.w = 0.0f;
+        bool lamp = part.kind == procgen::PartKind::Searchlight || part.kind == procgen::PartKind::SearchlightLamp;
+        oc.tint.w = lamp && pose.searchlightOn ? 1.0f : 0.0f;
         cmd->SetGraphicsRootConstantBufferView(1, dev.constants(oc));
         cmd->DrawIndexedInstanced(part.indexCount, 1, part.firstIndex, 0, 0);
     }
@@ -351,7 +384,11 @@ void drawShips(Renderer::Impl& P, GpuDevice& dev, const sim::World& w, const Cam
         double burn = clamp(s.dmg.hitsTaken * 0.035 + s.dmg.totalFireIntensity() * 0.5 + (1.0 - s.dmg.hullIntegrity) * 0.6, 0.0, 1.0);
         Vec4f tint{float(s.dmg.sinkProgress), s.id == selected ? 1.0f : 0.0f, float(burn), 0.0f};
         Vec4f params{float(s.id % 97), float(-cam.pos.y), float(s.cls->length), float(s.cls->model.freeboardMid)};
-        drawShipModel(P, dev, *mesh, world, tint, params, shipPose(s, w, visualTime));
+        // Level of detail from the projected size of a metre (pixels).
+        double pixPerMetre = double(P.fc.screen.y) / (2.0 * std::tan(cam.fovY * 0.5 * kDegToRad) * std::max(1.0, dist));
+        int lod = pixPerMetre > 4.0 ? 2 : (pixPerMetre > 0.8 ? 1 : 0);
+        if (shadowPass) lod = std::min(lod, dist < 400.0 ? 1 : 0);
+        drawShipModel(P, dev, *mesh, world, tint, params, shipPose(s, w, visualTime), lod);
     }
 }
 

@@ -139,7 +139,8 @@ struct ArmorDef {
 
 /// Procedural model description (consumed by procgen); positions as fractions from bow (0) to stern (1).
 struct ModelPart {
-    std::string type;   // superstructure, bridge, pagoda, funnel, mast, tripod, catapult, crane, boat, searchlight, director, radar, deckhouse
+    std::string type;   // superstructure, bridge, pagoda, funnel, mast, tripod, tower, catapult, crane, boat, searchlight, director,
+                        // radar, deckhouse, hangar, aircraft, aa (cosmetic light AA), raft (Carley floats)
     double f = 0.5;     // position from bow (0) to stern (1)
     double y = 0;       // lateral offset, m (starboard +)
     double len = 5, wid = 5, h = 3;  // size in metres

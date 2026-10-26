@@ -24,7 +24,12 @@
       { "type": "mast", "f": 0.22, "h": 22, "rake": 4, "style": "derrick" },
       { "type": "mast", "f": 0.75, "h": 20, "rake": 4, "style": "derrick" },
       { "type": "boat", "f": 0.45, "y": 7.2, "z": 5.8, "len": 11 }, { "type": "boat", "f": 0.53, "y": 7.2, "z": 5.8, "len": 11 },
-      { "type": "boat", "f": 0.45, "y": -7.2, "z": 5.8, "len": 11 }, { "type": "boat", "f": 0.53, "y": -7.2, "z": 5.8, "len": 11 }
+      { "type": "boat", "f": 0.45, "y": -7.2, "z": 5.8, "len": 11 }, { "type": "boat", "f": 0.53, "y": -7.2, "z": 5.8, "len": 11 },
+      { "type": "aa", "style": "usn_20mm", "f": 0.37, "y": 7.0, "mirror": true, "z": 2.8 },
+      { "type": "aa", "style": "usn_20mm", "f": 0.57, "y": 7.0, "mirror": true, "z": 2.8 },
+      { "type": "aa", "style": "usn_20mm", "f": 0.44, "y": 5.0, "mirror": true, "z": 8.4 },
+      { "type": "aa", "style": "usn_20mm", "f": 0.12, "y": 4.0, "mirror": true },
+      { "type": "aa", "style": "usn_20mm", "f": 0.9, "y": 4.0, "mirror": true }
     ]
   }
 }

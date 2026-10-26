@@ -314,7 +314,9 @@
         "y": -5.2,
         "z": 2.6,
         "len": 10
-      }
+      },
+      {"type": "aa", "style": "ijn_25mm_2", "f": 0.44, "y": 5.0, "mirror": true, "z": 2.6},
+      {"type": "aa", "style": "ijn_13mm_2", "f": 0.3, "y": 5.2, "mirror": true, "z": 3.1}
     ]
   }
 }

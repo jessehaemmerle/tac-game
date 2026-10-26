@@ -68,10 +68,18 @@ struct FoamStamp {
     float radius = 10, strength = 1, life = 20;
 };
 
-/// Articulation of a ship model: mount trains/elevations (deg) and auxiliary part angles.
+/// Articulation of a ship model: mount trains/elevations (deg), recoil and launch travel (m) and
+/// auxiliary part angles. Empty vectors leave the parts in their stowed position.
 struct ShipPose {
     std::vector<float> train, elev, torpTrain;
-    float searchlightTrain = 0, directorTrain = 0, radarAngle = 0;
+    std::vector<std::vector<float>> recoil;      // per mount and barrel: run-back (m)
+    std::vector<std::vector<float>> torpedoOut;  // per torpedo mount and tube: travel out of the tube (m), < 0: tube empty
+    std::vector<float> aaTrain, aaElev;          // light AA (absolute train, deg); empty: stowed outboard
+    float searchlightTrain = 0, searchlightElev = 0, directorTrain = 0, radarAngle = 0;
+    float catapultTrain = 0;    // deg, starboard catapults positive outboard (mirrored to port)
+    float aircraftLaunch = -1;  // m travelled along the catapult (< 0: on the carriage); > 60: gone
+    Vec3f aircraftFlight{};     // added offset once airborne (m, model space)
+    float propAngle = 0, rudder = 0;
     bool searchlightOn = false;
 };
 
@@ -191,8 +199,10 @@ void bindShipTextures(Renderer::Impl& p, GpuDevice& dev);
 void drawTerrain(Renderer::Impl& p, GpuDevice& dev);
 void drawShips(Renderer::Impl& p, GpuDevice& dev, const sim::World& w, const Camera& cam, bool shadowPass, sim::EntityId selected,
                double visualTime);
+/// Draw a ship model with its articulation; parts above `maxLod` are skipped (0 hull and armament,
+/// 1 fittings and light AA, 2 close-up details such as railings and rigging).
 void drawShipModel(Renderer::Impl& p, GpuDevice& dev, const GpuMesh& mesh, const Mat4f& world, const Vec4f& tint, const Vec4f& params,
-                   const ShipPose& pose);
+                   const ShipPose& pose, int maxLod = 2);
 ShipPose shipPose(const sim::Ship& s, const sim::World& w, double visualTime);
 ShipPose stowedPose(const sim::ShipClassDef& c);
 Mat4f shipWorldMatrix(const sim::Ship& s, const Vec3& camPos, double visualTime, double seaState);

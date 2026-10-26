@@ -41,7 +41,11 @@
       { "type": "deckhouse", "f": 0.665, "len": 9, "wid": 7, "h": 2.6, "levels": 2 },
       { "type": "director", "f": 0.665, "z": 7.0, "len": 3.0, "wid": 4.0, "h": 2.3 },
       { "type": "searchlight", "f": 0.43, "y": 3.2, "z": 9.5 }, { "type": "searchlight", "f": 0.43, "y": -3.2, "z": 9.5 },
-      { "type": "boat", "f": 0.50, "y": 6.0, "z": 2.8, "len": 11 }, { "type": "boat", "f": 0.50, "y": -6.0, "z": 2.8, "len": 11 }
+      { "type": "boat", "f": 0.50, "y": 6.0, "z": 2.8, "len": 11 }, { "type": "boat", "f": 0.50, "y": -6.0, "z": 2.8, "len": 11 },
+      { "type": "aa", "style": "rn_pompom_8", "f": 0.487, "y": 3.6, "mirror": true, "z": 2.6 },
+      { "type": "aa", "style": "rn_05in_4", "f": 0.3, "y": 5.3, "mirror": true, "z": 6.0 },
+      { "type": "aa", "style": "usn_20mm", "f": 0.36, "y": 8.4, "mirror": true },
+      { "type": "aa", "style": "usn_20mm", "f": 0.62, "y": 8.6, "mirror": true }
     ]
   }
 }

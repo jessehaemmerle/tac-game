@@ -98,18 +98,102 @@ Surface triplanar(float3 m, float3 nm, MaterialLayer ml)
     return o;
 }
 
+// Ensigns (material 15): the vertex colour carries the flag UV (r, g) and the pattern (b: 1 US, 2 IJN,
+// 3 White Ensign). The cloth streams aft and ripples with time.
+static const uint kMatFlag = 15;
+
+float3 flagRipple(float2 uv, float t, out float3 nrm)
+{
+    float k = 6.0, w = 7.5;
+    float ph = k * uv.x - w * t + uv.y * 1.3;
+    float amp = 0.22 * uv.x;
+    float d = amp * (sin(ph) + 0.35 * sin(2.3 * ph + 1.7));
+    float dd = amp * k * (cos(ph) + 0.8 * cos(2.3 * ph + 1.7)) + 0.22 * (sin(ph) + 0.35 * sin(2.3 * ph + 1.7));
+    // Flag spans about 2.5 m from the hoist (u = 1): slope along model x is -dd / 2.5.
+    nrm = normalize(float3(dd / 2.5, 1.0, 0.0));
+    return float3(0.0, d, -0.12 * uv.x * uv.x);
+}
+
 VSOut VSMain(VSIn v)
 {
     VSOut o;
+    uint vmat = (uint)round(v.params.z * 255.0);
+    float3 nrmIn = v.nrm;
+    if (vmat == kMatFlag)
+    {
+        float3 fn;
+        v.pos += flagRipple(v.color.rg, gTime.x, fn);
+        nrmIn = fn * (v.nrm.y < 0.0 ? -1.0 : 1.0);
+    }
     float4 w = mul(gWorld, float4(v.pos, 1.0));
     o.rel = w.xyz;
     o.pos = mul(gViewProj, float4(w.xyz, 1.0));
-    o.nrm = normalize(mul((float3x3)gWorld, v.nrm));
+    o.nrm = normalize(mul((float3x3)gWorld, nrmIn));
     o.color = v.color;
     o.params = v.params;
     o.model = v.pos;
-    o.modelNrm = v.nrm;
+    o.modelNrm = nrmIn;
     return o;
+}
+
+float sdStar5(float2 p, float r)
+{
+    // Five-pointed star distance, point up, inner radius ratio 0.38 (after Inigo Quilez).
+    const float2 k1 = float2(0.809016994375, -0.587785252292);
+    const float2 k2 = float2(-k1.x, k1.y);
+    p.x = abs(p.x);
+    p -= 2.0 * max(dot(k1, p), 0.0) * k1;
+    p -= 2.0 * max(dot(k2, p), 0.0) * k2;
+    p.x = abs(p.x);
+    p.y -= r;
+    float2 ba = 0.38 * float2(-k1.y, k1.x) - float2(0.0, 1.0);
+    float h = clamp(dot(p, ba) / dot(ba, ba), 0.0, r);
+    return length(p - ba * h) * sign(p.y * ba.x - p.x * ba.y);
+}
+
+float3 flagColour(float2 uv, uint id)
+{
+    const float3 white = float3(0.85, 0.85, 0.83);
+    if (id == 1)
+    {
+        // 48-star flag: 13 stripes, canton over 7 stripes and 0.4 of the fly (aspect 1.9).
+        float3 red = float3(0.45, 0.03, 0.05), blue = float3(0.03, 0.04, 0.16);
+        float stripe = floor(uv.y * 13.0);
+        float3 c = fmod(stripe, 2.0) < 0.5 ? red : white;
+        if (uv.x < 0.4 && uv.y < 7.0 / 13.0)
+        {
+            float2 g = float2(uv.x / 0.4 * 8.0, uv.y / (7.0 / 13.0) * 6.0);
+            float2 cell = frac(g) - 0.5;
+            cell.x *= 0.4 * 1.9 / 8.0 / ((7.0 / 13.0) / 6.0);
+            c = sdStar5(float2(cell.x, -cell.y), 0.32) < 0.0 ? white : blue;
+        }
+        return c;
+    }
+    if (id == 2)
+    {
+        // Rising Sun naval ensign: the disc offset towards the hoist, 16 rays (aspect 1.5).
+        float3 red = float3(0.55, 0.02, 0.03);
+        float2 p = float2(uv.x * 1.5, uv.y) - float2(0.62, 0.5);
+        if (length(p) < 0.3) return red;
+        float a = atan2(p.y, p.x) / 6.2831853 * 16.0 + 0.5;
+        return fmod(floor(a) + 16.0, 2.0) < 0.5 ? red : white;
+    }
+    // White Ensign: red St George's cross, Union Flag in the canton (aspect 2).
+    float3 red = float3(0.5, 0.02, 0.04), blue = float3(0.02, 0.03, 0.14);
+    float2 p = float2(uv.x * 2.0, uv.y);
+    if (abs(p.x - 1.0) < 0.1 || abs(p.y - 0.5) < 0.1) return red;
+    if (uv.x < 0.5 && uv.y < 0.5)
+    {
+        float2 q = float2(uv.x * 4.0, uv.y * 2.0);  // canton 0..2 x 0..1
+        float2 d = q - float2(1.0, 0.5);
+        if (abs(d.x) < 0.09 || abs(d.y) < 0.09) return red;
+        if (abs(d.x) < 0.17 || abs(d.y) < 0.17) return white;
+        float diag = min(abs(d.y - d.x * 0.5), abs(d.y + d.x * 0.5));
+        if (diag < 0.04) return red;
+        if (diag < 0.1) return white;
+        return blue;
+    }
+    return white;
 }
 
 float4 VSShadow(VSIn v) : SV_Position
@@ -132,6 +216,13 @@ float4 PSMain(VSOut i, bool front : SV_IsFrontFace) : SV_Target
     float3 m = i.model;
     float seed = gObjParams.x;
     float cavity = 1.0;
+
+    if (mat == kMatFlag)
+    {
+        albedo = flagColour(i.color.rg, (uint)round(i.color.b * 255.0));
+        rough = 0.85;
+        metal = 0.0;
+    }
 
     // Material textures.
     MaterialLayer ml = materialLayer(mat);
@@ -159,9 +250,11 @@ float4 PSMain(VSOut i, bool front : SV_IsFrontFace) : SV_Target
         // Portholes along the hull below the deck edge.
         if (mat == 0 && m.z > gObjParams.w - 2.8 && m.z < gObjParams.w - 1.6)
         {
-            float px = frac(m.x / 2.4) - 0.5, pz = (m.z - (gObjParams.w - 2.2)) / 0.35;
-            float d = px * px * 40.0 + pz * pz;
-            if (d < 1.0 && abs(m.x) < gObjParams.z * 0.38) { albedo = d < 0.62 ? float3(0.01, 0.012, 0.015) : albedo * 0.45; rough = d < 0.62 ? 0.1 : 0.4; metal = d < 0.62 ? 0.0 : 0.6; }
+            float dx = (frac(m.x / 2.4) - 0.5) * 2.4, dz = m.z - (gObjParams.w - 2.2);
+            float d = (dx * dx + dz * dz) / (0.21 * 0.21);  // 0.3 m glass in a brass rim
+            // Cruisers: along most of the hull; destroyers: the forward crew spaces only.
+            bool span = gObjParams.z > 140.0 ? abs(m.x) < gObjParams.z * 0.38 : (m.x > -0.02 * gObjParams.z && m.x < gObjParams.z * 0.36);
+            if (d < 1.0 && span) { albedo = d < 0.62 ? float3(0.01, 0.012, 0.015) : albedo * 0.45; rough = d < 0.62 ? 0.1 : 0.4; metal = d < 0.62 ? 0.0 : 0.6; }
         }
     }
     else if (mat == 1)

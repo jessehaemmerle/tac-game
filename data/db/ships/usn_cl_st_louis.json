@@ -367,7 +367,13 @@
         "h": 3.4,
         "style": "sc",
         "ref": "usn_sc"
-      }
+      },
+      {"type": "aa", "style": "usn_28mm_4", "f": 0.385, "y": 3.2, "mirror": true, "z": 2.6},
+      {"type": "aa", "style": "usn_28mm_4", "f": 0.66, "y": 4.2, "mirror": true},
+      {"type": "aa", "style": "usn_20mm", "f": 0.31, "y": 7.6, "mirror": true},
+      {"type": "aa", "style": "usn_20mm", "f": 0.495, "y": 8.4, "mirror": true},
+      {"type": "aa", "style": "usn_20mm", "f": 0.61, "y": 8.0, "mirror": true},
+      {"type": "aa", "style": "usn_20mm", "f": 0.86, "y": 6.5, "mirror": true}
     ]
   }
 }

@@ -9,11 +9,12 @@ namespace it::procgen {
 
 struct PaintScheme {
     Material hull, bottom, boot, deck, superstructure, metal, glass, canvas, lens, aircraft, linoleumStrip;
+    Material wood, dark, black, brass, rope, raft;
 };
 PaintScheme paintScheme(const std::string& hullPaint, const std::string& deckPaint, bool plankedDeck = true);
 
 struct ShipModelOptions {
-    int stations = 56;        // hull loft resolution
+    int stations = 96;        // hull loft resolution
     bool details = true;      // boats, rails, radars, aircraft
 };
 

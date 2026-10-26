@@ -34,8 +34,8 @@ void Model::computeBounds() {
 
 uint32_t MeshBuilder::vertex(const Vec3f& pos, const Vec3f& n) {
     Vertex v;
-    v.pos = pos;
-    v.normal = n;
+    v.pos = hasXf_ ? xf_.transformPoint(pos) : pos;
+    v.normal = hasXf_ ? normalize(xf_.transformDir(n)) : n;
     v.color = mat_.packColor();
     v.params = mat_.packParams();
     p_.vertices.push_back(v);
@@ -324,6 +324,53 @@ void MeshBuilder::polygon(const std::vector<Vec3f>& pts) {
     uint32_t first = uint32_t(p_.vertices.size());
     for (auto& p : pts) vertex(p, n);
     for (uint32_t i = 1; i + 1 < pts.size(); ++i) tri(first, first + i, first + i + 1);
+}
+
+void MeshBuilder::orientedBox(const Vec3f& c, const Vec3f& half, const Vec3f& fwd, const Vec3f& up) {
+    Vec3f f = normalize(fwd);
+    Vec3f s = cross(up, f);
+    if (lengthSq(s) < 1e-8f) s = cross(Vec3f{0, 0, 1}, f);
+    if (lengthSq(s) < 1e-8f) s = Vec3f{0, 1, 0};
+    s = normalize(s);
+    Vec3f u = cross(f, s);
+    // For fwd = x and up = z, s = +y and u = +z: the corners match box().
+    Vec3f X = f * half.x, Y = s * half.y, Z = u * half.z;
+    auto P = [&](float a, float b, float d) { return c + X * a + Y * b + Z * d; };
+    Vec3f b0 = P(-1, -1, -1), b1 = P(1, -1, -1), b2 = P(1, 1, -1), b3 = P(-1, 1, -1);
+    Vec3f t0 = P(-1, -1, 1), t1 = P(1, -1, 1), t2 = P(1, 1, 1), t3 = P(-1, 1, 1);
+    flatQuad(t0, t1, t2, t3);
+    flatQuad(b0, b3, b2, b1);
+    flatQuad(b0, b1, t1, t0);
+    flatQuad(b2, b3, t3, t2);
+    flatQuad(b1, b2, t2, t1);
+    flatQuad(b3, b0, t0, t3);
+}
+
+void MeshBuilder::torus(const Vec3f& c, const Vec3f& axis, float R, float r, int segs, int sides) {
+    Vec3f w = normalize(axis);
+    Vec3f helper = std::fabs(w.z) < 0.9f ? Vec3f{0, 0, 1} : Vec3f{1, 0, 0};
+    Vec3f u = normalize(cross(helper, w)), v = cross(w, u);
+    uint32_t start = uint32_t(p_.vertices.size());
+    for (int i = 0; i <= segs; ++i) {
+        float a = float(i) / segs * float(kTwoPi);
+        Vec3f d = u * std::cos(a) + v * std::sin(a);
+        for (int k = 0; k <= sides; ++k) {
+            float b = float(k) / sides * float(kTwoPi);
+            Vec3f n = d * std::cos(b) + w * std::sin(b);
+            vertex(c + d * R + n * r, n);
+        }
+    }
+    uint32_t ring = uint32_t(sides + 1);
+    for (int i = 0; i < segs; ++i)
+        for (int k = 0; k < sides; ++k) {
+            uint32_t a = start + uint32_t(i) * ring + uint32_t(k), b = a + ring, cc = b + 1, d = a + 1;
+            quad(a, b, cc, d);
+        }
+}
+
+void MeshBuilder::strip(const Vec3f& a, const Vec3f& b, float w, const Vec3f& side) {
+    Vec3f s = normalize(side) * (w * 0.5f);
+    flatQuad(a - s, b - s, b + s, a + s);
 }
 
 std::vector<Vec2f> roundedRect(float cx, float cy, float len, float wid, float radius, int cornerSegments) {

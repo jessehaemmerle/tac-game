@@ -232,7 +232,19 @@ void Database::parseShipClass(const Json& j, ShipClassDef& c) {
         mp.levels = jint(p, "levels", 1);
         mp.style = jstr(p, "style");
         mp.ref = jstr(p, "ref");
-        md.parts.push_back(mp);
+        // "count"/"spacing" repeat a part aft (m); "mirror" adds the same part on the other beam.
+        int count = std::max(1, jint(p, "count", 1));
+        double spacing = jnum(p, "spacing", 0);
+        bool mirror = jbool(p, "mirror");
+        for (int k = 0; k < count; ++k) {
+            ModelPart q = mp;
+            q.f = mp.f + k * spacing / std::max(1.0, c.length);
+            md.parts.push_back(q);
+            if (mirror && std::fabs(q.y) > 1e-6) {
+                q.y = -q.y;
+                md.parts.push_back(q);
+            }
+        }
     }
     for (auto& m : jarr(j, "mounts")) {
         MountDef mt;

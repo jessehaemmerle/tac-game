@@ -34,7 +34,9 @@
       { "type": "deckhouse", "f": 0.43, "len": 20, "wid": 6, "h": 2.4 },
       { "type": "deckhouse", "f": 0.665, "len": 10, "wid": 5.5, "h": 2.4 },
       { "type": "searchlight", "f": 0.44, "z": 6.0 },
-      { "type": "boat", "f": 0.34, "y": 3.9, "z": 1.2, "len": 7 }
+      { "type": "boat", "f": 0.34, "y": 3.9, "z": 1.2, "len": 7 },
+      { "type": "aa", "style": "usn_20mm", "f": 0.3, "y": 3.6, "mirror": true, "z": 2.6 },
+      { "type": "aa", "style": "usn_20mm", "f": 0.62, "y": 4.4, "mirror": true }
     ]
   }
 }

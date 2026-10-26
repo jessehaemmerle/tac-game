@@ -37,10 +37,12 @@ struct GpuMesh {
     struct Part {
         uint32_t firstIndex = 0, indexCount = 0;
         procgen::PartKind kind = procgen::PartKind::Static;
-        int mount = -1, parent = -1;
-        Vec3f pivot;
+        int mount = -1, parent = -1, sub = -1;
+        uint8_t lod = 0;
+        Vec3f pivot, axis{1, 0, 0};
     };
     std::vector<Part> parts;
+    std::vector<procgen::AAMountInfo> aa;
     Aabb bounds;
 };
 
