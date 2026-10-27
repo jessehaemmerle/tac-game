@@ -1,0 +1,304 @@
+{
+  "id": "north_cape",
+  "theater": "arctic",
+  "location": {
+    "lat": 72.05,
+    "lon": 28.2
+  },
+  "terrain": "terrain/north_cape.json",
+  "date": {
+    "year": 1943,
+    "month": 12,
+    "day": 26,
+    "hour": 16.25,
+    "utc_offset": 1
+  },
+  "weather": {
+    "cloud_cover": 1.0,
+    "visibility_km": 9,
+    "sea_state": 6,
+    "wind_dir": 220,
+    "wind_kn": 30,
+    "squalls": 4,
+    "squall_intensity": 0.7
+  },
+  "player_sides": [
+    "allies",
+    "axis"
+  ],
+  "default_player": "allies",
+  "time_limit_s": 14400,
+  "groups": [
+    {
+      "id": "fraser",
+      "name": "group.north_cape.fraser",
+      "side": "allies",
+      "doctrine": "rn_1943",
+      "formation": "column",
+      "spacing": 1200,
+      "crew": "veteran",
+      "position": {
+        "lat": 71.72,
+        "lon": 27.55
+      },
+      "course": 80,
+      "speed_kn": 24,
+      "ships": [
+        {
+          "class": "rn_bb_kgv",
+          "name": "Duke of York"
+        },
+        {
+          "class": "rn_cl_fiji",
+          "name": "Jamaica"
+        }
+      ],
+      "mission": {
+        "type": "intercept",
+        "speed_kn": 24,
+        "attack_speed_kn": 27,
+        "loop": false,
+        "waypoints": [
+          {
+            "lat": 71.8,
+            "lon": 28.0
+          },
+          {
+            "lat": 71.9,
+            "lon": 28.6
+          },
+          {
+            "lat": 72.0,
+            "lon": 29.2
+          }
+        ]
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "fraser_dd",
+      "name": "group.north_cape.fraser_dd",
+      "side": "allies",
+      "doctrine": "rn_1943",
+      "formation": "line_abreast",
+      "spacing": 1400,
+      "crew": "veteran",
+      "position": {
+        "lat": 71.735,
+        "lon": 27.6
+      },
+      "course": 80,
+      "speed_kn": 24,
+      "ships": [
+        {
+          "class": "rn_dd_s",
+          "name": "Savage"
+        },
+        {
+          "class": "rn_dd_s",
+          "name": "Saumarez"
+        },
+        {
+          "class": "rn_dd_s",
+          "name": "Scorpion"
+        },
+        {
+          "class": "rn_dd_s",
+          "name": "Stord"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "fraser",
+        "speed_kn": 24,
+        "attack_speed_kn": 34,
+        "escort_offset_m": 3000
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "burnett",
+      "name": "group.north_cape.burnett",
+      "side": "allies",
+      "doctrine": "rn_1943",
+      "formation": "column",
+      "spacing": 1500,
+      "crew": "veteran",
+      "position": {
+        "lat": 72.27,
+        "lon": 28.05
+      },
+      "course": 155,
+      "speed_kn": 24,
+      "ships": [
+        {
+          "class": "rn_cl_town",
+          "name": "Belfast"
+        },
+        {
+          "class": "rn_ca_norfolk",
+          "name": "Norfolk",
+          "fc_radar": false
+        },
+        {
+          "class": "rn_cl_town",
+          "name": "Sheffield",
+          "damage": {
+            "propulsion": 0.75
+          }
+        }
+      ],
+      "mission": {
+        "type": "intercept",
+        "speed_kn": 24,
+        "attack_speed_kn": 28,
+        "loop": false,
+        "waypoints": [
+          {
+            "lat": 72.05,
+            "lon": 28.25
+          },
+          {
+            "lat": 71.85,
+            "lon": 28.5
+          },
+          {
+            "lat": 71.75,
+            "lon": 28.9
+          }
+        ]
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "burnett_dd",
+      "name": "group.north_cape.burnett_dd",
+      "side": "allies",
+      "doctrine": "rn_1943",
+      "formation": "line_abreast",
+      "spacing": 1400,
+      "crew": "veteran",
+      "position": {
+        "lat": 72.29,
+        "lon": 28.0
+      },
+      "course": 155,
+      "speed_kn": 24,
+      "ships": [
+        {
+          "class": "rn_dd_m",
+          "name": "Musketeer"
+        },
+        {
+          "class": "rn_dd_m",
+          "name": "Matchless"
+        },
+        {
+          "class": "rn_dd_s",
+          "name": "Opportune"
+        },
+        {
+          "class": "rn_dd_s",
+          "name": "Virago"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "burnett",
+        "speed_kn": 24,
+        "attack_speed_kn": 34,
+        "escort_offset_m": -2500
+      },
+      "readiness": 1.0
+    },
+    {
+      "id": "bey",
+      "name": "group.north_cape.bey",
+      "side": "axis",
+      "doctrine": "km_1943",
+      "formation": "column",
+      "spacing": 700,
+      "crew": "veteran",
+      "position": {
+        "lat": 72.07,
+        "lon": 28.12
+      },
+      "course": 160,
+      "speed_kn": 26,
+      "ships": [
+        {
+          "class": "km_bb_scharnhorst",
+          "name": "Scharnhorst",
+          "sensors": [
+            "km_lookouts",
+            "km_fumo27"
+          ]
+        }
+      ],
+      "mission": {
+        "type": "transit",
+        "speed_kn": 26,
+        "attack_speed_kn": 30,
+        "waypoints": [
+          {
+            "lat": 71.85,
+            "lon": 27.85
+          },
+          {
+            "lat": 71.62,
+            "lon": 27.3
+          }
+        ],
+        "exit": [
+          {
+            "lat": 72.1,
+            "lon": 29.0
+          },
+          {
+            "lat": 72.3,
+            "lon": 29.9
+          }
+        ]
+      },
+      "readiness": 1.0,
+      "known_to_enemy": true
+    }
+  ],
+  "objectives": [
+    {
+      "id": "scharnhorst",
+      "side": "allies",
+      "type": "destroy_group",
+      "group": "bey",
+      "value": 1.0,
+      "points": 250
+    },
+    {
+      "id": "preserve",
+      "side": "allies",
+      "type": "preserve",
+      "value": 0.85,
+      "points": 100
+    },
+    {
+      "id": "escape",
+      "side": "axis",
+      "type": "survive",
+      "points": 250
+    },
+    {
+      "id": "sink",
+      "side": "axis",
+      "type": "destroy_tonnage",
+      "value": 8000,
+      "points": 100
+    },
+    {
+      "id": "preserve",
+      "side": "axis",
+      "type": "preserve",
+      "value": 0.9,
+      "points": 100
+    }
+  ]
+}

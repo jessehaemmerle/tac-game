@@ -1,0 +1,16 @@
+{
+  "name": "North Cape",
+  "center_lat": 72.05,
+  "center_lon": 28.2,
+  "width": 1236,
+  "height": 996,
+  "cell_size_m": 100.0,
+  "heights": "north_cape.r16",
+  "bounds": {
+    "lat_min": 71.6,
+    "lat_max": 72.5,
+    "lon_min": 26.4,
+    "lon_max": 30.0
+  },
+  "attribution": "Terrain Tiles (Mapzen/Tilezen, AWS Open Data): SRTM, GMTED2010, ETOPO1 and others; see https://github.com/tilezen/joerd/blob/master/docs/attribution.md"
+}

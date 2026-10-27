@@ -2,6 +2,7 @@
 // The contact picture of one side: everything that side believes about enemy ships, built only
 // from its own sensors (lookouts, radar, gun flashes, aircraft, radio reports). AI and the player's
 // tactical map read exclusively from here — this is what makes the AI "fair".
+#include <map>
 #include <string>
 #include <vector>
 
@@ -110,6 +111,10 @@ public:
     const std::vector<Track>& tracks() const { return tracks_; }
     std::vector<Track>& tracks() { return tracks_; }
 
+    /// Prior intelligence (decrypts, earlier sightings): a track on this ship is identified as soon as it
+    /// is first detected. Sim/scenario use only.
+    void addPriorIntel(EntityId truth, ShipType type, SizeClass size, const std::string& classId) { intel_[truth] = {type, size, classId}; }
+
     // Internal (sim only): association by true entity.
     Track* byTruth(EntityId truth);
     EntityId truthOf(const Track& t) const { return t.truth_; }
@@ -122,6 +127,12 @@ private:
     Rng* rng_ = nullptr;
     std::vector<Track> tracks_;
     std::vector<Change> changes_;
+    struct Intel {
+        ShipType type;
+        SizeClass size;
+        std::string classId;
+    };
+    std::map<EntityId, Intel> intel_;
     uint32_t nextId_ = 1;
 };
 

@@ -41,14 +41,18 @@ MinGW). Die Oberfläche spricht Renderer, Audio und Fenster nur über die Schnit
   lesen nur diesen Strom und den öffentlichen Zustand.
 - **Umwelt**: Sonnen- und Mondstand aus Datum, Uhrzeit und Position (Mondphase), Bewölkung,
   Sichtweite, Seegang, Wind, ziehende Regenböen. Daraus folgt die Grundhelligkeit für die
-  Sichtbarkeit.
+  Sichtbarkeit. Schwere See (ab Stärke 5) kostet kurze Schiffe Fahrt – ein Zerstörer bei
+  Stärke 6 läuft gut ein Fünftel langsamer, ein Schlachtschiff nicht –, streut die Salven und
+  verlangsamt das Laden.
 - **Sensoren**: Ausguck und Optik (Silhouette, Aspekt, Licht, Gegenlicht, Inselhintergrund,
   Bugwelle, Brände, Scheinwerfer), Radar je Gerät mit Reichweiten gegen große und kleine Ziele,
   Peil- und Entfernungsgenauigkeit, Landechos, Funkschatten von Inseln, Ausfällen; Mündungsfeuer
   über große Entfernung; Torpedolaufbahnen nach Kielwassersichtbarkeit des Torpedos.
 - **Lagebild** (`ContactPicture`) je Seite: Spuren mit Positions-/Geschwindigkeitsunsicherheit,
   Klassifizierungsstufe (entdeckt → Größe → Typ → Klasse → identifiziert), Haltern und
-  Meldeverzug. Neue Spuren und Erstidentifizierungen werden als Ereignisse gemeldet.
+  Meldeverzug. Neue Spuren und Erstidentifizierungen werden als Ereignisse gemeldet. Ein Verband
+  mit `known_to_enemy` im Szenario (am Nordkap die von Ultra entzifferte Scharnhorst) wird beim
+  ersten Kontakt sofort identifiziert – die Entdeckung selbst bleibt Sache der Sensoren.
 - **Feuerleitung**: Jeder Richtungsgeber verfolgt sein Ziel selbst (Messungen per Radar oder
   Optik, Alpha-Beta-Filter), rechnet Vorhalt und Flugzeit, schießt Salven, beobachtet die
   Aufschläge und korrigiert (Gabelbildung, Deckung). Streuung hängt von Geschütz, Besatzung,
@@ -64,7 +68,10 @@ MinGW). Die Oberfläche spricht Renderer, Audio und Fenster nur über die Schnit
   Stromversorgung, Scheinwerfern, Radar; Sinken, Auseinanderbrechen, Kentern. Großschiffe mit
   vier Wellen und getrennten Maschinenräumen verlieren durch einen Treffer nur einen Teil ihrer
   Antriebsleistung; Granaten, die über dem Gürtel die dünne Bordwand durchschlagen, erreichen
-  die Munitionskammern eines gepanzerten Schiffs nicht (das Panzerdeck liegt dazwischen).
+  die Munitionskammern eines gepanzerten Schiffs nicht (das Panzerdeck liegt dazwischen), und
+  sie treffen auch Maschinen, Kessel und Ruder darunter nicht, sondern nur Aufbauten, Flak und
+  Besatzung. Die Strukturfestigkeit je Klasse (`hull_strength`) bestimmt, wie viel Sprengwirkung
+  der Rumpf aufnimmt; nicht durchschlagene schwere Panzerung lässt fast nichts durch.
 - **Torpedos**: Laufstufen (Geschwindigkeit/Reichweite), Tiefenlauf, Versager, Fächer;
   Ausweichen durch Kämmen der Laufbahnen.
 
@@ -83,7 +90,9 @@ Alternativen und Überlegungen landet im **Entscheidungsprotokoll** und ist im K
 2. **Verband**: setzt die Haltung um – Auftrag (Wegpunkte, Patrouille, Geleit mit Station voraus
    oder achteraus, Angriff auf ein Zielgebiet), Gefechtskurs mit Breitseite und Kreuzen des T,
    Torpedoangriff in Phasen (Anlauf → Abschussposition → Abdrehen → Laufzeit abwarten →
-   Nachladen und erneut angreifen), Rückzug über eine Abmarschroute. Zielverteilung auf die
+   Nachladen und erneut angreifen), Rückzug über eine Abmarschroute – führt sie auf einen
+   Gegner zu, dreht der Verband ab, bis die Gefahr (Summe aller Bedrohungen nach Kampfkraft und
+   Entfernung) achterlicher als querab steht, und hält die einmal gewählte Seite. Zielverteilung auf die
    Schiffe, Feuerdisziplin (Geschütze dunkel lassen, solange die Torpedos laufen).
 3. **Kommandant** je Schiff: Station halten, Land und eigenen Schiffen ausweichen, Torpedo-
    laufbahnen kämmen, beschädigt abdrehen, Richtungsgeber-Ziele, Scheinwerfer und Leucht-
@@ -166,8 +175,8 @@ Sprachen existiert.
 
 ## Bekannte Grenzen
 
-- Bisher nur der Pazifik 1942 (Ironbottom Sound). Atlantik, Mittelmeer und Kanal sind vorgesehen;
-  die Datenbank kennt bereits Royal Navy, Kriegsmarine und Regia Marina als Nationen.
+- Schauplätze bisher: Pazifik 1942 (Ironbottom Sound), Mittelmeer 1941 (Matapan) und Nordmeer
+  1943 (Nordkap). Atlantik, Kanal und Biskaya sind vorgesehen.
 - Keine U-Boote, Flugzeugträger und Landziele im Spiel; Bordflugzeuge nur als Aufklärer und
   Leuchtbombenträger.
 - KI-gegen-KI-Gefechte verlaufen oft verlustreicher als die historischen Vorbilder; die

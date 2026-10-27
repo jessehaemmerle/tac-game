@@ -214,6 +214,7 @@ void Database::parseShipClass(const Json& j, ShipClassDef& c) {
     md.flare = jnum(mj, "flare", 0.15);
     md.tumblehome = jnum(mj, "tumblehome", 0.0);
     md.hullPaint = jstr(mj, "hull_paint", "grey");
+    md.beltStyle = jstr(mj, "belt_style", "");
     md.deckPaint = jstr(mj, "deck_paint", "teak");
     md.gltf = jstr(mj, "gltf");
     md.gltfScale = jnum(mj, "gltf_scale", 1.0);
@@ -261,7 +262,7 @@ void Database::parseShipClass(const Json& j, ShipClassDef& c) {
         mt.mirrored = jbool(m, "mirrored");
         mt.armorFace = jnum(m, "armor", c.armor.turretFace);
         mt.director = jstr(m, "director", "main");
-        mt.style = jstr(m, "style", mt.barrels >= 3 ? "turret3" : (mt.barrels == 2 ? "turret2" : "shield"));
+        mt.style = jstr(m, "style", mt.barrels >= 4 ? "turret4" : (mt.barrels == 3 ? "turret3" : (mt.barrels == 2 ? "turret2" : "shield")));
         const Json& ammo = jobj(m, "ammo");
         for (auto it = ammo.begin(); it != ammo.end(); ++it) mt.ammo[shellKindFromString(it.key())] = it->get<int>();
         c.mounts.push_back(mt);

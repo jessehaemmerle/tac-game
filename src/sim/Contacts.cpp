@@ -24,7 +24,15 @@ double ContactPicture::reportDelay() {
     return d;
 }
 
-Track* ContactPicture::report(const Measurement& m, double now, bool* created) {
+Track* ContactPicture::report(const Measurement& meas, double now, bool* created) {
+    Measurement m = meas;
+    if (auto it = intel_.find(m.truth); it != intel_.end() && m.level < ClassLevel::Identified) {
+        // Known from intelligence: the plot puts a name to the contact straight away.
+        m.level = ClassLevel::Identified;
+        m.size = it->second.size;
+        m.typeGuess = it->second.type;
+        m.classGuess = it->second.classId;
+    }
     Track* t = byTruth(m.truth);
     if (created) *created = (t == nullptr);
     if (!t) {

@@ -248,3 +248,60 @@ TEST_CASE("contacts: new tracks and identifications are announced as events") {
     CHECK(fresh == 1);       // one ship, one track
     CHECK(identified <= 1);  // announced once at most
 }
+
+TEST_CASE("damage: 6-inch shells above the belt wreck the upper works, not a battleship's machinery") {
+    Fixture f(10.0, 5);
+    Ship& bb = f.add("km_bb_scharnhorst", Side::Axis, {0, 0}, 0, 0);
+    const GunDef* gun = db().gun("rn_6in50");
+    REQUIRE(gun);
+    Shell sh;
+    sh.gun = gun;
+    sh.shell = &gun->shells.front();
+    sh.vel = {650.0, 0.0, -60.0};
+    sh.side = Side::Allies;
+    // Amidships between the top of the belt and the upper deck, over the armour deck.
+    for (int i = 0; i < 40 && !bb.dmg.sunk; ++i) {
+        damage::HitInfo hit;
+        hit.local = {(i % 9) * 6.0 - 24.0, bb.cls->beam * 0.5, 4.0};
+        hit.face = damage::HitFace::Side;
+        damage::shellHit(f.w, bb, sh, hit);
+    }
+    CHECK_FALSE(bb.dmg.sinking);
+    CHECK(bb.dmg.hullIntegrity > 0.6);
+    CHECK(bb.dmg.propulsion > 0.9);  // boiler and engine rooms lie below the armour deck
+}
+
+TEST_CASE("heavy seas slow destroyers, not battleships") {
+    auto speeds = [](double sea) {
+        Fixture f(12.0);
+        f.w.env().weather().seaState = sea;
+        Ship& dd = f.add("usn_dd_fletcher", Side::Allies, {0, 0}, 0, 30);
+        Ship& bb = f.add("usn_bb_north_carolina", Side::Allies, {8000, 0}, 0, 25);
+        dd.orders.speedKn = 40;
+        bb.orders.speedKn = 30;
+        f.run(600);
+        return std::pair<double, double>(dd.speedKn(), bb.speedKn());
+    };
+    auto calm = speeds(2.0), rough = speeds(6.0);
+    CHECK(rough.first < calm.first * 0.88);
+    CHECK(rough.second > calm.second * 0.98);
+}
+
+TEST_CASE("contacts: prior intelligence identifies a ship at first sight") {
+    auto firstLevel = [](bool intel) {
+        Fixture f(1.5);  // dark night
+        f.add("usn_dd_fletcher", Side::Allies, {0, 0}, 0, 15);
+        Ship& kagero = f.add("ijn_dd_kagero", Side::Axis, {0, 9000}, 180, 15);
+        if (intel) f.w.picture(Side::Allies).addPriorIntel(kagero.id, ShipType::DD, SizeClass::Small, "ijn_dd_kagero");
+        for (int i = 0; i < int(600.0 / kStep); ++i) {
+            f.w.step();
+            for (const auto& t : f.w.picture(Side::Allies).tracks())
+                return std::pair<ClassLevel, std::string>(t.level, t.classGuess);
+        }
+        return std::pair<ClassLevel, std::string>(ClassLevel::Detected, "");
+    };
+    auto known = firstLevel(true), unknown = firstLevel(false);
+    CHECK(known.first == ClassLevel::Identified);
+    CHECK(known.second == "ijn_dd_kagero");
+    CHECK(unknown.first < ClassLevel::Identified);
+}

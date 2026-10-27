@@ -1,0 +1,267 @@
+{
+  "id": "rn_dd_s",
+  "nation": "rn",
+  "type": "DD",
+  "name": "S / V / O (War Emergency)",
+  "year": 1943,
+  "ships": [
+    "Savage",
+    "Saumarez",
+    "Scorpion",
+    "Stord",
+    "Virago",
+    "Opportune",
+    "Onslow",
+    "Obedient"
+  ],
+  "sources": "Whitley, Destroyers of World War Two; English, Obdurate to Daring; navweaps.com",
+  "dimensions": {
+    "length": 110.6,
+    "length_wl": 106.7,
+    "beam": 10.9,
+    "draft": 4.3,
+    "mast_height": 26,
+    "lookout_height": 13,
+    "superstructure_height": 9
+  },
+  "displacement": {
+    "standard": 1710,
+    "full": 2530
+  },
+  "propulsion": {
+    "max_speed_kn": 36.75,
+    "cruise_speed_kn": 15,
+    "shp": 40000,
+    "accel_kn_per_min": 9.0,
+    "tactical_diameter_m": 620,
+    "shafts": 2
+  },
+  "crew": 180,
+  "mounts": [
+    {
+      "id": "A",
+      "weapon": "rn_47in45",
+      "barrels": 1,
+      "f": 0.14,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "shield",
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 25
+      }
+    },
+    {
+      "id": "B",
+      "weapon": "rn_47in45",
+      "barrels": 1,
+      "f": 0.205,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "shield",
+      "superfiring": true,
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 25
+      }
+    },
+    {
+      "id": "X",
+      "weapon": "rn_47in45",
+      "barrels": 1,
+      "f": 0.7,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "superfiring": true,
+      "raise": 0.6,
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 25
+      }
+    },
+    {
+      "id": "Y",
+      "weapon": "rn_47in45",
+      "barrels": 1,
+      "f": 0.85,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "armor": 3,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 25
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "rn_mk9",
+      "tubes": 4,
+      "f": 0.5,
+      "arc_min": 35,
+      "arc_max": 145,
+      "mirrored": true,
+      "reloads": 0
+    },
+    {
+      "id": "T2",
+      "weapon": "rn_mk9",
+      "tubes": 4,
+      "f": 0.6,
+      "arc_min": 35,
+      "arc_max": 145,
+      "mirrored": true,
+      "reloads": 0
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 3.66,
+      "height": 13,
+      "radar": "rn_285",
+      "f": 0.25
+    }
+  ],
+  "sensors": [
+    {
+      "id": "rn_lookouts",
+      "height": 13,
+      "f": 0.25
+    },
+    {
+      "id": "rn_272",
+      "height": 18,
+      "f": 0.28
+    }
+  ],
+  "model": {
+    "bow_rake": 0.05,
+    "stern": 1.0,
+    "freeboard_bow": 6.4,
+    "freeboard_mid": 4.3,
+    "freeboard_stern": 2.9,
+    "forecastle_end": 0.36,
+    "forecastle_drop": 2.0,
+    "fineness": 0.48,
+    "flare": 0.24,
+    "hull_paint": "rn_507b",
+    "deck_paint": "teak",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.245,
+        "len": 8,
+        "wid": 8,
+        "h": 2.6,
+        "levels": 3,
+        "style": "rn"
+      },
+      {
+        "type": "director",
+        "f": 0.25,
+        "z": 8.0,
+        "len": 3.0,
+        "wid": 3.4,
+        "h": 2.2,
+        "ref": "rn_285"
+      },
+      {
+        "type": "mast",
+        "f": 0.29,
+        "h": 21,
+        "rake": 4
+      },
+      {
+        "type": "radar",
+        "f": 0.285,
+        "z": 13.0,
+        "len": 1.6,
+        "wid": 1.6,
+        "h": 1.6,
+        "style": "rn_272",
+        "ref": "rn_272"
+      },
+      {
+        "type": "funnel",
+        "f": 0.42,
+        "len": 5.8,
+        "wid": 3.4,
+        "h": 6.8,
+        "rake": 2
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.4,
+        "len": 14,
+        "wid": 6,
+        "h": 2.4
+      },
+      {
+        "type": "aa",
+        "style": "usn_40mm_2",
+        "f": 0.56,
+        "z": 3.0
+      },
+      {
+        "type": "searchlight",
+        "f": 0.665,
+        "z": 3.8
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.665,
+        "len": 7,
+        "wid": 5,
+        "h": 2.3
+      },
+      {
+        "type": "boat",
+        "f": 0.35,
+        "y": 4.1,
+        "z": 1.2,
+        "len": 7,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.32,
+        "y": 3.8,
+        "mirror": true,
+        "z": 2.4
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.45,
+        "y": 3.6,
+        "mirror": true,
+        "z": 2.4
+      }
+    ]
+  },
+  "armor": {
+    "belt": 0,
+    "deck": 0,
+    "turret_face": 3,
+    "torpedo_protection": 0.0
+  },
+  "searchlights": 1,
+  "searchlight_cm": 51,
+  "depth_charges": 70,
+  "rcs": 0.35,
+  "reserve_buoyancy": 0.45,
+  "hull_strength": 0.8
+}

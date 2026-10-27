@@ -1,0 +1,237 @@
+{
+  "id": "rn_dd_m",
+  "nation": "rn",
+  "type": "DD",
+  "name": "L / M",
+  "year": 1942,
+  "ships": [
+    "Musketeer",
+    "Matchless",
+    "Meteor",
+    "Milne",
+    "Marne",
+    "Lookout",
+    "Loyal"
+  ],
+  "sources": "Whitley, Destroyers of World War Two; English, Obdurate to Daring; navweaps.com",
+  "dimensions": {
+    "length": 110.5,
+    "length_wl": 106.7,
+    "beam": 11.3,
+    "draft": 4.4,
+    "mast_height": 26,
+    "lookout_height": 13,
+    "superstructure_height": 9
+  },
+  "displacement": {
+    "standard": 1920,
+    "full": 2750
+  },
+  "propulsion": {
+    "max_speed_kn": 36.0,
+    "cruise_speed_kn": 15,
+    "shp": 48000,
+    "accel_kn_per_min": 9.0,
+    "tactical_diameter_m": 640,
+    "shafts": 2
+  },
+  "crew": 221,
+  "mounts": [
+    {
+      "id": "A",
+      "weapon": "rn_47in50",
+      "barrels": 2,
+      "f": 0.155,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "dd_turret",
+      "armor": 10,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 25
+      }
+    },
+    {
+      "id": "B",
+      "weapon": "rn_47in50",
+      "barrels": 2,
+      "f": 0.225,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "dd_turret",
+      "superfiring": true,
+      "armor": 10,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 25
+      }
+    },
+    {
+      "id": "Y",
+      "weapon": "rn_47in50",
+      "barrels": 2,
+      "f": 0.8,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "dd_turret",
+      "armor": 10,
+      "ammo": {
+        "Common": 150,
+        "HE": 70,
+        "Starshell": 25
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "rn_mk9",
+      "tubes": 4,
+      "f": 0.53,
+      "arc_min": 35,
+      "arc_max": 145,
+      "mirrored": true,
+      "reloads": 0
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 3.66,
+      "height": 13,
+      "radar": "rn_285",
+      "f": 0.255
+    }
+  ],
+  "sensors": [
+    {
+      "id": "rn_lookouts",
+      "height": 13,
+      "f": 0.255
+    },
+    {
+      "id": "rn_272",
+      "height": 18,
+      "f": 0.29
+    }
+  ],
+  "model": {
+    "bow_rake": 0.05,
+    "stern": 0.0,
+    "freeboard_bow": 6.4,
+    "freeboard_mid": 4.4,
+    "freeboard_stern": 3.0,
+    "forecastle_end": 0.32,
+    "forecastle_drop": 2.0,
+    "fineness": 0.48,
+    "flare": 0.22,
+    "hull_paint": "rn_507b",
+    "deck_paint": "teak",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.245,
+        "len": 8.5,
+        "wid": 8.5,
+        "h": 2.6,
+        "levels": 3,
+        "style": "rn"
+      },
+      {
+        "type": "director",
+        "f": 0.255,
+        "z": 8.2,
+        "len": 3.0,
+        "wid": 3.4,
+        "h": 2.2,
+        "ref": "rn_285"
+      },
+      {
+        "type": "tripod",
+        "f": 0.295,
+        "h": 21,
+        "rake": 6
+      },
+      {
+        "type": "radar",
+        "f": 0.29,
+        "z": 13.0,
+        "len": 1.6,
+        "wid": 1.6,
+        "h": 1.6,
+        "style": "rn_272",
+        "ref": "rn_272"
+      },
+      {
+        "type": "funnel",
+        "f": 0.43,
+        "len": 6.4,
+        "wid": 3.8,
+        "h": 7.4,
+        "rake": 7
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.41,
+        "len": 14,
+        "wid": 6,
+        "h": 2.4
+      },
+      {
+        "type": "aa",
+        "style": "rn_pompom_4",
+        "f": 0.6,
+        "z": 3.2
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.68,
+        "len": 7,
+        "wid": 5,
+        "h": 2.4
+      },
+      {
+        "type": "searchlight",
+        "f": 0.68,
+        "z": 4.2
+      },
+      {
+        "type": "mast",
+        "f": 0.67,
+        "h": 12,
+        "rake": 6
+      },
+      {
+        "type": "boat",
+        "f": 0.36,
+        "y": 4.3,
+        "z": 1.2,
+        "len": 7,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.34,
+        "y": 3.8,
+        "mirror": true,
+        "z": 2.4
+      }
+    ]
+  },
+  "armor": {
+    "belt": 0,
+    "deck": 0,
+    "turret_face": 3,
+    "torpedo_protection": 0.0
+  },
+  "searchlights": 1,
+  "searchlight_cm": 51,
+  "depth_charges": 70,
+  "rcs": 0.35,
+  "reserve_buoyancy": 0.45,
+  "hull_strength": 0.8
+}

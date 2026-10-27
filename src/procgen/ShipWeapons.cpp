@@ -46,12 +46,13 @@ Shape shapeFor(const Ctx& cx, const sim::MountDef& m) {
     Shape s{};
     // Battleship turrets do not grow in proportion to the calibre.
     float big = k > 1.0f ? std::pow(k, 0.55f) : 1.0f, tall = k > 1.0f ? std::pow(k, 0.5f) : 1.0f, wide = k > 1.0f ? std::pow(k, 0.8f) : 1.0f;
-    if (st == "turret3") {
+    if (st == "turret3" || st == "turret4") {
         float g = k > 1.0f ? big : std::max(0.78f, k);
         float h = k > 1.0f ? tall : std::max(0.85f, k), sp = k > 1.0f ? wide : std::max(0.85f, k);
         s = {9.8f * g, 8.8f * g, 3.1f * h, 6.2f * g, 1.4f * g, 1.2f * g, 0.08f, 1.4f * g, 2.0f * g, 1.6f * sp};
         if (cx.usn && cal < 170) s.wid *= 1.05f;  // Brooklyn: wide, flat-faced 6" turrets
         if (cx.km) s.frontSlope = 0.9f * g, s.rearRadius = 2.8f * g;  // Scharnhorst: flat roof, rounded rear
+        if (st == "turret4") s.wid *= 1.2f, s.frontWid *= 1.3f, s.len *= 1.05f;  // King George V: two pairs of guns side by side
     } else if (st == "turret2") {
         float g = k > 1.0f ? big : std::max(0.68f, k);
         float h = k > 1.0f ? tall : std::max(0.8f, k);
@@ -194,11 +195,11 @@ void buildMount(Ctx& cx, size_t mi) {
                         v3(fx - s.frontSlope * 0.25f, y + off + rB * 1.3f, z + rB * 2.4f), v3(fx - s.frontSlope * 0.25f, y + off - rB * 1.3f, z + rB * 2.4f));
         }
         float roofZ = gz0 + s.h;
-        bool cruiserMain = m.style == "turret3" || m.style == "turret2";
+        bool cruiserMain = m.style == "turret3" || m.style == "turret4" || m.style == "turret2";
         // Sighting hoods for the pointer and trainer at the front of the roof.
         float hoodY = s.wid * 0.36f;
         for (int side : {1, -1}) sightHood(mb, cx.paint, v3(frontX - s.frontSlope - s.len * 0.18f, y + side * hoodY * (1.0f - s.sideTaper), roofZ - 0.02f), 0.55f, 1.0f, 0.42f);
-        if (m.style == "turret3") sightHood(mb, cx.paint, v3(frontX - s.frontSlope - s.len * 0.2f, y, roofZ - 0.02f), 0.55f, 1.0f, 0.42f);
+        if (m.style == "turret3" || m.style == "turret4") sightHood(mb, cx.paint, v3(frontX - s.frontSlope - s.len * 0.2f, y, roofZ - 0.02f), 0.55f, 1.0f, 0.42f);
         // Rangefinder ears at the rear (cruiser main battery).
         if (cruiserMain && cal >= 150) {
             float rf = s.wid * (cx.ijn ? 1.0f : 1.12f);
@@ -444,6 +445,8 @@ AAType aaType(const std::string& st) {
     if (st.rfind("ijn_13mm", 0) == 0) return {13.2f, 2, 1, 1.25f, 0.3f, false, false, false, true, 0.0f};
     if (st.rfind("rn_pompom_4", 0) == 0) return {40, 2, 2, 1.6f, 0.3f, true, true, false, false, 2.2f};  // quad Mk VII (destroyers)
     if (st.rfind("rn_pompom", 0) == 0) return {40, 4, 2, 1.6f, 0.3f, true, true, false, false, 2.8f};
+    if (st.rfind("km_37mm", 0) == 0) return {37, 2, 1, 2.2f, 0.5f, true, false, false, true, 0.0f};     // 3.7 cm SK C/30 twin
+    if (st.rfind("km_20mm_4", 0) == 0) return {20, 2, 2, 1.3f, 0.3f, true, false, true, true, 0.0f};   // 2 cm Flakvierling 38
     if (st.rfind("rm_37mm", 0) == 0) return {37, 2, 1, 2.0f, 0.42f, true, false, true, true, 0.0f};    // Breda 37/54 twin
     if (st.rfind("rm_20mm", 0) == 0) return {20, 2, 1, 1.3f, 0.28f, true, false, true, true, 0.0f};    // Breda 20/65 twin
     if (st.rfind("rm_13mm", 0) == 0) return {13.2f, 2, 1, 1.25f, 0.3f, false, false, false, true, 0.0f};  // Breda 13.2 twin

@@ -55,6 +55,7 @@ struct GroupBrain {
     double phaseSince = 0;
     uint32_t torpTarget = 0;
     double launchRange = 0;  // range at which the group turned to launch; captains fire out to it
+    int avoidSide = 0;       // withdrawing: side (+1 starboard of the danger bearing, -1 port) the route is turned to
     double impactTime = -1;
     double turnAwayCourse = 0;
     int launches = 0;

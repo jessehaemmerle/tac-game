@@ -212,6 +212,35 @@ S = {
 "group.cape_matapan.cattaneo": ("1st Cruiser Division (Cattaneo)", "1. Kreuzerdivision (Cattaneo)"),
 "group.cape_matapan.alfieri": ("Alfieri (leading)", "Alfieri (an der Spitze)"),
 "group.cape_matapan.dd9": ("9th Destroyer Division", "9. Zerstörerdivision"),
+# --- scenario: North Cape
+"scenario.north_cape.title": ("Battle of the North Cape", "Seeschlacht vor dem Nordkap"),
+"scenario.north_cape.briefing": (
+ "26 December 1943, 16:15, the Barents Sea some 60 nautical miles north of the North Cape. Rear Admiral Erich Bey has taken the battleship Scharnhorst out of Altafjord to destroy the Arctic convoy JW 55B. Twice today he has run into Vice Admiral Burnett's cruisers Belfast, Norfolk and Sheffield, twice he has broken off, and his destroyers, sent to search for the convoy, are on their way home. Now Scharnhorst is steaming south for Norway at 26 knots, shadowed by Burnett's radar. She does not know that Admiral Sir Bruce Fraser in the battleship Duke of York, with the cruiser Jamaica and four destroyers, is closing from the south-west. It is the polar night - the sun has not risen all day - and a south-westerly gale is blowing, with heavy seas and snow showers.",
+ "26. Dezember 1943, 16:15 Uhr, die Barentssee rund 60 Seemeilen nördlich des Nordkaps. Konteradmiral Erich Bey hat das Schlachtschiff Scharnhorst aus dem Altafjord geführt, um den Eismeer-Geleitzug JW 55B zu vernichten. Zweimal ist er heute auf Vizeadmiral Burnetts Kreuzer Belfast, Norfolk und Sheffield gestoßen, zweimal hat er abgebrochen, und seine Zerstörer, zur Suche nach dem Geleitzug ausgeschickt, sind auf dem Heimweg. Nun läuft die Scharnhorst mit 26 Knoten nach Süden, Richtung Norwegen, beschattet von Burnetts Radar. Sie weiß nicht, dass Admiral Sir Bruce Fraser mit dem Schlachtschiff Duke of York, dem Kreuzer Jamaica und vier Zerstörern aus Südwesten heranläuft. Es ist Polarnacht – die Sonne ist den ganzen Tag nicht aufgegangen –, ein Südweststurm weht, mit schwerer See und Schneeschauern."),
+"scenario.north_cape.orders_allies": (
+ "Sink the Scharnhorst. Duke of York's radar will find her long before any lookout, and starshell will light her up for the first broadside. She is faster than Duke of York: if she turns away, the cruisers must keep contact and the destroyers must slow her with torpedoes - in this sea they can barely gain on her.",
+ "Versenke die Scharnhorst. Das Radar der Duke of York findet sie lange vor jedem Ausguck, und Leuchtgranaten beleuchten sie für die erste Breitseite. Sie ist schneller als die Duke of York: Dreht sie ab, müssen die Kreuzer Fühlung halten und die Zerstörer sie mit Torpedos abbremsen – bei dieser See kommen sie kaum an sie heran."),
+"scenario.north_cape.orders_axis": (
+ "Return to Altafjord. Your orders forbid you to engage superior forces, and your forward radar was knocked out this morning. Scharnhorst can outrun any battleship of the Home Fleet - if heavy ships appear, use your speed and get away.",
+ "Kehre in den Altafjord zurück. Deine Befehle verbieten das Gefecht mit überlegenen Kräften, und dein vorderes Radar ist seit heute Morgen ausgefallen. Die Scharnhorst ist schneller als jedes Schlachtschiff der Home Fleet – tauchen schwere Schiffe auf, nutze die Geschwindigkeit und lauf ab."),
+"scenario.north_cape.intel_allies": (
+ "Decrypted German signals have shown since early this morning that Scharnhorst is at sea. Burnett's cruisers hold her on radar, steering south. No German destroyers are near her any more.",
+ "Entschlüsselte deutsche Funksprüche zeigen seit dem frühen Morgen, dass die Scharnhorst in See ist. Burnetts Kreuzer haben sie auf dem Radar, Kurs Süd. Keine deutschen Zerstörer sind mehr in ihrer Nähe."),
+"scenario.north_cape.intel_axis": (
+ "A reconnaissance report of a group of ships far to the west reached you late and incomplete; nothing has been seen since. The British cruisers have kept contact by radar all afternoon.",
+ "Eine Aufklärungsmeldung über eine Schiffsgruppe weit im Westen erreichte dich spät und unvollständig; seitdem wurde nichts mehr gesichtet. Die britischen Kreuzer halten seit dem Nachmittag mit Radar Fühlung."),
+"scenario.north_cape.history": (
+ "At 16:17 Duke of York's Type 273 radar found Scharnhorst at 41 km. At 16:47 Belfast's starshell burst over her, and Duke of York's first broadside at 11 km straddled her; a turret was put out of action. Bey turned north, then east, and Scharnhorst, faster than her opponent, steadily drew away while her own shells went through Duke of York's masts. At 18:20 a 14-inch shell burst in a boiler room and her speed fell; at 18:50 the destroyers Savage, Saumarez, Scorpion and Stord closed in from both sides and hit her with torpedoes. Duke of York and Jamaica closed to 10 km and wrecked her, and cruisers and destroyers fired more torpedoes. Scharnhorst capsized and sank at about 19:45; only 36 of her crew of 1,968 were rescued. It was the last battle between British and German capital ships.",
+ "Um 16:17 Uhr fand das Typ-273-Radar der Duke of York die Scharnhorst auf 41 km. Um 16:47 Uhr platzten die Leuchtgranaten der Belfast über ihr, und die erste Breitseite der Duke of York lag auf 11 km deckend; ein Turm fiel aus. Bey drehte nach Norden, dann nach Osten, und die schnellere Scharnhorst setzte sich stetig ab, während ihre eigenen Granaten durch die Masten der Duke of York gingen. Um 18:20 Uhr explodierte eine 35,6-cm-Granate in einem Kesselraum, und ihre Fahrt fiel ab; um 18:50 Uhr griffen die Zerstörer Savage, Saumarez, Scorpion und Stord von beiden Seiten an und trafen sie mit Torpedos. Duke of York und Jamaica gingen auf 10 km heran und zerschossen sie, Kreuzer und Zerstörer feuerten weitere Torpedos. Gegen 19:45 Uhr kenterte und sank die Scharnhorst; nur 36 ihrer 1.968 Mann Besatzung wurden gerettet. Es war das letzte Gefecht zwischen britischen und deutschen Großkampfschiffen."),
+"objective.north_cape.scharnhorst": ("Sink the Scharnhorst", "Die Scharnhorst versenken"),
+"objective.north_cape.preserve": ("Preserve your own force", "Eigenen Verband erhalten"),
+"objective.north_cape.escape": ("Bring Scharnhorst through the night", "Die Scharnhorst durch die Nacht bringen"),
+"objective.north_cape.sink": ("Sink enemy tonnage", "Gegnerische Tonnage versenken"),
+"group.north_cape.fraser": ("Force 2 (Fraser)", "Force 2 (Fraser)"),
+"group.north_cape.fraser_dd": ("Force 2 destroyers", "Zerstörer der Force 2"),
+"group.north_cape.burnett": ("Force 1 (Burnett)", "Force 1 (Burnett)"),
+"group.north_cape.burnett_dd": ("36th Destroyer Division", "36. Zerstörerdivision"),
+"group.north_cape.bey": ("Scharnhorst (Bey)", "Scharnhorst (Bey)"),
 # --- torpedo notes
 "torpedo.ijn_type93.note": (
  "The 'Long Lance': a 61 cm oxygen-fuelled torpedo with enormous range and a heavy warhead. It leaves almost no wake - at night it arrives unseen. The Allies did not know of its performance in 1942 and kept mistaking torpedo hits for submarine attacks.",
@@ -225,7 +254,38 @@ S = {
 "torpedo.rm_si_270.note": (
  "Italian 53.3 cm torpedo from Silurificio Italiano: very fast at short range, with a lighter warhead than its British and Japanese counterparts.",
  "Italienischer 53,3-cm-Torpedo des Silurificio Italiano: auf kurze Entfernung sehr schnell, mit leichterem Gefechtskopf als britische und japanische Gegenstücke."),
+"torpedo.km_g7a.note": (
+ "The standard German 53.3 cm steam torpedo, carried by surface ships and U-boats alike; reliable, but with a visible wake.",
+ "Der deutsche Standard-Dampftorpedo mit 53,3 cm, auf Überwasserschiffen wie U-Booten; zuverlässig, aber mit sichtbarer Blasenbahn."),
 # --- class histories & tactics
+# --- Arctic 1943 classes
+"class.km_bb_scharnhorst.history": (
+ "Fast, well-protected battleships armed with nine 28 cm guns - the calibre of the Panzerschiffe, because the intended 38 cm turrets were not ready. Scharnhorst and Gneisenau sank the carrier Glorious off Norway in 1940, raided the Atlantic in 1941 and dashed up the English Channel in 1942. On 26 December 1943 Scharnhorst was caught by Duke of York off the North Cape and sunk; only 36 of her 1,968 men survived.",
+ "Schnelle, gut geschützte Schlachtschiffe mit neun 28-cm-Geschützen – dem Kaliber der Panzerschiffe, weil die vorgesehenen 38-cm-Türme nicht fertig waren. Scharnhorst und Gneisenau versenkten 1940 vor Norwegen den Träger Glorious, operierten 1941 im Atlantik und brachen 1942 durch den Ärmelkanal durch. Am 26. Dezember 1943 wurde die Scharnhorst vor dem Nordkap von der Duke of York gestellt und versenkt; nur 36 ihrer 1.968 Männer überlebten."),
+"class.km_bb_scharnhorst.tactics": (
+ "Faster than any British battleship and very well armoured, but outgunned by 14-inch and 15-inch ships. Use the speed: fight cruisers, avoid battleships, and do not let destroyers slow you down with torpedoes.",
+ "Schneller als jedes britische Schlachtschiff und sehr gut gepanzert, aber 35,6- und 38,1-cm-Schiffen an Feuerkraft unterlegen. Die Geschwindigkeit nutzen: Kreuzer bekämpfen, Schlachtschiffen ausweichen und sich nicht von Zerstörertorpedos abbremsen lassen."),
+"class.rn_bb_kgv.history": (
+ "The British battleships of the treaty era, with ten 14-inch guns in two quadruple and one twin turret and very heavy armour. Prince of Wales fought Bismarck in the Denmark Strait and was sunk by Japanese aircraft in December 1941; King George V helped to sink Bismarck. Duke of York, Admiral Fraser's flagship, found Scharnhorst in the polar night with her Type 273 radar and fought her by Type 284 off the North Cape.",
+ "Die britischen Schlachtschiffe der Vertragszeit mit zehn 35,6-cm-Geschützen in zwei Vierlings- und einem Zwillingsturm und sehr schwerer Panzerung. Die Prince of Wales kämpfte in der Dänemarkstraße gegen die Bismarck und wurde im Dezember 1941 von japanischen Flugzeugen versenkt; die King George V half, die Bismarck zu versenken. Die Duke of York, Admiral Frasers Flaggschiff, fand die Scharnhorst in der Polarnacht mit ihrem Typ-273-Radar und bekämpfte sie vor dem Nordkap mit dem Typ 284."),
+"class.rn_bb_kgv.tactics": (
+ "Excellent radar and heavy armour, but slower than Scharnhorst. Keep the enemy ahead, open fire by radar at long range and let the cruisers and destroyers cut off the escape.",
+ "Hervorragendes Radar und schwere Panzerung, aber langsamer als die Scharnhorst. Den Gegner vor dem Bug halten, auf große Entfernung mit Radar das Feuer eröffnen und Kreuzer und Zerstörer den Fluchtweg abschneiden lassen."),
+"class.rn_cl_town.history": (
+ "Large 6-inch cruisers built in answer to the Japanese Mogami class: twelve guns in four triple turrets. Sheffield was the first British warship with radar. Belfast, of the enlarged Edinburgh group, broke her back on a mine in 1939 and returned in 1942 with bulges and the latest radar; at the North Cape she shadowed Scharnhorst all day and her starshell lit her up for Duke of York. She is preserved as a museum ship in London.",
+ "Große 15,2-cm-Kreuzer als Antwort auf die japanische Mogami-Klasse: zwölf Geschütze in vier Drillingstürmen. Die Sheffield war das erste britische Kriegsschiff mit Radar. Die Belfast aus der vergrößerten Edinburgh-Gruppe brach sich 1939 auf einer Mine den Kiel und kehrte 1942 mit Wülsten und neuestem Radar zurück; vor dem Nordkap beschattete sie die Scharnhorst den ganzen Tag, und ihre Leuchtgranaten beleuchteten sie für die Duke of York. Sie liegt heute als Museumsschiff in London."),
+"class.rn_cl_fiji.history": (
+ "The 'Colony' class: a Town-class layout on a smaller, cramped hull with a transom stern, still with twelve 6-inch guns. Jamaica fought in the Battle of the Barents Sea in 1942 and at the North Cape, where she stayed with Duke of York and helped finish off Scharnhorst with gunfire and torpedoes.",
+ "Die „Colony“-Klasse: die Anordnung der Town-Klasse auf einem kleineren, beengten Rumpf mit Spiegelheck, weiterhin mit zwölf 15,2-cm-Geschützen. Die Jamaica kämpfte 1942 in der Schlacht in der Barentssee und vor dem Nordkap, wo sie bei der Duke of York blieb und half, die Scharnhorst mit Geschützen und Torpedos zu versenken."),
+"class.rn_ca_norfolk.history": (
+ "The last pair of County class heavy cruisers, without the bulges of the earlier groups. Norfolk shadowed Bismarck in 1941; Dorsetshire's torpedoes finished her off, and Dorsetshire was sunk by Japanese carrier aircraft in April 1942. At the North Cape Norfolk's 8-inch shells destroyed Scharnhorst's forward radar in the morning; two 28 cm hits in return knocked out a turret and her own radar.",
+ "Das letzte Paar Schwerer Kreuzer der County-Klasse, ohne die Wülste der früheren Gruppen. Die Norfolk beschattete 1941 die Bismarck; die Torpedos der Dorsetshire versenkten sie, und die Dorsetshire wurde im April 1942 von japanischen Trägerflugzeugen versenkt. Vor dem Nordkap zerstörten die 20,3-cm-Granaten der Norfolk am Vormittag das vordere Radar der Scharnhorst; zwei 28-cm-Treffer setzten im Gegenzug einen Turm und ihr eigenes Radar außer Gefecht."),
+"class.rn_dd_s.history": (
+ "The 'War Emergency' destroyers: a simple, fast hull with four 4.7-inch guns and eight torpedo tubes, built in flotillas of eight (the O and V classes were close sisters). Savage, Saumarez, Scorpion and the Norwegian-manned Stord made the torpedo attack that crippled Scharnhorst off the North Cape; Saumarez was hit by her 28 cm shells.",
+ "Die „Kriegsnotprogramm“-Zerstörer: ein einfacher, schneller Rumpf mit vier 12-cm-Geschützen und acht Torpedorohren, in Flottillen zu acht gebaut (die O- und V-Klasse waren enge Schwestern). Savage, Saumarez, Scorpion und die norwegisch besetzte Stord führten vor dem Nordkap den Torpedoangriff, der die Scharnhorst lähmte; die Saumarez wurde von ihren 28-cm-Granaten getroffen."),
+"class.rn_dd_m.history": (
+ "Large fleet destroyers with six 4.7-inch guns in fully enclosed, weatherproof twin turrets - valuable in Arctic waters. Musketeer and Matchless, with Opportune and Virago of the 36th Division, fired the last torpedoes into Scharnhorst.",
+ "Große Flottenzerstörer mit sechs 12-cm-Geschützen in vollständig geschlossenen, wetterfesten Doppeltürmen – wertvoll in arktischen Gewässern. Musketeer und Matchless feuerten mit Opportune und Virago der 36. Division die letzten Torpedos auf die Scharnhorst."),
 # --- Mediterranean 1941 classes
 "class.rn_bb_queen_elizabeth.history": (
  "The first fast battleships: oil-fired, eight 15-inch guns and 24 knots in 1915. Warspite, damaged at Jutland, was rebuilt from 1934 to 1937 with new machinery, a tower bridge, longer-ranged guns and thicker decks; Valiant and Queen Elizabeth were rebuilt even more thoroughly, Barham and Malaya only in part. At Cape Matapan Warspite, Valiant and Barham wrecked two Italian heavy cruisers at point-blank range within minutes.",

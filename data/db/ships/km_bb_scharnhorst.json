@@ -1,0 +1,613 @@
+{
+  "id": "km_bb_scharnhorst",
+  "nation": "km",
+  "type": "BB",
+  "name": "Scharnhorst",
+  "year": 1939,
+  "ships": [
+    "Scharnhorst",
+    "Gneisenau"
+  ],
+  "sources": "Garzke & Dulin, Battleships: Axis and Neutral Battleships of WWII; Koop & Schmolke, Battleships of the Scharnhorst Class; navweaps.com",
+  "dimensions": {
+    "length": 234.9,
+    "length_wl": 229.8,
+    "beam": 30.0,
+    "draft": 9.9,
+    "mast_height": 44,
+    "lookout_height": 32,
+    "superstructure_height": 32
+  },
+  "displacement": {
+    "standard": 32100,
+    "full": 38100
+  },
+  "propulsion": {
+    "max_speed_kn": 31.0,
+    "cruise_speed_kn": 19,
+    "shp": 160000,
+    "accel_kn_per_min": 4.0,
+    "tactical_diameter_m": 1050,
+    "shafts": 3
+  },
+  "crew": 1968,
+  "armor": {
+    "belt": 350,
+    "belt_magazine": 350,
+    "deck": 105,
+    "turret_face": 360,
+    "turret_roof": 150,
+    "barbette": 350,
+    "conning_tower": 350,
+    "torpedo_protection": 0.5
+  },
+  "mounts": [
+    {
+      "id": "A",
+      "weapon": "km_28cm_545",
+      "barrels": 3,
+      "f": 0.2,
+      "arc_min": -150,
+      "arc_max": 150,
+      "ammo": {
+        "AP": 100,
+        "HE": 50
+      }
+    },
+    {
+      "id": "B",
+      "weapon": "km_28cm_545",
+      "barrels": 3,
+      "f": 0.27,
+      "arc_min": -150,
+      "arc_max": 150,
+      "superfiring": true,
+      "raise": 0.6,
+      "ammo": {
+        "AP": 100,
+        "HE": 50
+      }
+    },
+    {
+      "id": "C",
+      "weapon": "km_28cm_545",
+      "barrels": 3,
+      "f": 0.775,
+      "arc_min": 30,
+      "arc_max": 330,
+      "ammo": {
+        "AP": 100,
+        "HE": 50
+      }
+    },
+    {
+      "id": "S1",
+      "weapon": "km_15cm_55",
+      "barrels": 2,
+      "f": 0.385,
+      "arc_min": -10,
+      "arc_max": 170,
+      "y": 8.8,
+      "style": "turret2",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 60,
+      "ammo": {
+        "Common": 100,
+        "HE": 60,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "S2",
+      "weapon": "km_15cm_55",
+      "barrels": 2,
+      "f": 0.385,
+      "arc_min": -170,
+      "arc_max": 10,
+      "y": -8.8,
+      "style": "turret2",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 60,
+      "ammo": {
+        "Common": 100,
+        "HE": 60,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "S3",
+      "weapon": "km_15cm_55",
+      "barrels": 2,
+      "f": 0.59,
+      "arc_min": 10,
+      "arc_max": 190,
+      "y": 8.8,
+      "style": "turret2",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 60,
+      "ammo": {
+        "Common": 100,
+        "HE": 60,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "S4",
+      "weapon": "km_15cm_55",
+      "barrels": 2,
+      "f": 0.59,
+      "arc_min": -190,
+      "arc_max": -10,
+      "y": -8.8,
+      "style": "turret2",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 60,
+      "ammo": {
+        "Common": 100,
+        "HE": 60,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "S5",
+      "weapon": "km_15cm_55",
+      "barrels": 1,
+      "f": 0.45,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 12.3,
+      "style": "shield",
+      "director": "sec",
+      "armor": 20,
+      "ammo": {
+        "Common": 100,
+        "HE": 60,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "S6",
+      "weapon": "km_15cm_55",
+      "barrels": 1,
+      "f": 0.45,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -12.3,
+      "style": "shield",
+      "director": "sec",
+      "armor": 20,
+      "ammo": {
+        "Common": 100,
+        "HE": 60,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "S7",
+      "weapon": "km_15cm_55",
+      "barrels": 1,
+      "f": 0.525,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 12.3,
+      "style": "shield",
+      "director": "sec",
+      "armor": 20,
+      "ammo": {
+        "Common": 100,
+        "HE": 60,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "S8",
+      "weapon": "km_15cm_55",
+      "barrels": 1,
+      "f": 0.525,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -12.3,
+      "style": "shield",
+      "director": "sec",
+      "armor": 20,
+      "ammo": {
+        "Common": 100,
+        "HE": 60,
+        "Starshell": 20
+      }
+    },
+    {
+      "id": "H1",
+      "weapon": "km_105_65",
+      "barrels": 2,
+      "f": 0.435,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 10.4,
+      "style": "shield",
+      "director": "aa",
+      "raise": 3.0,
+      "armor": 10,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "H2",
+      "weapon": "km_105_65",
+      "barrels": 2,
+      "f": 0.435,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -10.4,
+      "style": "shield",
+      "director": "aa",
+      "raise": 3.0,
+      "armor": 10,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "H3",
+      "weapon": "km_105_65",
+      "barrels": 2,
+      "f": 0.49,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 10.6,
+      "style": "shield",
+      "director": "aa",
+      "raise": 3.0,
+      "armor": 10,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "H4",
+      "weapon": "km_105_65",
+      "barrels": 2,
+      "f": 0.49,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -10.6,
+      "style": "shield",
+      "director": "aa",
+      "raise": 3.0,
+      "armor": 10,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "H5",
+      "weapon": "km_105_65",
+      "barrels": 2,
+      "f": 0.545,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 10.4,
+      "style": "shield",
+      "director": "aa",
+      "raise": 3.0,
+      "armor": 10,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 40
+      }
+    },
+    {
+      "id": "H6",
+      "weapon": "km_105_65",
+      "barrels": 2,
+      "f": 0.545,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -10.4,
+      "style": "shield",
+      "director": "aa",
+      "raise": 3.0,
+      "armor": 10,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 40
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "km_g7a",
+      "tubes": 3,
+      "f": 0.635,
+      "y": 10.5,
+      "arc_min": 45,
+      "arc_max": 135,
+      "reloads": 0
+    },
+    {
+      "id": "T2",
+      "weapon": "km_g7a",
+      "tubes": 3,
+      "f": 0.635,
+      "y": -10.5,
+      "arc_min": -135,
+      "arc_max": -45,
+      "reloads": 0
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 10.5,
+      "height": 33,
+      "radar": "km_fumo27",
+      "f": 0.3
+    },
+    {
+      "id": "sec",
+      "role": "secondary",
+      "rangefinder_m": 6.0,
+      "height": 24,
+      "f": 0.33
+    },
+    {
+      "id": "aa",
+      "role": "secondary",
+      "rangefinder_m": 4.0,
+      "height": 20,
+      "f": 0.47
+    },
+    {
+      "id": "main_aft",
+      "role": "main",
+      "rangefinder_m": 10.5,
+      "height": 18,
+      "radar": "km_fumo27",
+      "f": 0.665
+    }
+  ],
+  "sensors": [
+    {
+      "id": "km_lookouts",
+      "height": 32,
+      "f": 0.3
+    },
+    {
+      "id": "km_fumo27",
+      "height": 35,
+      "f": 0.3
+    }
+  ],
+  "searchlights": 7,
+  "searchlight_cm": 150,
+  "floatplanes": 3,
+  "rcs": 3.2,
+  "reserve_buoyancy": 0.75,
+  "hull_strength": 2.4,
+  "model": {
+    "bow_rake": 0.07,
+    "stern": 0.0,
+    "freeboard_bow": 10.8,
+    "freeboard_mid": 8.0,
+    "freeboard_stern": 6.6,
+    "forecastle_end": 0.0,
+    "fineness": 0.58,
+    "flare": 0.2,
+    "hull_paint": "km_grey",
+    "deck_paint": "teak",
+    "belt_style": "external",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.31,
+        "len": 18,
+        "wid": 13,
+        "h": 3.0,
+        "levels": 3,
+        "style": "rn"
+      },
+      {
+        "type": "tower",
+        "f": 0.295,
+        "len": 6.5,
+        "wid": 6.5,
+        "h": 24
+      },
+      {
+        "type": "director",
+        "f": 0.295,
+        "z": 21.0,
+        "len": 5.4,
+        "wid": 10.5,
+        "h": 3.4,
+        "ref": "km_fumo"
+      },
+      {
+        "type": "director",
+        "f": 0.33,
+        "z": 10.0,
+        "len": 3.6,
+        "wid": 6.0,
+        "h": 2.8
+      },
+      {
+        "type": "funnel",
+        "f": 0.43,
+        "len": 10.0,
+        "wid": 7.4,
+        "h": 13.0,
+        "rake": 0
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.47,
+        "len": 46,
+        "wid": 16,
+        "h": 2.8,
+        "levels": 2
+      },
+      {
+        "type": "director",
+        "f": 0.47,
+        "y": 6.5,
+        "z": 6.6,
+        "len": 3.0,
+        "wid": 4.0,
+        "h": 2.6,
+        "mirror": true
+      },
+      {
+        "type": "hangar",
+        "f": 0.565,
+        "len": 14,
+        "wid": 10,
+        "h": 4.6
+      },
+      {
+        "type": "catapult",
+        "f": 0.565,
+        "z": 4.6,
+        "len": 16
+      },
+      {
+        "type": "aircraft",
+        "f": 0.565,
+        "z": 2.2,
+        "style": "jake"
+      },
+      {
+        "type": "crane",
+        "f": 0.53,
+        "y": 8.5,
+        "h": 12,
+        "len": 14,
+        "mirror": true
+      },
+      {
+        "type": "mast",
+        "f": 0.61,
+        "h": 30,
+        "rake": 0
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.665,
+        "len": 12,
+        "wid": 9,
+        "h": 2.8,
+        "levels": 2
+      },
+      {
+        "type": "director",
+        "f": 0.67,
+        "z": 6.0,
+        "len": 5.0,
+        "wid": 10.5,
+        "h": 3.2,
+        "ref": "km_fumo"
+      },
+      {
+        "type": "searchlight",
+        "f": 0.44,
+        "y": 4.5,
+        "z": 14,
+        "mirror": true
+      },
+      {
+        "type": "searchlight",
+        "f": 0.4,
+        "y": 6.5,
+        "z": 10,
+        "mirror": true
+      },
+      {
+        "type": "searchlight",
+        "f": 0.52,
+        "y": 4.0,
+        "z": 10.5,
+        "mirror": true
+      },
+      {
+        "type": "boat",
+        "f": 0.505,
+        "y": 9.0,
+        "z": 3.0,
+        "len": 11,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "km_37mm_2",
+        "f": 0.34,
+        "y": 7.0,
+        "mirror": true,
+        "z": 6.2
+      },
+      {
+        "type": "aa",
+        "style": "km_37mm_2",
+        "f": 0.505,
+        "y": 6.0,
+        "mirror": true,
+        "z": 5.8
+      },
+      {
+        "type": "aa",
+        "style": "km_37mm_2",
+        "f": 0.63,
+        "y": 6.5,
+        "mirror": true,
+        "z": 3.0
+      },
+      {
+        "type": "aa",
+        "style": "km_37mm_2",
+        "f": 0.7,
+        "y": 4.5,
+        "mirror": true,
+        "z": 3.0
+      },
+      {
+        "type": "aa",
+        "style": "km_20mm_4",
+        "f": 0.26,
+        "y": 6.0,
+        "mirror": true,
+        "z": 3.2
+      },
+      {
+        "type": "aa",
+        "style": "km_20mm_4",
+        "f": 0.59,
+        "y": 9.0,
+        "mirror": true,
+        "z": 3.0
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.82,
+        "y": 8.0,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "usn_20mm",
+        "f": 0.16,
+        "y": 6.0,
+        "mirror": true
+      }
+    ]
+  }
+}

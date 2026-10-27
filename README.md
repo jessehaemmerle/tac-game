@@ -5,18 +5,20 @@ aber im Raketen-losen Zeitalter: Nachtgefechte, Torpedofächer, Leuchtgranaten, 
 Eigene C++20-Engine auf **Direct3D 12**, deutsch und englisch.
 
 *A WWII naval tactics game for Windows (custom C++20 / Direct3D 12 engine, German and English).
-You command cruisers and destroyers in historical night actions off Guadalcanal against an AI that
+You command cruisers and destroyers in historical night actions off Guadalcanal, Cape Matapan and the North Cape against an AI that
 only knows what its own lookouts and radars report.*
 
 ![Tassafaronga, 3D-Ansicht](docs/images/battle_3d.jpg)
 
 ## Inhalt
 
-- **Sechs historische Missionen**, jede aus beiden Seiten spielbar. Pazifik (Ironbottom Sound):
+- **Sieben historische Missionen**, jede aus beiden Seiten spielbar. Pazifik (Ironbottom Sound):
   Savo Island (8./9. Aug. 1942), Cape Esperance (11./12. Okt. 1942), Erste und Zweite
   Seeschlacht von Guadalcanal (13. und 14./15. Nov. 1942, mit Beschießungsauftrag gegen
   Henderson Field), Tassafaronga (30. Nov. 1942). Mittelmeer: Kap Matapan (28./29. März 1941,
   Cunninghams Schlachtschiffe gegen die Kreuzer Zara, Fiume und die gestoppte Pola).
+  Nordmeer: Nordkap (26. Dez. 1943, Scharnhorst gegen Fraser und Burnett in Polarnacht,
+  Schneeböen und schwerer See).
   Briefing mit Lage, Auftrag, Aufklärung, astronomisch berechneten Lichtverhältnissen und Geschichte.
 - **Szenario-Editor** für eigene Gefechte (Verbände, Wegpunkte, Aufträge, Doktrin, Zeit und Wetter).
 - **Simulation**: Außenballistik und Panzerdurchschlag, Feuerleitung mit Richtungsgeber-Verfolgung
@@ -24,9 +26,12 @@ only knows what its own lookouts and radars report.*
   Krängung, Bränden, Munitionskammern und Kentern.
 - **Sensoren**: Sicht nach Licht, Mond, Wolken, Regenböen und Hintergrund (Inseln), Mündungsfeuer,
   Scheinwerfer, Leuchtgranaten und Fallschirmleuchtbomben; Radar SC/SG/FC mit Landechos und
-  Funkschatten; Torpedolaufbahnen. Kontakte laufen mit Meldeverzug in ein Lagebild je Seite.
+  Funkschatten; britische Typ 273/272/284/285; Torpedolaufbahnen. Kontakte laufen mit Meldeverzug
+  in ein Lagebild je Seite; Vorab-Aufklärung (z. B. Ultra) identifiziert Schiffe beim ersten Kontakt.
+- **Seegang**: schwere See bremst Zerstörer und kleine Kreuzer, streut die Salven und verlangsamt
+  das Feuer.
 - **Gegner-KI**: hierarchisch (Befehlshaber → Verband → Kommandant), Utility-Bewertung mit
-  Doktrinen (IJN 1942, USN 1942/Ende 1942, RAN), **fair** – sie sieht nur ihr eigenes Lagebild.
+  Doktrinen (IJN 1942, USN 1942/Ende 1942, RAN, RN 1941/1943, Regia Marina, Kriegsmarine), **fair** – sie sieht nur ihr eigenes Lagebild.
   Der **KI-Einblick** zeigt jede Entscheidung mit Alternativen und Gewichtungen.
 - **Taktische Ansicht (Plot)** mit Küstenkarte, Kontakten nach eigenem Lagebild, Peil- und
   Entfernungsmessung und Befehlen per Rechtsklick; 3D-Ansicht mit Orbit-, Brücken- und
@@ -35,16 +40,16 @@ only knows what its own lookouts and radars report.*
   **Waffenvorführung** (Türme schwenken, Salven mit Rückstoß je Rohr, Mündungsfeuer und
   Pulverrauch, Torpedoausstoß, Katapultstart des Bordflugzeugs), Bestreichungswinkel,
   Durchschlagstabelle gegen gewählte Gegnerklassen, Panzerung, Torpedos, Sensoren und Geschichte
-  für 38 Schiffsklassen der US Navy, Royal Navy, Royal Australian Navy,
-  Kaiserlich Japanischen Marine und Regia Marina.
+  für 45 Schiffsklassen der US Navy, Royal Navy, Royal Australian Navy,
+  Kaiserlich Japanischen Marine, Regia Marina und Kriegsmarine.
 - **Schiffsmodelle**: prozedural aus den Klassendaten, je Marine im eigenen Stil – Rumpf mit
-  Panzergürtel bzw. Wulst, Schanzkleid, Wellenbrecher, Anker und Kette, Wellen, Schrauben und
+  außenliegendem oder innerem Panzergürtel bzw. Wulst, Vierlingstürmen, Schanzkleid, Wellenbrecher, Anker und Kette, Wellen, Schrauben und
   Ruder; Brücken und Pagodenmasten mit Fensterbändern, Nocken und Splitterschutz; Schornsteine
   mit Kappen, Funkenfängern und Dampfrohren; Masten mit Plattformen, Rahen, Signallampen und
   Antennendrähten; Feuerleitstände (Mk 33/34/37, Typ 94, britische und italienische Leitstände)
-  mit Entfernungsmessern und Radarantennen (SC, SG, Mk 3, Mk 4, Typ 279/281/286); Türme mit
+  mit Entfernungsmessern und Radarantennen (SC, SG, Mk 3, Mk 4, Typ 272/273/279/281/284/285/286, FuMO-„Matratze“); Türme mit
   Visierhauben, Messgeräte-Ohren und Mündungsschutzhüllen; Kasematten; leichte Flak (20 mm, 1,1″,
-  25 mm, 13 mm, Pom-Pom, Breda); Bordflugzeuge mit Hoheitszeichen auf drehbaren oder festen
+  25 mm, 13 mm, Pom-Pom, Breda, 3,7 cm und Flakvierling); Bordflugzeuge mit Hoheitszeichen auf drehbaren oder festen
   Katapulten; Beiboote an Davits, Carley-Flöße, Relinge, Niedergänge, Poller, Lüfter,
   Wasserbomben; rot-weiße Fliegererkennungsstreifen der Regia Marina; wehende Kriegsflagge
   (USA, Japan, White Ensign, Italien; die deutsche Reichskriegsflagge ohne das verbotene

@@ -292,3 +292,23 @@ TEST_CASE("torpedo fans are checked for friendly ships over their whole run") {
     CHECK_FALSE(ai::torpedoFanEndangers({0, -5000}, 60.0, 6.0, run, speed, ca));
     CHECK_FALSE(ai::torpedoFanEndangers({0, -9000}, 0.0, 6.0, run, speed, ca));
 }
+
+TEST_CASE("a withdrawing ship does not follow an exit route that runs into the enemy") {
+    Battle b(10.0, 11);
+    int dd = b.group("usn", Side::Allies, {"usn_dd_bagley"}, {0, 0}, 0, 20);
+    b.group("ijn", Side::Axis, {"ijn_ca_takao", "ijn_ca_aoba", "ijn_ca_furutaka"}, {2000, 14000}, 180, 12, CrewQuality::Elite);
+    ai::AiController allies(b.w, Side::Allies, doctrines());
+    ai::Mission m;
+    m.type = ai::MissionType::Patrol;
+    m.waypoints = {{0, 30000}};
+    m.exitRoute = {{0, 40000}};  // the way home leads straight past the enemy
+    m.speedKn = 20;
+    allies.setMission(dd, m, "usn_1942");
+    b.run({&allies}, 300);
+    REQUIRE(allies.brain(dd)->posture == ai::Posture::Withdraw);
+    const Ship& s = *b.w.ship(b.w.group(dd)->members.front());
+    Vec2 enemy{};
+    for (auto& o : b.w.ships())
+        if (o->side == Side::Axis) enemy += o->pos / 3.0;
+    CHECK(std::fabs(wrap180(s.heading - bearingTo(s.pos, enemy))) > 100.0);
+}

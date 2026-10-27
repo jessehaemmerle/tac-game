@@ -24,8 +24,8 @@ build/linux-debug/irontide_tests -tc="torpedo*"
 | `test_core.cpp` | Winkel und Peilungen, Abfanglösung, Matrizen, deterministischer Zufall, Lokalisierung mit Rückfallsprache |
 | `test_database.cpp` | Datenbank lädt und validiert, Kalibrierung der Ballistik gegen historische Höchstschussweiten, Schusstafeln, Durchschlag über Entfernung und Winkel, Bestreichungswinkel, Type 93 übertrifft Mark 15 |
 | `test_procgen.cpp` | Prozedurale Modelle sind gültig und treffen die Klassenmaße, Rumpfform, Dreiecksbudget je Detailstufe, nichts ragt seitlich heraus, Teilehierarchie (jedes Rohr eigenes Teil unter seiner Wiege, Torpedos in ihren Rohrsätzen, Flugzeuge auf ihren Katapulten), Flak aus den Klassendaten; Zeitverläufe von Rückstoß, Torpedoausstoß, Katapultstart und Waffenvorführung |
-| `test_sim.cpp` | Astronomie (Savo-Nacht war dunkel), Schiffsführung, Sichtentdeckung nach Licht und Optik, SG vs. SC und Funkschatten, Artillerieduell bei Tag, Type-93-Fächer treffen, Schadenswirkung, Determinismus, Kontaktereignisse |
-| `test_ai.cpp` | Fairness (keine Reaktion auf unentdeckte Gegner), IJN-Doktrin (Torpedos zuerst, Geschütze dunkel), Kämmen gemeldeter Laufbahnen, Rückzug eines einzelnen Zerstörers vor Kreuzern, Befehlsquittungen, Torpedofächer gegen eigene Schiffe, Savo Island KI gegen KI deterministisch |
+| `test_sim.cpp` | Astronomie (Savo-Nacht war dunkel), Schiffsführung, Sichtentdeckung nach Licht und Optik, SG vs. SC und Funkschatten, Artillerieduell bei Tag, Type-93-Fächer treffen, Schadenswirkung (Torpedo gegen Schlachtschiff und Zerstörer, Mittelartillerie über dem Gürtel erreicht weder Munitionskammern noch Maschinen), schwere See bremst Zerstörer, Determinismus, Kontaktereignisse, Vorab-Aufklärung identifiziert beim ersten Kontakt |
+| `test_ai.cpp` | Fairness (keine Reaktion auf unentdeckte Gegner), IJN-Doktrin (Torpedos zuerst, Geschütze dunkel), Kämmen gemeldeter Laufbahnen, Rückzug eines einzelnen Zerstörers vor Kreuzern, Rückzug dreht von einer Abmarschroute ab, die auf den Gegner zuführt, Vorposten kehren nach Treffern nicht zurück, Befehlsquittungen, Torpedofächer gegen eigene Schiffe, Savo Island KI gegen KI deterministisch, Vorschäden im Szenario (Pola bei Matapan) |
 | `test_ui.cpp` | Jeder Bildschirm baut headless (ohne Grafik), Schiedsrichter-Gefecht mit allen Panels, Sprachtabellen vollständig und deckungsgleich, jeder im Code benutzte Schlüssel existiert |
 
 Die Tests laufen unter Linux (GCC) und Windows (MSVC) gleichermaßen; die Oberfläche wird dabei
@@ -40,8 +40,8 @@ build/linux-release/irontide_headless --data data --scenario tassafaronga --runs
   --log      Entscheidungsprotokoll aller Ebenen (mit Alternativen der Befehlshaber)
   --events   Kontakte, erste Salve je Schiff, Torpedoabschüsse, Treffer mit Entfernung,
              Beleuchtung und Brandzustand des Ziels
-  --trace 60 Zustand aller Schiffe alle 60 s (Kurs, Fahrt, Auftrieb, Struktur, Antrieb, Strom,
-             Brände, Treffer)
+  --trace 60 Zustand aller Schiffe alle 60 s (Position, Kurs, Fahrt, befohlener Kurs und Fahrt,
+             Auftrieb, Struktur, Antrieb, Strom, Brände, Treffer)
   --skill 0.7  KI-Können
 ```
 

@@ -1,0 +1,16 @@
+// Royal Navy, Home Fleet 1943: centimetric radar has changed night fighting. The plot finds the enemy
+// long before any lookout, cruisers shadow by radar and illuminate with starshell, the battleship
+// fires blind with Type 284 at 10-15 km, destroyers attack with torpedoes from both sides. The plot
+// identifies the target: no need to wait for a sighting before opening fire.
+{
+  "id": "rn_1943", "nation": "rn",
+  "aggression": 0.8, "caution": 0.3, "night_preference": 0.85, "initiative": 0.8,
+  "gun_range_night_m": 11000, "gun_range_day_m": 20000,
+  "require_identification": false, "illumination": "starshell", "use_aircraft_flares": false, "chase_salvos": true,
+  "torpedo_first": false, "hold_fire_until_torpedo_impact": false,
+  "torpedo_range_night_m": 3500, "torpedo_range_day_m": 6000, "torpedo_spacing_lengths": 1.0,
+  "reload_and_reattack": false, "torpedoes_per_spread": 4,
+  "reaction_time_s": 8, "report_delay_min_s": 20, "report_delay_max_s": 80, "report_reliability": 0.85, "assume_hostile": 0.85, "evasion_skill": 0.7, "formation": "column", "column_spacing_m": 800,
+  "withdraw_before_dawn_min": 0, "force_ratio_engage": 0.55, "force_ratio_withdraw": 0.3,
+  "target_priority": { "BB": 1.4, "BC": 1.4, "CV": 1.4, "CA": 1.1, "CL": 1.0, "DD": 0.7, "AP": 0.6 }
+}

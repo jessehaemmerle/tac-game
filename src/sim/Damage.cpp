@@ -75,7 +75,7 @@ void magazineExplosion(World& w, Ship& s) {
 }
 
 /// Damage systems located near ship-local x within `radius` (m). `inside` = the burst happened inside the hull.
-void damageNear(World& w, Ship& s, const Vec3& p, double radius, double severity, bool inside, bool high) {
+void damageNear(World& w, Ship& s, const Vec3& p, double radius, double severity, bool inside, bool high, bool vitals) {
     const auto& c = *s.cls;
     for (size_t i = 0; i < s.mounts.size(); ++i) {
         auto& m = s.mounts[i];
@@ -115,13 +115,13 @@ void damageNear(World& w, Ship& s, const Vec3& p, double radius, double severity
         if (high && dd < radius * 1.6) systemHit(w, s, sen.health, severity * 0.7, "system.sensor");
     }
     double f = fOf(s, p.x);
-    if (inside && f > 0.35 && f < 0.65 && p.z < c.model.freeboardMid) {
+    if (vitals && f > 0.35 && f < 0.65 && p.z < c.model.freeboardMid) {
         systemHit(w, s, s.dmg.propulsion, severity * 0.35 * machineryShare(c), "system.propulsion");
         systemHit(w, s, s.dmg.power, severity * 0.3 * machineryShare(c), "system.power");  // generators, switchboards
     }
     if (inside && p.z < c.model.freeboardMid + 3.0)
         s.dmg.power = std::max(0.0, s.dmg.power - severity * 0.04 * machineryShare(c));  // cut cables
-    if (inside && f > 0.88 && p.z < 1.0) {
+    if (vitals && f > 0.88 && p.z < 1.0) {
         systemHit(w, s, s.dmg.steering, severity * 0.6, "system.steering");
         if (s.dmg.steering < 0.3 && !s.dmg.rudderJammed && w.rng().chance(0.5)) {
             s.dmg.rudderJammed = true;
@@ -265,11 +265,19 @@ void shellHit(World& w, Ship& s, const Shell& sh, const HitInfo& hit) {
         overpen = w.rng().chance(0.55);
         if (overpen) effect *= 0.2;
     }
-    if (!penetrated) effect *= (sd.kind == ShellKind::AP ? 0.15 : 0.45);
+    // A shell defeated by real armour bursts outside it: scars and splinters, little more.
+    if (!penetrated) effect *= plate >= 75.0 ? 0.05 : (sd.kind == ShellKind::AP ? 0.15 : 0.45);
     bool inside = penetrated && !overpen;
 
     s.dmg.hitsTaken++;
-    s.dmg.hullIntegrity -= effect / (std::pow(s.displacement(), 0.9) * 0.06) * (hit.face == HitFace::Superstructure ? 0.5 : 1.0);
+    // Structure: size, the class's construction (hull_strength: armour decks, subdivision) and where the
+    // shell burst - wrecking the upperworks of a battleship does little to keep her afloat.
+    // A shell through the thin side above the belt meets the armoured deck before it gets near the
+    // machinery, a magazine or the buoyancy below it.
+    bool belowArmour = inside && (hit.face != HitFace::Side || beltZone || c.armor.deck < 50.0);
+    double upper = hit.face == HitFace::Superstructure ? (s.displacement() > 20000.0 ? 0.2 : 0.5) : 1.0;
+    if (inside && !belowArmour) upper = std::min(upper, 0.2);
+    s.dmg.hullIntegrity -= effect / (std::pow(s.displacement(), 0.9) * 0.06 * std::sqrt(std::max(0.3, c.hullStrength))) * upper;
     s.dmg.crewLoss = std::min(1.0, s.dmg.crewLoss + effect / (c.crew * 0.6) * 0.35 * (high ? 1.6 : 1.0));
 
     double radius = 3.0 + std::sqrt(std::max(0.0, effect)) * 2.2;
@@ -278,7 +286,7 @@ void shellHit(World& w, Ship& s, const Shell& sh, const HitInfo& hit) {
         auto& m = s.mounts[size_t(hit.mount)];
         systemHit(w, s, m.health, penetrated ? 1.0 : (w.rng().chance(0.3) ? 0.6 : 0.15), "system.mount");
     }
-    damageNear(w, s, hit.local, radius, severity * (inside ? 1.0 : 0.4), inside, high);
+    damageNear(w, s, hit.local, radius, severity * (inside ? 1.0 : 0.4), inside, high, belowArmour);
 
     double fireChance = (sd.kind == ShellKind::AP ? 0.12 : 0.32) * (high ? 1.4 : 1.0) * (inside ? 1.0 : 0.4);
     if (w.rng().chance(fireChance)) startFire(w, s, f, 0.15 + 0.1 * severity);
@@ -288,9 +296,7 @@ void shellHit(World& w, Ship& s, const Shell& sh, const HitInfo& hit) {
         s.dmg.floodRate += 0.6 * area * std::sqrt(2.0 * kGravity * 2.5) * 1.025;
         s.dmg.list += (hit.local.y >= 0 ? 1.0 : -1.0) * area * 2.0;
     }
-    // A shell through the thin side above the belt meets the armoured deck before it gets near a magazine.
-    bool magazineReach = inside && (hit.face != HitFace::Side || beltZone || c.armor.deck < 50.0);
-    if (magazineReach && nearMagazine && hit.local.z < c.model.freeboardMid && g.caliberMm >= 120) {
+    if (belowArmour && nearMagazine && hit.local.z < c.model.freeboardMid && g.caliberMm >= 120) {
         double p = 0.004 + 0.002 * sd.bursterKg;
         if (s.cls->size() == SizeClass::Small) p *= 1.5;
         if (w.rng().chance(p)) magazineExplosion(w, s);
@@ -328,13 +334,13 @@ void torpedoHit(World& w, Ship& s, const Torpedo& t, const Vec2& local) {
     double flood = kg * 4.2 * (1.0 - prot);
     s.dmg.flooding += flood;
     s.dmg.floodRate += kg * 0.004 * (1.0 - prot);
-    s.dmg.hullIntegrity -= kg / (std::pow(s.displacement(), 0.85) * 0.9) * (1.0 - 0.5 * prot);
+    s.dmg.hullIntegrity -= kg / (std::pow(s.displacement(), 0.85) * 0.9 * std::sqrt(std::max(0.3, c.hullStrength))) * (1.0 - 0.5 * prot);
     s.dmg.list += (local.y >= 0 ? 1.0 : -1.0) * flood / s.displacement() * 25.0;
     s.dmg.crewLoss = std::min(1.0, s.dmg.crewLoss + kg / (c.crew * 0.6) * 0.03);
     s.dmg.torpedoHitsTaken++;
     if (s.displacement() < 3500 && kg > 200 && w.rng().chance(0.6)) s.dmg.brokenBack = true;
     Vec3 p{local.x, local.y, -2.0};
-    damageNear(w, s, p, 10.0 + kg / 40.0, 1.0, true, false);
+    damageNear(w, s, p, 10.0 + kg / 40.0, 1.0, true, false, true);
     double f = fOf(s, local.x);
     if (f > 0.35 && f < 0.65) {
         double share = machineryShare(c) * (1.0 - 0.5 * prot);  // the side protection system absorbs much of it
@@ -415,7 +421,7 @@ void update(World& w, Ship& s, double dt) {
         d.hullIntegrity -= fire.intensity * 0.00002 * dt * structureFactor;
         if (fire.intensity > 0.5 && w.rng().chance(0.004 * dt)) {
             double lx = (0.5 - fire.f) * c.length;
-            damageNear(w, s, {lx, 0, c.model.freeboardMid}, 8.0, 0.25, true, true);
+            damageNear(w, s, {lx, 0, c.model.freeboardMid}, 8.0, 0.25, true, true, true);
         }
         // Fire reaching a magazine (flooding the magazines is the usual counter-measure).
         if (fire.intensity > 0.85 && w.rng().chance(0.00012 * dt * magazineFactor)) {

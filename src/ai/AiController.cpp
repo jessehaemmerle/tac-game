@@ -569,6 +569,25 @@ void AiController::runWithdraw(GroupBrain& g, sim::Group& grp, sim::Ship& guide)
         if (best < 2000.0 && i + 1 < m.exitRoute.size()) ++i;
         if (best < 2000.0 && i + 1 == m.exitRoute.size()) g.exited = g.last.nearest > 25000.0;
         grp.course = bearingTo(guide.pos, m.exitRoute[i]);
+        // Do not run alongside (or into) the enemy within reach: turn the route away from the danger until
+        // it is well abaft the beam, as Scharnhorst turned away from Duke of York. The danger is the sum of
+        // all threats (power over distance squared), and the side to turn to is kept once chosen - a ship
+        // swinging from one side to the other loses the speed she is running on.
+        Vec2 danger{};
+        for (auto& t : g.last.threats) {
+            if (t.age > 180.0 || t.distance > 30000.0) continue;
+            danger += normalize(t.pos - guide.pos) * (std::max(1.0, t.power) / sqr(std::max(3000.0, t.distance)));
+        }
+        if (length(danger) > 0.0) {
+            double toDanger = bearingOf(danger);
+            double rel = wrap180(grp.course - toDanger);
+            if (std::fabs(rel) < 110.0) {
+                if (g.avoidSide == 0 || std::fabs(rel) > 30.0) g.avoidSide = rel >= 0.0 ? 1 : -1;
+                grp.course = wrap360(toDanger + 110.0 * g.avoidSide);
+            }
+        } else {
+            g.avoidSide = 0;
+        }
     } else if (!g.last.threats.empty()) {
         grp.course = wrap360(bearingTo(guide.pos, g.last.enemyCenter) + 180.0);
     }

@@ -38,6 +38,7 @@ struct ScenarioGroup {
     ai::Mission mission;
     bool playable = true;      // can the player command it when playing this side
     double appearTime = 0;     // reinforcements (s after start)
+    bool knownToEnemy = false; // the enemy knows these ships from intelligence: identified on first detection
     // raw geographic data kept for saving
     bool geo = false;
     double lat = 0, lon = 0;

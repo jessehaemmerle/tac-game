@@ -117,6 +117,8 @@ void Session::spawnGroup(size_t index) {
                 sensorPool_.push_back(std::move(m));
             }
         }
+        if (sg.knownToEnemy)
+            w.picture(sg.side == sim::Side::Allies ? sim::Side::Axis : sim::Side::Allies).addPriorIntel(s.id, cls->type, cls->size(), cls->id);
         w.group(gid)->members.push_back(s.id);
         ++k;
     }

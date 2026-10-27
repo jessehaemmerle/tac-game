@@ -1,0 +1,15 @@
+// Kriegsmarine 1943: excellent optics and gunnery, early radar, but commanders bound by orders to avoid
+// action with superior forces - the loss of a capital ship was not to be risked. Fights while the odds
+// are good, breaks off at once when heavy ships appear.
+{
+  "id": "km_1943", "nation": "km",
+  "aggression": 0.55, "caution": 0.65, "night_preference": 0.35, "initiative": 0.5,
+  "gun_range_night_m": 13000, "gun_range_day_m": 24000,
+  "require_identification": true, "illumination": "starshell", "use_aircraft_flares": false, "chase_salvos": true,
+  "torpedo_first": false, "hold_fire_until_torpedo_impact": false,
+  "torpedo_range_night_m": 4000, "torpedo_range_day_m": 8000, "torpedo_spacing_lengths": 1.0,
+  "reload_and_reattack": false, "torpedoes_per_spread": 3,
+  "reaction_time_s": 12, "report_delay_min_s": 40, "report_delay_max_s": 150, "report_reliability": 0.7, "assume_hostile": 0.7, "evasion_skill": 0.6, "formation": "column", "column_spacing_m": 900,
+  "withdraw_before_dawn_min": 0, "force_ratio_engage": 1.2, "force_ratio_withdraw": 0.8,
+  "target_priority": { "BB": 1.2, "CV": 1.3, "CA": 1.1, "CL": 1.0, "DD": 0.8, "AP": 1.2 }
+}

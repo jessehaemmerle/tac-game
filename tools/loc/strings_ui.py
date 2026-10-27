@@ -21,7 +21,7 @@ S = {
 # --- missions & briefing
 "missions.title": ("Historical missions", "Historische Missionen"), "missions.none": ("No scenarios found.", "Keine Szenarien gefunden."),
 "missions.to_briefing": ("Briefing", "Einsatzbesprechung"),
-"theater.pacific": ("Pacific", "Pazifik"), "theater.atlantic": ("North Atlantic", "Nordatlantik"), "theater.mediterranean": ("Mediterranean", "Mittelmeer"),
+"theater.pacific": ("Pacific", "Pazifik"), "theater.atlantic": ("North Atlantic", "Nordatlantik"), "theater.arctic": ("Arctic", "Nordmeer"), "theater.mediterranean": ("Mediterranean", "Mittelmeer"),
 "theater.channel": ("Channel & North Sea", "Kanal & Nordsee"),
 "briefing.forces": ("Forces", "Kräfte"), "briefing.ships": ("ships", "Schiffe"), "briefing.situation": ("Situation", "Lage"),
 "briefing.orders": ("Orders", "Auftrag"), "briefing.intel": ("Intelligence", "Aufklärung"), "briefing.history": ("Historical background", "Historischer Hintergrund"),

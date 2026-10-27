@@ -112,6 +112,7 @@ bool loadScenario(const std::string& path, Scenario& sc, std::string* error) {
         g.readiness = jnum(gj, "readiness", 1.0);
         g.playable = jbool(gj, "playable", true);
         g.appearTime = jnum(gj, "appear_s", 0);
+        g.knownToEnemy = jbool(gj, "known_to_enemy", false);
         for (auto& sj : jarr(gj, "ships")) {
             ScenarioShip s;
             s.cls = jstr(sj, "class");
@@ -195,6 +196,7 @@ Json scenarioToJson(const Scenario& sc) {
         if (g.readiness < 1.0) gj["readiness"] = g.readiness;
         if (!g.playable) gj["playable"] = false;
         if (g.appearTime > 0) gj["appear_s"] = g.appearTime;
+        if (g.knownToEnemy) gj["known_to_enemy"] = true;
         Json ships = Json::array();
         for (auto& s : g.ships) {
             Json sj{{"class", s.cls}, {"name", s.name}};

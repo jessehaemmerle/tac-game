@@ -875,6 +875,32 @@ void director(Ctx& cx, const sim::ModelPart& pt) {
         mb.loft(ring(o, z), ring(o, z + H, {}, 0.92f), true, false);
         mb.box(v3(x - L * 0.2f, -W * 0.2f, z + H), v3(x + L * 0.25f, W * 0.2f, z + H + 0.5f));
         rangefinder(mb, cx.paint, v3(x - L * 0.25f, 0, z + H * 0.7f), base, 0.18f);
+        if (radarId == "rn_284") {
+            // Type 284: two long "cheese" troughs side by side over the director roof.
+            mb.setMaterial(cx.paint.metal);
+            float aw = std::max(W * 1.15f, 4.5f), zz = z + H + 0.9f;
+            for (int row : {0, 1}) {
+                Vec3f c0 = v3(x + L * 0.1f, 0.0f, zz + 0.8f * float(row));
+                mb.box(c0 + Vec3f{-0.12f, -aw * 0.5f, -0.35f}, c0 + Vec3f{0.0f, aw * 0.5f, 0.35f});  // reflector
+                for (int k = 0; k < 9; ++k) {
+                    float yy = -aw * 0.45f + aw * 0.9f * float(k) / 8.0f;
+                    mb.bar(c0 + Vec3f{0.0f, yy, 0.0f}, c0 + Vec3f{0.35f, yy, 0.0f}, 0.025f, 0.025f);
+                }
+            }
+            mb.bar(v3(x + L * 0.1f, 0, z + H), v3(x + L * 0.1f, 0, zz - 0.3f), 0.1f, 0.1f);
+        } else if (radarId == "rn_285") {
+            // Type 285: six Yagi aerials in two rows on the HACS director.
+            mb.setMaterial(cx.paint.metal);
+            float zz = z + H + 0.6f;
+            mb.bar(v3(x, -1.2f, zz), v3(x, 1.2f, zz), 0.06f, 0.06f);
+            mb.bar(v3(x, -1.2f, zz + 0.7f), v3(x, 1.2f, zz + 0.7f), 0.06f, 0.06f);
+            for (int r = 0; r < 2; ++r)
+                for (int k = 0; k < 3; ++k) {
+                    Vec3f a = v3(x, -0.9f + 0.9f * float(k), zz + 0.7f * float(r));
+                    mb.bar(a, a + Vec3f{1.4f, 0, 0}, 0.025f, 0.025f);
+                    for (int e = 1; e <= 4; ++e) mb.bar(a + Vec3f{0.3f * float(e), -0.18f, 0}, a + Vec3f{0.3f * float(e), 0.18f, 0}, 0.015f, 0.015f);
+                }
+        }
     } else {
         // USN Mk 33/34/37: sloped front and sides, rangefinder ears at the rear.
         bool mk37 = radarId == "usn_fd_mk4";
@@ -925,6 +951,18 @@ void radar(Ctx& cx, const sim::ModelPart& pt) {
         mb.box(focus - Vec3f{0.1f, 0.12f, 0.1f}, focus + Vec3f{0.1f, 0.12f, 0.1f});
         mb.setMaterial(cx.paint.superstructure);
         mb.lathe(v3(x - 0.3f, 0, z - 0.6f), {0, 0, 1}, {{0.35f, 0}, {0.35f, 0.7f}, {0.2f, 0.9f}, {0.0f, 0.92f}}, 10, false);
+    } else if (pt.style == "rn_273" || pt.style == "rn_272") {
+        // Centimetric surface warning set in its "lantern": a perspex drum with a conical roof on a pedestal.
+        float r = W * 0.5f, h = H;
+        mb.lathe(v3(x, 0, z - 0.4f), {0, 0, 1}, {{r * 0.55f, 0}, {r * 0.55f, 0.4f}, {r * 1.05f, 0.45f}, {r * 1.05f, 0.55f}}, 18, false);
+        mb.setMaterial(cx.paint.glass);
+        mb.lathe(v3(x, 0, z + 0.15f), {0, 0, 1}, {{r, 0}, {r, h * 0.75f}}, 18, false);
+        mb.setMaterial(cx.paint.superstructure);
+        mb.lathe(v3(x, 0, z + 0.15f + h * 0.75f), {0, 0, 1}, {{r * 1.05f, 0}, {r * 1.05f, 0.1f}, {r * 0.35f, h * 0.25f}, {0.0f, h * 0.27f}}, 18, false);
+        for (int k = 0; k < 6; ++k) {
+            float a = float(k) / 6.0f * float(kTwoPi);
+            mb.bar(v3(x + std::cos(a) * r, std::sin(a) * r, z + 0.15f), v3(x + std::cos(a) * r, std::sin(a) * r, z + 0.15f + h * 0.75f), 0.03f, 0.03f);
+        }
     } else if (pt.style == "rn_279" || pt.style == "rn_281") {
         // Masthead array of the Type 279/281: two booms of horizontal dipoles with reflector rods behind.
         float bz = z + 0.3f;

@@ -64,6 +64,16 @@ struct BeltSpec {
 
 BeltSpec beltSpec(const Ctx& cx) {
     BeltSpec b;
+    const std::string& style = cx.c.model.beltStyle;
+    if (style == "none") return b;
+    if (style == "external" && cx.c.armor.belt > 0) {
+        double top = cx.capital ? 2.2 : 1.5;
+        return {0.2, 0.78, -std::min(2.2, cx.T * 0.35), top, std::max(0.06, cx.c.armor.belt / 1000.0 * 0.7), false};
+    }
+    if (style == "bulge") {
+        if (cx.capital) return {0.16, 0.8, -cx.T * 0.8, 1.2, 0.7, true};
+        return {0.24, 0.74, -cx.T * 0.7, 1.1, 0.3, true};
+    }
     if (cx.capital) {
         // Japanese battleships: deep bulges added in their reconstructions; US fast battleships carried
         // their belt inside the hull.

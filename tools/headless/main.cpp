@@ -97,10 +97,10 @@ int main(int argc, char** argv) {
                     if (!s->alive()) continue;
                     double lat, lon;
                     w.terrain().toGeo(s->pos, lat, lon);
-                    std::printf("     %-16s %-5s hdg %3.0f %4.1fkn flot %.2f hull %.2f prop %.2f power %.2f fires %zu (%.1f) hits %d  %s\n",
-                                s->name.c_str(), s->side == sim::Side::Allies ? "ALL" : "AXIS", s->heading, s->speedKn(), s->flotation(),
+                    std::printf("     %-16s %-5s %7.3f %7.3f hdg %3.0f %4.1fkn flot %.2f hull %.2f prop %.2f power %.2f fires %zu (%.1f) hits %d ord %3.0f/%4.1f %s\n",
+                                s->name.c_str(), s->side == sim::Side::Allies ? "ALL" : "AXIS", lat, lon, s->heading, s->speedKn(), s->flotation(),
                                 s->dmg.hullIntegrity, s->dmg.propulsion, s->dmg.power, s->dmg.fires.size(), s->dmg.totalFireIntensity(),
-                                s->dmg.hitsTaken, s->dmg.sinking ? "SINKING" : "");
+                                s->dmg.hitsTaken, s->orders.course, s->orders.speedKn, s->dmg.sinking ? "SINKING" : "");
                 }
             }
             for (auto& e : events) {

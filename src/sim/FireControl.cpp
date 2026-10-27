@@ -91,7 +91,8 @@ SalvoError salvoError(World& w, const Ship& s, const DirectorState& d, double ra
     bool radarBlind = d.radarRanging && !d.opticalLayer;
     if (radarBlind) base *= 1.0 + 2.0 * smoothstep(2000.0, 14000.0, range);
     if (s.cls->size() == SizeClass::Small) base *= 1.35;            // lively destroyer platforms
-    base *= 1.0 + 0.12 * std::max(0.0, w.env().weather().seaState - 2.0);
+    // A seaway: own roll and pitch the stabilisation cannot fully remove, spray over the director windows.
+    base *= 1.0 + 0.25 * std::max(0.0, w.env().weather().seaState - 2.0);
     base /= std::max(0.45, crew);
     // Deflection errors grow at night: the director layer has only a silhouette or a searchlight beam to lay on.
     return {w.rng().normal() * base * range, w.rng().normal() * base * (nightOptical ? 0.65 : radarBlind ? 0.5 : 0.35) * range};
@@ -134,6 +135,8 @@ void fireMount(World& w, Ship& s, DirectorState& d, MountState& m, const Aim& ai
     }
     // Without power the mounts are trained, elevated and loaded by hand in local control.
     double rof = gun->rofRpm * crew * (0.5 + 0.5 * m.health) * (0.25 + 0.75 * s.readiness) * (0.3 + 0.7 * s.dmg.power);
+    // A rolling ship in heavy seas: the layers wait for the roll, loaders lose their footing.
+    rof /= 1.0 + 0.1 * std::max(0.0, w.env().weather().seaState - 3.0);
     double reload = 60.0 / std::max(0.2, rof);
     if (gun->loadingElevationDeg >= 0)
         reload += 2.0 * std::fabs(aim.elevation - gun->loadingElevationDeg) / std::max(1.0, gun->elevationRateDps);

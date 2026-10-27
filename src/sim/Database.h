@@ -99,7 +99,7 @@ struct MountDef {
     double armorFace = 0;  // mm
     std::string director;  // director id controlling this mount
     bool superfiring = false;
-    std::string style;     // procedural model style: "turret3", "turret2", "turret1", "open", "shield"
+    std::string style;     // procedural model style: "turret4", "turret3", "turret2", "dd_turret", "dp_twin", "casemate", "shield"
     std::map<ShellKind, int> ammo;  // rounds per barrel
 };
 
@@ -163,6 +163,7 @@ struct ModelDesc {
     double flare = 0.15;            // bow flare
     double tumblehome = 0.0;
     std::string hullPaint = "grey";  // paint scheme key
+    std::string beltStyle;  // "bulge", "external" or "none" (empty: by nation and type)
     std::string deckPaint = "teak";
     std::vector<ModelPart> parts;
     std::string gltf;  // optional replacement model path (relative to data/models)

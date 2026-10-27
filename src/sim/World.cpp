@@ -439,6 +439,9 @@ void World::stepShips(double dt) {
             s.readiness = std::min(1.0, s.readiness + dt / t);
         }
         double vmax = s.maxSpeedNow();
+        // Heavy seas: small ships cannot hold their speed (the destroyers of Force 2 off the North Cape).
+        double sea = env_.weather().seaState;
+        if (sea > 4.0) vmax *= std::max(0.6, 1.0 - (sea - 4.0) * 0.12 * clamp((160.0 - c.length) / 60.0, 0.0, 1.0));
         if (s.grounded) {
             s.speed = 0;
             s.turnRate = 0;
