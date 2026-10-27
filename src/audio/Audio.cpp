@@ -81,6 +81,7 @@ std::string voiceKeyFor(const sim::Event& e, const sim::World& w, sim::Side me) 
         case T::Collision: return own(e.a) ? "collision" : "";
         case T::ShipGrounded: return own(e.a) ? "grounded" : "";
         case T::OrderAcknowledged: return e.side == me ? e.text : "";
+        case T::AirAttack: return own(e.b) && e.side != me ? "under_fire" : "";
         case T::Report:
             if (e.side != me) return "";
             if (e.text == "report.rudder_jammed") return "rudder_jammed";
@@ -307,7 +308,21 @@ void AudioEngine::onEvents(const std::vector<sim::Event>& events, const sim::Wor
             case T::OrderAcknowledged:
                 if (e.side == me && e.text == "engines") play("ui_telegraph", 0.55f, 0.0f, 1.0f, sfxBus_);
                 break;
+            // Air war: heavy AA rounds, torpedoes hitting the water, aircraft going in.
+            case T::AaFire: positional(e.value >= 120.0 ? "gun_medium" : "gun_small", pos, 0.55, 15000.0); break;
+            case T::TorpedoDropped: positional("splash_small", pos, 0.5, 3000.0); break;
+            case T::AircraftCrashed:
+                positional("splash_large", pos, 0.8, 6000.0);
+                positional("explosion_medium", pos, 0.45, 8000.0);
+                break;
+            case T::BombReleased:
+                if (length(pos - listener_) < 1500.0 && clock_ - lastWhistle_ > 2.0 && ts <= 2.0) {
+                    lastWhistle_ = clock_;
+                    positional("shell_whistle", pos, 0.6, 1500.0);
+                }
+                break;
             case T::ContactNew:
+            case T::AirContactNew:
                 if (e.side == me && me != sim::Side::Neutral && !generalQuarters_) {
                     generalQuarters_ = true;
                     play("alarm_bell", 0.45f, 0.0f, 1.0f, sfxBus_);
@@ -381,10 +396,34 @@ void AudioEngine::update(double dt, const sim::World* w, const Vec3& listener, b
         if (ambSea_.voice) ambSea_.voice->SetVolume(float(sea * (paused ? 0.6 : 1.0)));
         if (ambWind_.voice) ambWind_.voice->SetVolume(float(wind * 0.6));
         updateFireLoop(*w, paused);
+        if (!paused) updateAaChatter(*w);
     } else {
         for (Active* a : {&ambSea_, &ambWind_, &fireLoop_})
             if (a->voice) a->voice->SetVolume(0.0f);
     }
+}
+
+void AudioEngine::updateAaChatter(const sim::World& w) {
+    // Light AA has no event per round: the nearest ship whose guns are firing chatters in bursts.
+    if (clock_ < nextAaChatter_) return;
+    double now = w.time(), best = 0;
+    Vec3 at;
+    for (const auto& s : w.ships()) {
+        if (!s->operational()) continue;
+        int firing = 0;
+        for (const auto& b : s->aa)
+            if (b.mount < 0 && now < b.firingUntil) ++firing;
+        if (!firing) continue;
+        Vec3 p{s->pos.x, 10.0, s->pos.y};
+        double v = std::min(1.0, 0.35 + 0.1 * firing) * std::pow(300.0 / (300.0 + length(p - listener_)), 1.1);
+        if (v > best) {
+            best = v;
+            at = p;
+        }
+    }
+    rng_ = rng_ * 1664525u + 1013904223u;
+    nextAaChatter_ = clock_ + 0.09 + 0.12 * ((rng_ >> 9) % 1000) / 1000.0;
+    if (best > 0.02) positional("gun_small", at, best * 0.7, 6000.0, 150.0);
 }
 
 void AudioEngine::updateFireLoop(const sim::World& w, bool paused) {

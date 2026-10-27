@@ -61,6 +61,7 @@ private:
     /// refDistance sets the roll-off (small: sharp near-field sound, large: low rumble that carries).
     void positional(const std::string& id, const Vec3& pos, double loudness, double reachM, double refDistance = 250.0);
     void updateFireLoop(const sim::World& w, bool paused);
+    void updateAaChatter(const sim::World& w);
 
     void* dll_ = nullptr;
     IXAudio2* xa_ = nullptr;
@@ -81,6 +82,7 @@ private:
     Active ambSea_, ambWind_, fireLoop_;
     bool generalQuarters_ = false;  // first enemy contact of the battle sounds the alarm
     double lastWhistle_ = -1e9;
+    double nextAaChatter_ = 0;
     const sim::World* world_ = nullptr;
     std::string language_ = "de";
     double clock_ = 0;

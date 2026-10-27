@@ -83,8 +83,9 @@ Kuantan against an AI that only knows what its own lookouts, radars and scouts r
   Tarnanstrich, Hoheitszeichen, drehende Luftschrauben, Torpedos und Bomben), Leuchtspur,
   Flakwolken, Rauchfahnen getroffener Maschinen und Abstürze; Regenvorhänge unter Böen, Regen und
   Schnee um die Kamera. Feature Level 12_0, kein Raytracing nötig.
-- **Audio** (XAudio2): Geschütze, Einschläge und Explosionen mit Schall-Laufzeit, Ambience,
-  Maschinentelegraf, Alarmglocke und Brückenmeldungen auf Deutsch und Englisch.
+- **Audio** (XAudio2): Geschütze, Flak, Einschläge und Explosionen mit Schall-Laufzeit,
+  Torpedoabwürfe, Bombenpfeifen und abstürzende Flugzeuge, Ambience, Maschinentelegraf,
+  Alarmglocke (auch bei Fliegeralarm) und Brückenmeldungen auf Deutsch und Englisch.
 
 | Plot | KI-Einblick |
 |---|---|
