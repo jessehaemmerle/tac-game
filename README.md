@@ -5,25 +5,41 @@ aber im Raketen-losen Zeitalter: Nachtgefechte, Torpedofächer, Leuchtgranaten, 
 Eigene C++20-Engine auf **Direct3D 12**, deutsch und englisch.
 
 *A WWII naval tactics game for Windows (custom C++20 / Direct3D 12 engine, German and English).
-You command cruisers and destroyers in historical night actions off Guadalcanal, Cape Matapan and the North Cape against an AI that
-only knows what its own lookouts and radars report.*
+You command cruisers, destroyers and squadrons of aircraft in historical actions off Guadalcanal, Cape Matapan, the North Cape and
+Kuantan against an AI that only knows what its own lookouts, radars and scouts report.*
 
 ![Tassafaronga, 3D-Ansicht](docs/images/battle_3d.jpg)
 
 ## Inhalt
 
-- **Sieben historische Missionen**, jede aus beiden Seiten spielbar. Pazifik (Ironbottom Sound):
+- **Acht historische Missionen**, jede aus beiden Seiten spielbar. Pazifik (Ironbottom Sound):
   Savo Island (8./9. Aug. 1942), Cape Esperance (11./12. Okt. 1942), Erste und Zweite
   Seeschlacht von Guadalcanal (13. und 14./15. Nov. 1942, mit Beschießungsauftrag gegen
   Henderson Field), Tassafaronga (30. Nov. 1942). Mittelmeer: Kap Matapan (28./29. März 1941,
   Cunninghams Schlachtschiffe gegen die Kreuzer Zara, Fiume und die gestoppte Pola).
   Nordmeer: Nordkap (26. Dez. 1943, Scharnhorst gegen Fraser und Burnett in Polarnacht,
-  Schneeböen und schwerer See).
+  Schneeböen und schwerer See). Südchinesisches Meer: Untergang der Force Z (10. Dez. 1941,
+  Prince of Wales und Repulse gegen die Bomber der 22. Luftflottille – als Phillips oder als
+  japanischer Luftbefehlshaber, mit den Buffalos der No. 453 Squadron, die Phillips nie rief).
   Briefing mit Lage, Auftrag, Aufklärung, astronomisch berechneten Lichtverhältnissen und Geschichte.
+- **Luftstreitkräfte**: 25 Flugzeugtypen (Torpedo-, Sturzkampf- und Horizontalbomber, Jäger,
+  Fernaufklärer, Flugboote, Bordflugzeuge) aller sechs Marinen. Staffeln starten von Flugplätzen
+  oder Katapulten, fliegen Suchflüge, Angriffe (Torpedo-Zangenangriff, Sturzangriff,
+  Horizontalwurf mit Bombenzielgerät), Jagdschutz, Begleitschutz, Leuchtbomben und Fühlunghalten,
+  mit Treibstoff, Munition und Rückflug. Jedes Flugzeug wird einzeln von leichter Flak und
+  Mehrzweckgeschützen beschossen (nationale Feuerleitung, Sperrfeuer), Luftkämpfe mit Anflügen und
+  Abwehrfeuer; Radar und Ausguck melden Luftkontakte, Schiffe weichen Torpedoflugzeugen aus.
+- **Befehlsführung**: Luftverbände in der Flottenliste, Befehlspanel mit Ziel, Flughöhe und
+  Startzeit, Befehle per Rechtsklick in den Plot (angreifen, abfangen, Gruppe schützen, begleiten,
+  Suchschlag anhängen); Wegpunkt-Routen für Verbände und einzelne Schiffe; Gruppen an die
+  KI-Führung übergeben und zurücknehmen; Tastenkürzel für Kurs, Fahrt, Waffen und Torpedos;
+  Alarmbanner (Fliegeralarm, Luftangriff, Torpedolaufbahnen), die den Zeitraffer zurücknehmen;
+  anklickbare Meldungen.
 - **Szenario-Editor** für eigene Gefechte (Verbände, Wegpunkte, Aufträge, Doktrin, Zeit und Wetter).
 - **Simulation**: Außenballistik und Panzerdurchschlag, Feuerleitung mit Richtungsgeber-Verfolgung
   und Salvenbeobachtung, Torpedos mit Laufstufen und Laufbahnen, Schäden mit Wassereinbruch,
-  Krängung, Bränden, Munitionskammern und Kentern.
+  Krängung, Bränden, Munitionskammern und Kentern; Großkampfschiffe fluten über Gegenflutung und
+  fortschreitenden Wassereinbruch, wenn Strom und Pumpen ausfallen.
 - **Sensoren**: Sicht nach Licht, Mond, Wolken, Regenböen und Hintergrund (Inseln), Mündungsfeuer,
   Scheinwerfer, Leuchtgranaten und Fallschirmleuchtbomben; Radar SC/SG/FC mit Landechos und
   Funkschatten; britische Typ 273/272/284/285; Torpedolaufbahnen. Kontakte laufen mit Meldeverzug
@@ -40,8 +56,9 @@ only knows what its own lookouts and radars report.*
   **Waffenvorführung** (Türme schwenken, Salven mit Rückstoß je Rohr, Mündungsfeuer und
   Pulverrauch, Torpedoausstoß, Katapultstart des Bordflugzeugs), Bestreichungswinkel,
   Durchschlagstabelle gegen gewählte Gegnerklassen, Panzerung, Torpedos, Sensoren und Geschichte
-  für 45 Schiffsklassen der US Navy, Royal Navy, Royal Australian Navy,
-  Kaiserlich Japanischen Marine, Regia Marina und Kriegsmarine.
+  für 49 Schiffsklassen der US Navy, Royal Navy, Royal Australian Navy,
+  Kaiserlich Japanischen Marine, Regia Marina und Kriegsmarine – und 25 Flugzeugtypen mit
+  3D-Modell im Flug, Leistungsvergleich, Zuladungen und Geschichte.
 - **Schiffsmodelle**: prozedural aus den Klassendaten, je Marine im eigenen Stil – Rumpf mit
   außenliegendem oder innerem Panzergürtel bzw. Wulst, Vierlingstürmen, Schanzkleid, Wellenbrecher, Anker und Kette, Wellen, Schrauben und
   Ruder; Brücken und Pagodenmasten mit Fensterbändern, Nocken und Splitterschutz; Schornsteine
@@ -62,7 +79,10 @@ only knows what its own lookouts and radars report.*
   und Höhe, Radarantennen drehen, Schrauben und Ruder bewegen sich, zerstörte Lafetten hängen.
 - **Grafik**: FFT-Ozean mit Schaum und Kielwasser, Nachthimmel mit Mond und Sternen,
   HDR mit Augenadaption, Bloom und MSAA, Schattenkarten, Partikel für Mündungsfeuer, Rauch,
-  Einschläge und Brände. Feature Level 12_0, kein Raytracing nötig.
+  Einschläge und Brände; prozedurale Flugzeugmodelle (Ein- und Doppeldecker, Schwimmer, Flugboote,
+  Tarnanstrich, Hoheitszeichen, drehende Luftschrauben, Torpedos und Bomben), Leuchtspur,
+  Flakwolken, Rauchfahnen getroffener Maschinen und Abstürze; Regenvorhänge unter Böen, Regen und
+  Schnee um die Kamera. Feature Level 12_0, kein Raytracing nötig.
 - **Audio** (XAudio2): Geschütze, Einschläge und Explosionen mit Schall-Laufzeit, Ambience,
   Maschinentelegraf, Alarmglocke und Brückenmeldungen auf Deutsch und Englisch.
 
@@ -71,6 +91,10 @@ only knows what its own lookouts and radars report.*
 | ![Plot](docs/images/tactical_plot.jpg) | ![KI-Einblick](docs/images/ai_insight.jpg) |
 | **Einheitenhandbuch** | **Briefing** |
 | ![Einheitenhandbuch](docs/images/unit_reference.jpg) | ![Briefing](docs/images/briefing.jpg) |
+| **Luftverbände führen (Force Z)** | **Torpedobomber im Anflug** |
+| ![Luftverbände](docs/images/air_command.jpg) | ![G3M](docs/images/air_attack.jpg) |
+| **Flugzeuge im Handbuch** | **Regenbö** |
+| ![Flugzeuge](docs/images/aircraft_reference.jpg) | ![Regenbö](docs/images/squall.jpg) |
 
 ## Systemvoraussetzungen
 
@@ -90,18 +114,28 @@ Fertige Builds liegen als Artefakt `IronTide-windows-x64` an jedem
 | 1 – 6 | Zeitraffer 1×, 2×, 4×, 8×, 15×, 30× |
 | F1 / F2 / F3, M | 3D-Ansicht / Plot / geteilt, M wechselt 3D ↔ Plot |
 | Tab, Umschalt+Tab | nächstes / vorheriges eigenes Schiff |
+| Q, Umschalt+Q | nächster / vorheriger eigener Luftverband |
+| ← → (Umschalt, Strg) | Kurs 10° (45°, 1°) nach Backbord / Steuerbord |
+| ↑ ↓ (Umschalt) | Fahrt ±2 kn (±5 kn) |
+| G | Befehle an Verband / an dieses Schiff |
+| X | Feuererlaubnis: Feuerverbot → nur auf Befehl → frei |
+| T | Torpedofächer auf den gewählten Kontakt |
+| Rücktaste | Route löschen |
+| R | gewählter Luftverband: zurück zur Basis |
 | F | Kamera folgt dem gewählten Schiff |
 | B / V | Brückenkamera / Fernglas |
 | I / U | KI-Einblick / Einheitenhandbuch |
 | H | Bedienoberfläche aus- und einblenden |
 | Esc | Pausenmenü |
 | 3D: rechte oder mittlere Maustaste ziehen, Rad, W A S D | Kamera drehen, zoomen, verschieben (Umschalt: schneller) |
-| 3D: Linksklick | Schiff wählen |
+| 3D: Linksklick | Schiff oder Flugzeug wählen |
 | Plot: ziehen, Rad, Strg+ziehen | verschieben, zoomen, Peilung und Entfernung messen |
-| Plot: Rechtsklick | Befehle (Verband oder Schiff auf einen Punkt steuern, Plot zentrieren) |
+| Plot: Rechtsklick | Befehle (Schiff: steuern, Wegpunkt, bekämpfen, Torpedos; Luftverband: angreifen, aufklären, Jagdschutz, abfangen, begleiten) |
+| Plot: Umschalt+Rechtsklick | Wegpunkt an die Route anhängen |
 
-Ruder, Maschine, Formation, Ziele, Feuererlaubnis, Torpedofächer, Scheinwerfer, Leuchtgranaten und
-Bordflugzeuge befiehlt man im Schiffspanel rechts.
+Ruder, Maschine, Formation, Wegpunkte, Ziele, Feuererlaubnis, Torpedofächer, Scheinwerfer,
+Leuchtgranaten und Bordflugzeuge befiehlt man im Schiffspanel rechts; ein gewählter Luftverband
+zeigt dort sein Befehlspanel.
 
 ## Bauen
 

@@ -20,6 +20,30 @@ void add(Renderer::Impl& P, const Particle& p) {
     if (P.particles.size() < kMaxParticles) P.particles.push_back(p);
 }
 
+/// Rain and snow have a budget of their own on top of the effects (a fleet's funnel smoke must not
+/// stop the weather).
+constexpr size_t kMaxWeatherParticles = 6000;
+void addWeather(Renderer::Impl& P, const Particle& p) {
+    if (P.particles.size() < kMaxParticles + kMaxWeatherParticles) P.particles.push_back(p);
+}
+
+/// Winter at high latitudes: the squalls bring snow (the Arctic convoys, the North Cape).
+bool snowing(const sim::World& w) {
+    int m = w.env().now().month;
+    double lat = w.env().latitude();
+    return (lat > 50.0 && (m >= 11 || m <= 3)) || (lat < -50.0 && m >= 5 && m <= 9);
+}
+
+/// How hard it rains (snows) where the camera is: 0 outside the squalls.
+double precipitationAt(const sim::World& w, const Vec2& p) {
+    double k = 0.0;
+    for (const auto& sq : w.env().squalls()) {
+        double d = distance(sq.pos, p);
+        k = std::max(k, sq.intensity * (1.0 - smoothstep(sq.radius * 0.8, sq.radius * 1.1, d)));
+    }
+    return k;
+}
+
 Vec3 windDrift(const sim::World& w) {
     const auto& wx = w.env().weather();
     double to = (wx.windDirDeg + 180.0) * kDegToRad;
@@ -94,6 +118,39 @@ void sparks(Renderer::Impl& P, const Vec3& pos, int n, float speed, const Vec4f&
         s.buoyancy = -9.81f;
         s.seed = float(P.rng.uniform());
         add(P, s);
+    }
+}
+
+/// A tracer round from `from` towards `to` (render space) at `speed`, slightly dispersed.
+void tracer(Renderer::Impl& P, const Vec3& from, const Vec3& to, double speed, double spreadDeg, const Vec4f& color, float width) {
+    Vec3 d = to - from;
+    double dist = length(d);
+    if (dist < 1.0) return;
+    Vec3 dir = d / dist;
+    Vec3 jitter{P.rng.normal(), P.rng.normal(), P.rng.normal()};
+    dir = normalize(dir + jitter * (spreadDeg * kDegToRad));
+    Particle t;
+    t.pos = from;
+    t.vel = dir * speed;
+    t.size = width;
+    t.color = color;
+    t.emissive = 14.0f;
+    t.maxLife = float(std::min(4.0, dist / speed + 0.4));
+    t.type = kTracer;
+    t.drag = 0.0f;
+    t.buoyancy = -2.0f;  // a slight drop over a few seconds of flight
+    t.seed = float(P.rng.uniform());
+    add(P, t);
+}
+
+/// Tracer colours by navy (US red, Japanese pale green-white, British orange, German yellow).
+Vec4f tracerColor(sim::Nation n) {
+    switch (n) {
+        case sim::Nation::USN: return {1.0f, 0.32f, 0.18f, 1.0f};
+        case sim::Nation::IJN: return {0.85f, 1.0f, 0.75f, 1.0f};
+        case sim::Nation::KM: return {1.0f, 0.85f, 0.35f, 1.0f};
+        case sim::Nation::RM: return {1.0f, 0.45f, 0.3f, 1.0f};
+        default: return {1.0f, 0.55f, 0.25f, 1.0f};
     }
 }
 
@@ -202,6 +259,43 @@ void effectsEvents(Renderer::Impl& P, const sim::World& w, const std::vector<sim
             case EventType::TorpedoDud:
                 column(P, pos, 3.0f, 8.0f, 3.0f, {0.85f, 0.88f, 0.9f, 0.7f});
                 break;
+            case EventType::TorpedoDropped:
+                column(P, pos, 2.0f, 9.0f, 3.0f, {0.85f, 0.88f, 0.9f, 0.85f});
+                foamRing(P, pos, 10.0f, 0.8f, 20.0f, now);
+                break;
+            case EventType::AaFire: {
+                // Heavy AA: a muzzle flash, then a burst near the aircraft after the shell's time of flight.
+                double cal = std::max(75.0, e.value);
+                glow(P, pos, float(4.0 + cal * 0.03), {1.0f, 0.7f, 0.4f, 1.0f}, 18.0f, 0.12f);
+                smokePuff(P, pos, drift + Vec3{0, 6, 0}, 2.5f, 2.0f, {0.45f, 0.43f, 0.4f, 0.45f}, 6.0f, 0.6f);
+                if (const sim::Aircraft* a = w.plane(e.b)) {
+                    Vec3 ap = toR(a->pos);
+                    double tof = length(ap - pos) / 700.0;
+                    Vec3 lead = ap + toR(bearingVector(a->heading) * (a->speed * tof), 0.0);
+                    double miss = 25.0 + 0.012 * length(ap - pos);
+                    Vec3 burst = lead + Vec3{P.rng.normal(), P.rng.normal() * 0.6, P.rng.normal()} * miss;
+                    P.flak.push_back({burst, now + tof, float(4.0 + cal * 0.035), w.env().ambientLight() < 0.3});
+                }
+                break;
+            }
+            case EventType::AircraftHit:
+                sparks(P, pos, 6, 20.0f, {1.0f, 0.75f, 0.4f, 1.0f}, 20.0f);
+                break;
+            case EventType::AircraftShotDown:
+                glow(P, pos, 10.0f, {1.0f, 0.55f, 0.2f, 1.0f}, 25.0f, 0.5f);
+                sparks(P, pos, 18, 30.0f, {1.0f, 0.7f, 0.35f, 1.0f}, 25.0f);
+                flash(P, pos, Vec3f{1.0f, 0.55f, 0.25f} * 20.0f, 600.0f, 0.4f);
+                break;
+            case EventType::AircraftCrashed: {
+                Vec3 p = {pos.x, 0.0, pos.z};
+                column(P, p, 5.0f, 28.0f, 5.0f, {0.86f, 0.89f, 0.92f, 0.9f});
+                glow(P, p + Vec3{0, 3, 0}, 14.0f, {1.0f, 0.55f, 0.2f, 1.0f}, 20.0f, 1.2f);
+                for (int i = 0; i < 4; ++i)
+                    smokePuff(P, p + Vec3{0, 3, 0}, drift + Vec3{frand(P.rng, -2, 2), frand(P.rng, 3, 7), frand(P.rng, -2, 2)}, 5.0f, 3.0f,
+                              {0.08f, 0.075f, 0.07f, 0.8f}, float(frand(P.rng, 20, 40)), 1.5f, 0.6f);
+                foamRing(P, p, 25.0f, 1.0f, 40.0f, now);
+                break;
+            }
             case EventType::Explosion: {
                 double size = std::cbrt(std::max(1.0, e.value)) * 2.5;
                 glow(P, pos, float(size * 2.0), {1.0f, 0.55f, 0.22f, 1.0f}, 30.0f, 0.6f);
@@ -282,6 +376,33 @@ void effectsUpdate(Renderer::Impl& P, const sim::World& w, double realDt, double
     // Continuous emitters on ships: funnel smoke, smoke screens, fires, steam from sinking hulls.
     Vec3 drift = windDrift(w);
     const Vec3 cam = P.cam.pos;
+    // Rain (or snow) falling around the camera inside a squall. The drops and flakes are drawn larger
+    // than life so that they read on screen; only those within a few dozen metres are simulated.
+    if (double precip = precipitationAt(w, {cam.x, cam.z}); precip > 0.02 && cam.y < 3000.0) {
+        bool snow = snowing(w);
+        int n = std::min(240, int(dt * (snow ? 800.0 : 1200.0) * precip + P.rng.uniform(0.0, 1.0)));
+        for (int i = 0; i < n; ++i) {
+            Particle r;
+            // More of them close to the camera, where they are seen.
+            double ang = frand(P.rng, 0.0, kTwoPi), dist = 6.0 + 30.0 * std::pow(frand(P.rng, 0.0, 1.0), 1.4);
+            r.pos = {cam.x + std::sin(ang) * dist, std::max(0.5, cam.y + frand(P.rng, -8.0, 14.0)), cam.z + std::cos(ang) * dist};
+            r.type = snow ? kSnow : kRain;
+            r.drag = 0.0f;
+            r.seed = float(frand(P.rng, 0.0, 1.0));
+            if (snow) {
+                r.vel = drift * 1.2 + Vec3{frand(P.rng, -0.5, 0.5), -frand(P.rng, 0.9, 1.6), frand(P.rng, -0.5, 0.5)};
+                r.size = float(frand(P.rng, 0.07, 0.15));
+                r.color = {1.0f, 1.0f, 1.0f, 0.95f};
+                r.maxLife = float(std::min(6.0, r.pos.y / -r.vel.y));
+            } else {
+                r.vel = drift * 0.7 + Vec3{0.0, -frand(P.rng, 8.0, 10.0), 0.0};
+                r.size = 0.03f;
+                r.color = {0.88f, 0.9f, 0.94f, float(0.35 + 0.3 * precip)};
+                r.maxLife = float(std::min(2.2, r.pos.y / -r.vel.y));
+            }
+            addWeather(P, r);
+        }
+    }
     for (const auto& sp : w.ships()) {
         const sim::Ship& s = *sp;
         if (!s.cls || s.dmg.sunk) continue;
@@ -331,6 +452,56 @@ void effectsUpdate(Renderer::Impl& P, const sim::World& w, double realDt, double
         if (s.dmg.sinking && P.rng.uniform() < 3.0 * dt * lod)
             smokePuff(P, local(P.rng.uniform(-0.4, 0.4) * c.length, 0, 2.0), drift + Vec3{0, 3, 0}, 6.0f, 3.0f, {0.7f, 0.72f, 0.75f, 0.4f}, 25.0f,
                       0.8f);
+    }
+
+    // Heavy AA bursts whose shells have arrived: a flash and a black (by night, lit) puff.
+    for (auto& b : P.flak) {
+        if (b.at > w.time()) continue;
+        glow(P, b.pos, b.size * 1.4f, {1.0f, 0.6f, 0.25f, 1.0f}, b.night ? 30.0f : 10.0f, 0.15f);
+        if (b.night) flash(P, b.pos, Vec3f{1.0f, 0.6f, 0.3f} * 8.0f, 800.0f, 0.15f);
+        smokePuff(P, b.pos, drift * 0.5, b.size, 1.2f, {0.07f, 0.07f, 0.07f, 0.85f}, float(frand(P.rng, 18, 30)), 0.05f);
+        b.at = -1.0;
+    }
+    P.flak.erase(std::remove_if(P.flak.begin(), P.flak.end(), [](const FlakBurst& b) { return b.at < 0.0; }), P.flak.end());
+    // Light AA: streams of tracer from every battery that is firing.
+    for (const auto& sp : w.ships()) {
+        const sim::Ship& s = *sp;
+        if (!s.cls || !s.operational() || length(toR(s.pos, 0.0) - cam) > 16000.0) continue;
+        for (const auto& b : s.aa) {
+            if (b.mount >= 0 || !b.def || b.firingUntil < w.time() || b.target == sim::kNoEntity) continue;
+            const sim::Aircraft* a = w.plane(b.target);
+            if (!a) continue;
+            double rate = std::min(6.0, b.def->barrels * b.def->rofRpm / 60.0 * 0.22);  // every fourth or fifth round a tracer
+            int n = int(rate * dt + P.rng.uniform());
+            Vec3 gun = toR(s.localToWorld(b.local.x, b.local.y), b.local.z);
+            Vec3 ap = toR(a->pos);
+            double tof = length(ap - gun) / 850.0;
+            Vec3 lead = ap + toR(bearingVector(a->heading) * (a->speed * tof * 0.8), 0.0);
+            for (int k = 0; k < n; ++k)
+                tracer(P, gun, lead, 850.0, 1.2 + b.def->caliberMm * 0.01, tracerColor(s.nation), b.def->caliberMm >= 37.0 ? 0.35f : 0.22f);
+            if (n > 0) glow(P, gun, 1.5f, {1.0f, 0.7f, 0.4f, 1.0f}, 10.0f, 0.06f);
+        }
+    }
+    // Aircraft: gunfire, smoke from damaged and burning aircraft.
+    for (const auto& a : w.planes()) {
+        bool falling = a.fate == sim::Aircraft::Fate::Falling;
+        if (!a.flying() && !falling) continue;
+        Vec3 ap = toR(a.pos);
+        if (length(ap - cam) > 14000.0) continue;
+        if (a.flying() && w.time() - a.lastGuns < 0.3) {
+            Vec3 tgt;
+            bool ok = false;
+            if (const sim::Aircraft* t = w.plane(a.gunsAt)) tgt = toR(t->pos), ok = true;
+            else if (const sim::Ship* sh = w.ship(a.gunsAt)) tgt = toR(sh->pos, 4.0), ok = true;
+            if (ok && P.rng.uniform() < 8.0 * dt)
+                tracer(P, ap, tgt, 900.0, 1.0, tracerColor(a.def ? a.def->nation : sim::Nation::Unknown), 0.18f);
+        }
+        if ((falling || a.smoke > 0.25) && P.rng.uniform() < (falling ? 12.0 : 5.0 * a.smoke) * dt) {
+            bool fire = falling || a.smoke > 0.7;
+            smokePuff(P, ap, drift * 0.3, float(fire ? 3.0 : 2.0), 1.8f, fire ? Vec4f{0.08f, 0.07f, 0.06f, 0.85f} : Vec4f{0.3f, 0.3f, 0.3f, 0.5f},
+                      float(frand(P.rng, 10, 20)), 0.2f, fire ? 1.5f : 0.0f);
+            if (fire) glow(P, ap, 3.0f, {1.0f, 0.5f, 0.15f, 1.0f}, 14.0f, 0.2f);
+        }
     }
 
     // Wake trails: sample the stern every second of simulated time.
@@ -456,13 +627,46 @@ void effectsGather(Renderer::Impl& P, const sim::World& w, const Camera& cam, do
     }
     std::sort(order.begin(), order.end(), [](auto& a, auto& b) { return a.first > b.first; });
     for (auto& b : beams) P.gpuParticles.push_back(b);
+    // Rain curtains hanging under the squalls, seen from outside: tall veils across the cell as the
+    // camera sees it (inside, the fog and the falling rain take over).
+    {
+        const auto& wx = w.env().weather();
+        double height = 1.4 * clamp(wx.cloudBaseM > 0 ? wx.cloudBaseM : 900.0, 400.0, 1600.0);
+        bool snow = snowing(w);
+        std::vector<std::pair<float, GpuParticle>> veils;
+        for (size_t qi = 0; qi < w.env().squalls().size(); ++qi) {
+            const auto& sq = w.env().squalls()[qi];
+            Vec3 c = toR(sq.pos, 0.0);
+            Vec3 toCam = Vec3{camPos.x - c.x, 0.0, camPos.z - c.z};
+            double d = length(toCam);
+            if (d < sq.radius * 0.9 || d > 45000.0) continue;
+            Vec3 fwd = toCam / d, side{fwd.z, 0.0, -fwd.x};
+            for (int k = -2; k <= 2; ++k) {
+                // Staggered veils, the ones in the middle in front and widest.
+                double off = k * sq.radius * 0.36;
+                Vec3 p = c + side * off + fwd * (sq.radius * (0.55 - 0.12 * std::abs(k)) * (1.0 - 0.15 * ((qi + k) % 2)));
+                GpuParticle g{};
+                g.pos = rel(p);
+                g.size = float(sq.radius * (0.42 - 0.05 * std::abs(k)));
+                g.stretch = float(height / g.size);
+                g.color = snow ? Vec4f{0.72f, 0.75f, 0.8f, float(0.75 * sq.intensity)} : Vec4f{0.3f, 0.33f, 0.37f, float(0.85 * sq.intensity)};
+                g.type = float(kCurtain);
+                g.seed = float((qi * 5 + size_t(k + 2)) % 17) / 17.0f;
+                g.age = 0.5f;
+                Vec3f r = g.pos;
+                veils.push_back({r.x * r.x + r.z * r.z, g});
+            }
+        }
+        std::sort(veils.begin(), veils.end(), [](auto& a, auto& b) { return a.first > b.first; });
+        for (auto& v : veils) P.gpuParticles.push_back(v.second);
+    }
     for (auto& [d2, i] : order) {
         const Particle& p = P.particles[i];
         GpuParticle g{};
         g.pos = rel(p.pos);
         g.size = p.size;
         g.color = p.color;
-        g.axis = rel(p.end);
+        g.axis = p.type == kTracer ? rel(p.pos - p.vel * 0.035) : p.type == kRain ? rel(p.pos - p.vel * 0.07) : rel(p.end);
         g.type = float(p.type);
         g.age = p.maxLife > 0 ? clamp(p.life / p.maxLife, 0.0f, 1.0f) : 0.5f;
         g.seed = p.seed;

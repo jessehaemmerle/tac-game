@@ -167,6 +167,22 @@ void drawContactSymbol(ImDrawList* dl, ImVec2 c, float s, bool hostile, bool los
     }
 }
 
+void drawAircraftSymbol(ImDrawList* dl, ImVec2 c, float s, float h, ImU32 color, float th) {
+    // Screen axes: x right, y down; heading 0 = up.
+    auto at = [&](float fwd, float right) {
+        return ImVec2{c.x + std::sin(h) * fwd * s + std::cos(h) * right * s, c.y - std::cos(h) * fwd * s + std::sin(h) * right * s};
+    };
+    dl->AddLine(at(1.0f, 0.0f), at(-1.0f, 0.0f), color, th);           // fuselage
+    dl->AddLine(at(0.25f, -1.0f), at(0.25f, 1.0f), color, th);         // wings
+    dl->AddLine(at(-0.85f, -0.42f), at(-0.85f, 0.42f), color, th);     // tailplane
+}
+
+void drawAirBaseSymbol(ImDrawList* dl, ImVec2 c, float s, ImU32 color) {
+    dl->AddRect({c.x - s, c.y - s}, {c.x + s, c.y + s}, color, 0.0f, 0, 1.5f);
+    dl->AddLine({c.x - s * 0.7f, c.y + s * 0.5f}, {c.x + s * 0.7f, c.y - s * 0.5f}, color, 2.0f);
+    dl->AddLine({c.x - s * 0.5f, c.y - s * 0.6f}, {c.x + s * 0.4f, c.y + s * 0.65f}, color, 1.5f);
+}
+
 void drawFlag(ImDrawList* dl, ImVec2 p, ImVec2 sz, sim::Nation n) {
     ImVec2 q{p.x + sz.x, p.y + sz.y};
     switch (n) {

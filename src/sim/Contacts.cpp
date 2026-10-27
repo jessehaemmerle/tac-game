@@ -16,6 +16,12 @@ uint32_t Track::senseOf(EntityId ship, double now, double maxAge) const {
     return 0;
 }
 
+bool AirTrack::heldBy(EntityId ship, double now, double maxAge) const {
+    for (auto& h : holders)
+        if (h.ship == ship && now - h.lastSeen <= maxAge) return true;
+    return false;
+}
+
 double ContactPicture::reportDelay() {
     if (!rng_) return reportMin_;
     double d = rng_->uniform(reportMin_, reportMax_);
@@ -103,6 +109,79 @@ Track* ContactPicture::report(const Measurement& meas, double now, bool* created
     return t;
 }
 
+AirTrack* ContactPicture::reportAir(const AirMeasurement& m, double now, bool* created) {
+    AirTrack* t = airByTruth(m.truth);
+    if (created) *created = (t == nullptr);
+    if (!t) {
+        AirTrack nt;
+        nt.id = nextId_++;
+        nt.truth_ = m.truth;
+        nt.pos = m.pos;
+        nt.vel = m.hasVelocity ? m.velocity : Vec2{};
+        nt.posSigma = m.sigma;
+        nt.firstSeen = nt.lastSeen = nt.lastUpdate = now;
+        // Air raid warnings go out at once by voice radio and TBS; aircraft reports take longer.
+        nt.sharedAt = now + (m.observer != kNoEntity ? 10.0 : reportDelay());
+        airTracks_.push_back(nt);
+        t = &airTracks_.back();
+        changes_.push_back({t->id, false, (m.sense & kSenseRadar) != 0, true});
+    } else {
+        double dt = std::max(0.0, now - t->lastUpdate);
+        Vec2 pred = t->pos + t->vel * dt;
+        double sp2 = sqr(t->posSigma) + sqr(25.0 * dt);  // aircraft manoeuvre: large process noise
+        double sm2 = sqr(m.sigma);
+        double k = sp2 / (sp2 + sm2);
+        Vec2 innov = m.pos - pred;
+        t->pos = pred + innov * k;
+        t->posSigma = std::sqrt(sp2 * sm2 / (sp2 + sm2));
+        if (dt > 1.0) t->vel += innov / std::max(dt, 5.0) * clamp(k, 0.1, 0.6);
+        if (m.hasVelocity) t->vel = t->vel + (m.velocity - t->vel) * 0.5;
+        if (t->lost) t->sharedAt = std::max(t->sharedAt, now + 10.0);
+        t->lastUpdate = t->lastSeen = now;
+    }
+    if (m.altitude >= 0) t->altitude = t->altitude < 0 ? m.altitude : lerp(t->altitude, m.altitude, 0.5);
+    if (m.count > 0) t->count = m.count;
+    if (m.roleKnown) {
+        t->roleKnown = true;
+        t->role = m.role;
+    }
+    if (m.attacking) {
+        t->attacking = true;
+        t->attackSeen = now;
+    } else if (now - t->attackSeen > 60.0) {
+        t->attacking = false;
+    }
+    t->sense |= m.sense;
+    t->lost = false;
+    bool found = false;
+    for (auto& h : t->holders)
+        if (h.ship == m.observer) {
+            h.lastSeen = now;
+            h.sense |= m.sense;
+            found = true;
+        }
+    if (!found && m.observer != kNoEntity) t->holders.push_back({m.observer, now, m.sense});
+    return t;
+}
+
+AirTrack* ContactPicture::findAir(uint32_t id) {
+    for (auto& t : airTracks_)
+        if (t.id == id) return &t;
+    return nullptr;
+}
+
+const AirTrack* ContactPicture::findAir(uint32_t id) const {
+    for (auto& t : airTracks_)
+        if (t.id == id) return &t;
+    return nullptr;
+}
+
+AirTrack* ContactPicture::airByTruth(EntityId truth) {
+    for (auto& t : airTracks_)
+        if (t.truth_ == truth) return &t;
+    return nullptr;
+}
+
 std::vector<uint32_t> ContactPicture::update(double now) {
     std::vector<uint32_t> lostNow;
     for (auto& t : tracks_) {
@@ -119,6 +198,20 @@ std::vector<uint32_t> ContactPicture::update(double now) {
     }
     tracks_.erase(std::remove_if(tracks_.begin(), tracks_.end(), [&](const Track& t) { return t.lost && now - t.lastSeen > 1200.0; }),
                   tracks_.end());
+    for (auto& t : airTracks_) {
+        t.holders.erase(std::remove_if(t.holders.begin(), t.holders.end(), [&](const Holder& h) { return now - h.lastSeen > 60.0; }),
+                        t.holders.end());
+        uint32_t s = 0;
+        for (auto& h : t.holders)
+            if (now - h.lastSeen < 30.0) s |= h.sense;
+        t.sense = s;
+        if (!t.lost && now - t.lastSeen > 60.0) {
+            t.lost = true;
+            lostAir_.push_back(t.id);
+        }
+    }
+    airTracks_.erase(std::remove_if(airTracks_.begin(), airTracks_.end(), [&](const AirTrack& t) { return t.lost && now - t.lastSeen > 600.0; }),
+                     airTracks_.end());
     return lostNow;
 }
 

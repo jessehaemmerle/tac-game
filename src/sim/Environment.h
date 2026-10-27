@@ -25,6 +25,7 @@ struct Squall {
 
 struct WeatherConfig {
     double cloudCover = 0.3;     // 0..1
+    double cloudBaseM = 1500;    // height of the cloud base (aircraft above it see and are seen only through gaps)
     double visibilityKm = 20.0;  // meteorological visibility
     double seaState = 2;         // Douglas sea state 0..9
     double windDirDeg = 120;     // direction the wind blows FROM

@@ -1,0 +1,506 @@
+{
+  "id": "rn_bc_repulse",
+  "nation": "rn",
+  "type": "BC",
+  "name": "Repulse",
+  "year": 1916,
+  "ships": [
+    "Repulse"
+  ],
+  "sources": "Burt, British Battleships 1919-1945; Raven & Roberts, British Battleships of World War Two; Middlebrook & Mahoney, Battleship: The Loss of the Prince of Wales and the Repulse; navweaps.com",
+  "dimensions": {
+    "length": 242.0,
+    "length_wl": 236.2,
+    "beam": 31.1,
+    "draft": 9.6,
+    "mast_height": 45,
+    "lookout_height": 32,
+    "superstructure_height": 28
+  },
+  "displacement": {
+    "standard": 32074,
+    "full": 37400
+  },
+  "propulsion": {
+    "max_speed_kn": 28.5,
+    "cruise_speed_kn": 17,
+    "shp": 112000,
+    "accel_kn_per_min": 3.2,
+    "tactical_diameter_m": 1100,
+    "shafts": 4
+  },
+  "crew": 1309,
+  "armor": {
+    "belt": 229,
+    "belt_magazine": 229,
+    "deck": 89,
+    "turret_face": 229,
+    "turret_roof": 108,
+    "barbette": 178,
+    "conning_tower": 254,
+    "torpedo_protection": 0.35
+  },
+  "mounts": [
+    {
+      "id": "A",
+      "weapon": "rn_15in42",
+      "barrels": 2,
+      "f": 0.17,
+      "arc_min": -150,
+      "arc_max": 150,
+      "ammo": {
+        "AP": 80,
+        "HE": 20
+      }
+    },
+    {
+      "id": "B",
+      "weapon": "rn_15in42",
+      "barrels": 2,
+      "f": 0.225,
+      "arc_min": -150,
+      "arc_max": 150,
+      "superfiring": true,
+      "ammo": {
+        "AP": 80,
+        "HE": 20
+      }
+    },
+    {
+      "id": "Y",
+      "weapon": "rn_15in42",
+      "barrels": 2,
+      "f": 0.8,
+      "arc_min": 30,
+      "arc_max": 330,
+      "ammo": {
+        "AP": 80,
+        "HE": 20
+      }
+    },
+    {
+      "id": "S1",
+      "weapon": "rn_4in44_bl",
+      "barrels": 3,
+      "f": 0.36,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 7.0,
+      "style": "shield",
+      "director": "sec",
+      "raise": 3.0,
+      "armor": 6,
+      "ammo": {
+        "HE": 160,
+        "Common": 40,
+        "Starshell": 15
+      },
+      "aa": false
+    },
+    {
+      "id": "S2",
+      "weapon": "rn_4in44_bl",
+      "barrels": 3,
+      "f": 0.36,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -7.0,
+      "style": "shield",
+      "director": "sec",
+      "raise": 3.0,
+      "armor": 6,
+      "ammo": {
+        "HE": 160,
+        "Common": 40,
+        "Starshell": 15
+      },
+      "aa": false
+    },
+    {
+      "id": "S3",
+      "weapon": "rn_4in44_bl",
+      "barrels": 3,
+      "f": 0.66,
+      "arc_min": 25,
+      "arc_max": 335,
+      "style": "shield",
+      "director": "sec",
+      "raise": 2.6,
+      "armor": 6,
+      "ammo": {
+        "HE": 160,
+        "Common": 40,
+        "Starshell": 15
+      },
+      "aa": false
+    },
+    {
+      "id": "H1",
+      "weapon": "rn_4in45",
+      "barrels": 1,
+      "f": 0.5,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 9.5,
+      "style": "shield",
+      "director": "aa",
+      "raise": 2.6,
+      "armor": 0,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "H2",
+      "weapon": "rn_4in45",
+      "barrels": 1,
+      "f": 0.5,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -9.5,
+      "style": "shield",
+      "director": "aa",
+      "raise": 2.6,
+      "armor": 0,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "H3",
+      "weapon": "rn_4in45",
+      "barrels": 1,
+      "f": 0.555,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 9.5,
+      "style": "shield",
+      "director": "aa",
+      "raise": 2.6,
+      "armor": 0,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "H4",
+      "weapon": "rn_4in45",
+      "barrels": 1,
+      "f": 0.555,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -9.5,
+      "style": "shield",
+      "director": "aa",
+      "raise": 2.6,
+      "armor": 0,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "H5",
+      "weapon": "rn_4in45",
+      "barrels": 1,
+      "f": 0.61,
+      "arc_min": 0,
+      "arc_max": 180,
+      "y": 9.0,
+      "style": "shield",
+      "director": "aa",
+      "raise": 2.6,
+      "armor": 0,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    },
+    {
+      "id": "H6",
+      "weapon": "rn_4in45",
+      "barrels": 1,
+      "f": 0.61,
+      "arc_min": -180,
+      "arc_max": 0,
+      "y": -9.0,
+      "style": "shield",
+      "director": "aa",
+      "raise": 2.6,
+      "armor": 0,
+      "ammo": {
+        "HE": 300,
+        "Starshell": 30
+      }
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "rn_mk9",
+      "tubes": 2,
+      "f": 0.52,
+      "y": 11.0,
+      "arc_min": 45,
+      "arc_max": 135,
+      "reloads": 0
+    },
+    {
+      "id": "T2",
+      "weapon": "rn_mk9",
+      "tubes": 2,
+      "f": 0.52,
+      "y": -11.0,
+      "arc_min": -135,
+      "arc_max": -45,
+      "reloads": 0
+    },
+    {
+      "id": "T3",
+      "weapon": "rn_mk9",
+      "tubes": 2,
+      "f": 0.585,
+      "y": 11.0,
+      "arc_min": 45,
+      "arc_max": 135,
+      "reloads": 0
+    },
+    {
+      "id": "T4",
+      "weapon": "rn_mk9",
+      "tubes": 2,
+      "f": 0.585,
+      "y": -11.0,
+      "arc_min": -135,
+      "arc_max": -45,
+      "reloads": 0
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 4.6,
+      "height": 33,
+      "radar": "rn_284",
+      "f": 0.295
+    },
+    {
+      "id": "sec",
+      "role": "secondary",
+      "rangefinder_m": 2.7,
+      "height": 25,
+      "f": 0.32
+    },
+    {
+      "id": "aa",
+      "role": "secondary",
+      "rangefinder_m": 2.7,
+      "height": 28,
+      "f": 0.35
+    },
+    {
+      "id": "main_aft",
+      "role": "main",
+      "rangefinder_m": 4.6,
+      "height": 16,
+      "f": 0.72
+    }
+  ],
+  "sensors": [
+    {
+      "id": "rn_lookouts",
+      "height": 32,
+      "f": 0.3
+    }
+  ],
+  "searchlights": 6,
+  "searchlight_cm": 91,
+  "floatplanes": 1,
+  "rcs": 3.2,
+  "reserve_buoyancy": 0.5,
+  "hull_strength": 1.6,
+  "model": {
+    "bow_rake": 0.06,
+    "stern": 0.0,
+    "freeboard_bow": 9.4,
+    "freeboard_mid": 7.6,
+    "freeboard_stern": 6.0,
+    "forecastle_end": 0.0,
+    "fineness": 0.56,
+    "flare": 0.16,
+    "hull_paint": "rn_507c",
+    "deck_paint": "teak",
+    "belt_style": "bulge",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.295,
+        "len": 16,
+        "wid": 14,
+        "h": 3.0,
+        "levels": 5,
+        "style": "rn"
+      },
+      {
+        "type": "tripod",
+        "f": 0.31,
+        "h": 40,
+        "rake": 3
+      },
+      {
+        "type": "director",
+        "f": 0.31,
+        "z": 31.0,
+        "len": 4.4,
+        "wid": 6.0,
+        "h": 2.8,
+        "ref": "rn_284"
+      },
+      {
+        "type": "director",
+        "f": 0.345,
+        "z": 14.0,
+        "len": 2.8,
+        "wid": 3.6,
+        "h": 2.2
+      },
+      {
+        "type": "funnel",
+        "f": 0.4,
+        "len": 9.0,
+        "wid": 6.6,
+        "h": 13.5,
+        "rake": 0
+      },
+      {
+        "type": "funnel",
+        "f": 0.475,
+        "len": 9.0,
+        "wid": 6.6,
+        "h": 13.0,
+        "rake": 0
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.48,
+        "len": 60,
+        "wid": 17,
+        "h": 2.6,
+        "levels": 1
+      },
+      {
+        "type": "hangar",
+        "f": 0.52,
+        "y": 6.5,
+        "len": 10,
+        "wid": 5,
+        "h": 4.0,
+        "mirror": true
+      },
+      {
+        "type": "catapult",
+        "f": 0.545,
+        "len": 17
+      },
+      {
+        "type": "aircraft",
+        "f": 0.545,
+        "z": 2.2,
+        "style": "walrus"
+      },
+      {
+        "type": "crane",
+        "f": 0.5,
+        "y": 7.0,
+        "h": 12,
+        "len": 14,
+        "mirror": true
+      },
+      {
+        "type": "mast",
+        "f": 0.69,
+        "h": 28,
+        "rake": 3
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.7,
+        "len": 12,
+        "wid": 9,
+        "h": 2.6,
+        "levels": 2
+      },
+      {
+        "type": "director",
+        "f": 0.715,
+        "z": 6.0,
+        "len": 3.8,
+        "wid": 5.0,
+        "h": 2.6
+      },
+      {
+        "type": "searchlight",
+        "f": 0.43,
+        "y": 5.0,
+        "z": 13,
+        "mirror": true
+      },
+      {
+        "type": "searchlight",
+        "f": 0.37,
+        "y": 6.0,
+        "z": 9,
+        "mirror": true
+      },
+      {
+        "type": "searchlight",
+        "f": 0.66,
+        "y": 3.0,
+        "z": 8,
+        "mirror": true
+      },
+      {
+        "type": "boat",
+        "f": 0.445,
+        "y": 9.5,
+        "z": 2.8,
+        "len": 12,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "rn_pompom_8",
+        "f": 0.385,
+        "y": 7.5,
+        "mirror": true,
+        "z": 3.4
+      },
+      {
+        "type": "aa",
+        "style": "rn_pompom_8",
+        "f": 0.64,
+        "z": 3.4
+      },
+      {
+        "type": "aa",
+        "style": "rn_05in_4",
+        "f": 0.27,
+        "y": 8.5,
+        "mirror": true,
+        "z": 3.2
+      },
+      {
+        "type": "aa",
+        "style": "rn_05in_4",
+        "f": 0.74,
+        "y": 6.0,
+        "mirror": true,
+        "z": 3.0
+      }
+    ]
+  }
+}

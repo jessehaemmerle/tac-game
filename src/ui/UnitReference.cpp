@@ -34,6 +34,9 @@ void kv(const char* k, const std::string& v) {
 
 std::string mm(double v) { return v > 0 ? std::to_string(int(std::lround(v))) + " mm" : std::string("-"); }
 
+/// Long distances (aircraft range) in whole nautical miles or kilometres.
+std::string longRange(double m, bool metric) { return fmtInt(std::llround(m / (metric ? 1000.0 : 1852.0))) + (metric ? " km" : " nm"); }
+
 const sim::ShellDef* apShell(const sim::GunDef& g) {
     if (const sim::ShellDef* s = g.shell(sim::ShellKind::AP)) return s;
     if (const sim::ShellDef* s = g.shell(sim::ShellKind::Common)) return s;
@@ -61,13 +64,33 @@ void UnitReference::draw(bool overlay) {
     ImGui::Separator();
     const auto& classes = ui_.db().shipClasses();
     if (selected_.empty() && !classes.empty()) selected_ = classes.front()->id;
-    const sim::ShipClassDef* c = ui_.db().shipClass(selected_);
+    const sim::AircraftDef* air = ui_.db().aircraft(selected_);
+    if (air) category_ = 1;
+    const sim::ShipClassDef* c = air ? nullptr : ui_.db().shipClass(selected_);
     float avail = ImGui::GetContentRegionAvail().y;
     ImGui::BeginChild("list", {W * 0.18f, avail}, ImGuiChildFlags_Borders);
-    drawList(avail);
+    // Ships | aircraft.
+    float half = ImGui::GetContentRegionAvail().x * 0.5f - 3.0f;
+    if (toggleButton(tr("unitref.ships"), category_ == 0, {half, 0}) && category_ != 0) {
+        category_ = 0;
+        if (!classes.empty()) selected_ = classes.front()->id;
+    }
+    ImGui::SameLine();
+    if (toggleButton(tr("unitref.aircraft_types"), category_ == 1, {half, 0}) && category_ != 1) {
+        category_ = 1;
+        if (!ui_.db().aircraftTypes().empty()) selected_ = ui_.db().aircraftTypes().front()->id;
+    }
+    if (category_ == 1) drawAircraftList();
+    else drawList(avail);
     ImGui::EndChild();
     ImGui::SameLine();
-    if (c) {
+    air = ui_.db().aircraft(selected_);
+    c = air ? nullptr : ui_.db().shipClass(selected_);
+    if (air) {
+        ImGui::BeginChild("main", {0, avail});
+        drawAircraft(*air, ImGui::GetContentRegionAvail().x, avail);
+        ImGui::EndChild();
+    } else if (c) {
         ImGui::BeginChild("main", {0, avail});
         float pw = ImGui::GetContentRegionAvail().x;
         // Header.
@@ -134,9 +157,178 @@ void UnitReference::drawList(float) {
     }
 }
 
-void UnitReference::drawPreview(const sim::ShipClassDef& c, float width, float height) {
+void UnitReference::drawAircraftList() {
+    ImGui::SetNextItemWidth(-1);
+    ImGui::InputTextWithHint("##filter", tr("unitref.search"), filter_, sizeof(filter_));
+    const char* sides[] = {tr("unitref.all"), sideName(sim::Side::Allies), sideName(sim::Side::Axis)};
+    ImGui::SetNextItemWidth(-1);
+    ImGui::Combo("##side", &nationFilter_, sides, 3);
+    // Group: nation -> role.
+    std::map<std::pair<int, int>, std::vector<const sim::AircraftDef*>> groups;
+    for (const auto& a : ui_.db().aircraftTypes()) {
+        sim::Side s = sim::defaultSide(a->nation);
+        if (nationFilter_ == 1 && s != sim::Side::Allies) continue;
+        if (nationFilter_ == 2 && s != sim::Side::Axis) continue;
+        if (!containsI(a->name, filter_)) continue;
+        groups[{int(a->nation), int(a->role)}].push_back(a.get());
+    }
+    int lastNation = -1;
+    for (auto& [key, list] : groups) {
+        if (key.first != lastNation) {
+            lastNation = key.first;
+            ImGui::Spacing();
+            ImGui::TextColored(col::kBrass, "%s", nationName(sim::Nation(key.first)));
+        }
+        std::string role = tr(sim::airRoleKey(sim::AirRole(key.second)));
+        if (!role.empty() && role[0] >= 'a' && role[0] <= 'z') role[0] = char(role[0] - 'a' + 'A');
+        ImGui::TextDisabled("  %s", role.c_str());
+        std::sort(list.begin(), list.end(), [](auto* a, auto* b) { return a->year < b->year; });
+        for (const sim::AircraftDef* a : list) {
+            ImGui::PushID(a->id.c_str());
+            if (ImGui::Selectable(("    " + a->name).c_str(), selected_ == a->id)) selected_ = a->id;
+            ImGui::PopID();
+        }
+    }
+}
+
+void UnitReference::drawAircraft(const sim::AircraftDef& a, float pw, float avail) {
+    const bool metric = ui_.settings.metric;
+    ImVec2 p = ImGui::GetCursorScreenPos();
+    float fh = ImGui::GetFontSize();
+    drawFlag(ImGui::GetWindowDrawList(), {p.x, p.y + 6}, {fh * 2.2f, fh * 1.4f}, a.nation);
+    ImGui::Dummy({fh * 2.4f, fh * 1.5f});
+    ImGui::SameLine();
     ImGui::BeginGroup();
-    uint64_t tex = ui_.svc.shipPreview(c.id, view_, uint32_t(std::max(64.0f, width)), uint32_t(std::max(64.0f, height)));
+    {
+        FontScope f(fonts().heading, 1.9f);
+        ImGui::Text("%s", a.name.c_str());
+    }
+    ImGui::TextDisabled("%s  |  %s  |  %d", nationName(a.nation), tr(sim::airRoleKey(a.role)), a.year);
+    ImGui::EndGroup();
+    float previewH = large_ ? avail - ImGui::GetFrameHeightWithSpacing() * 3.5f : std::min(avail * 0.5f, pw * 0.42f);
+    drawPreview(a.id, large_ ? pw : pw * 0.6f, previewH);
+    if (large_) return;
+    // Performance against the other types of the war at sea.
+    double maxKn = 1, range = 1, ceiling = 1, climb = 1;
+    for (const auto& o : ui_.db().aircraftTypes()) {
+        maxKn = std::max(maxKn, o->maxKn);
+        range = std::max(range, o->enduranceH * o->cruiseKn);
+        ceiling = std::max(ceiling, o->ceilingM);
+        climb = std::max(climb, o->climbMps);
+    }
+    ImGui::SameLine();
+    ImGui::BeginChild("perf", {0, previewH + ImGui::GetFrameHeightWithSpacing()}, ImGuiChildFlags_Borders);
+    sectionHeader(tr("unitref.performance"));
+    char b[64];
+    std::snprintf(b, sizeof(b), "%.0f kn", a.maxKn);
+    statusBar(tr("unitref.air_speed"), float(a.maxKn / maxKn), col::kBrassDim, b);
+    std::string r = longRange(a.enduranceH * a.cruiseKn * 1852.0, metric);
+    statusBar(tr("unitref.air_range"), float(a.enduranceH * a.cruiseKn / range), col::kBrassDim, r.c_str());
+    std::snprintf(b, sizeof(b), "%.0f m", a.ceilingM);
+    statusBar(tr("unitref.air_ceiling"), float(a.ceilingM / ceiling), col::kBrassDim, b);
+    std::snprintf(b, sizeof(b), "%.1f m/s", a.climbMps);
+    statusBar(tr("unitref.air_climb"), float(a.climbMps / climb), col::kBrassDim, b);
+    statusBar(tr("unitref.air_agility"), float(a.agility), col::kAllies);
+    statusBar(tr("unitref.air_durability"), float(std::min(1.0, a.durability / 2.0)), col::kGood);
+    statusBar(tr("unitref.air_guns"), float(std::min(1.0, a.firepower)), col::kWarn);
+    statusBar(tr("unitref.air_defense"), float(std::min(1.0, a.defense)), col::kWarn);
+    ImGui::EndChild();
+
+    if (!ImGui::BeginTabBar("airdetails")) return;
+    if (ImGui::BeginTabItem(tr("unitref.tab_overview"))) {
+        if (ImGui::BeginTable("aov", 4, ImGuiTableFlags_SizingStretchProp)) {
+            auto pair = [](const char* k1, const std::string& v1, const char* k2, const std::string& v2) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("%s", k1);
+                ImGui::TableNextColumn();
+                ImGui::TextUnformatted(v1.c_str());
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("%s", k2);
+                ImGui::TableNextColumn();
+                ImGui::TextUnformatted(v2.c_str());
+            };
+            char dims[64];
+            std::snprintf(dims, sizeof(dims), "%.1f / %.1f m", a.model.span, a.model.length);
+            pair(tr("unitref.air_span_length"), dims, tr("unitref.crew"), std::to_string(a.crew));
+            pair(tr("unitref.air_speed"), fmtKnots(a.maxKn) + " (" + fmtKnots(a.cruiseKn) + ")", tr("unitref.air_attack_speed"), fmtKnots(a.attackKn));
+            char end[48];
+            std::snprintf(end, sizeof(end), "%.1f h", a.enduranceH);
+            pair(tr("unitref.air_endurance"), end, tr("unitref.air_radius"), longRange(a.enduranceH * a.cruiseKn * 1852.0 * 0.4, metric));
+            std::string engines = std::to_string(a.model.engines);
+            const char* layout = a.model.layout == "bi" ? "unitref.layout_bi" : a.model.layout == "float" ? "unitref.layout_float"
+                               : a.model.layout == "boat"                    ? "unitref.layout_boat"
+                                                                              : "unitref.layout_mono";
+            pair(tr("unitref.air_engines"), engines, tr("unitref.air_layout"), tr(layout));
+            std::string extras;
+            if (a.night) extras += tr("unitref.air_night");
+            if (a.radar) extras += std::string(extras.empty() ? "" : ", ") + tr("unitref.air_radar");
+            if (a.flares > 0) extras += std::string(extras.empty() ? "" : ", ") + std::to_string(a.flares) + " " + tr("unitref.air_flares");
+            if (!a.catapultStyle.empty()) extras += std::string(extras.empty() ? "" : ", ") + tr("unitref.air_catapult");
+            pair(tr("unitref.air_equipment"), extras.empty() ? "-" : extras, tr("unitref.air_gun_time"), a.gunSeconds > 0 ? std::to_string(int(a.gunSeconds)) + " s" : "-");
+            ImGui::EndTable();
+        }
+        std::string hist = "aircraft." + a.id + ".history";
+        if (loc::has(hist)) {
+            sectionHeader(tr("unitref.history"));
+            ImGui::TextWrapped("%s", tr(hist.c_str()));
+        }
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem(tr("unitref.tab_loads"))) {
+        if (ImGui::BeginTable("loads", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+            ImGui::TableSetupColumn(tr("unitref.load"));
+            ImGui::TableSetupColumn(tr("unitref.weapon"), ImGuiTableColumnFlags_WidthStretch, 2.5f);
+            ImGui::TableSetupColumn(tr("unitref.warhead"));
+            ImGui::TableHeadersRow();
+            for (const auto& l : a.loadouts) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                std::string key = "unitref.load." + l.id;
+                ImGui::TextUnformatted(loc::has(key) ? tr(key.c_str()) : l.id.c_str());
+                ImGui::TableNextColumn();
+                std::string what, burst;
+                if (l.torpedo) {
+                    what = std::to_string(std::max(1, l.count)) + " x " + l.torpedo->name;
+                    burst = std::to_string(int(l.torpedo->warheadKg)) + " kg";
+                } else if (l.bomb) {
+                    what = std::to_string(l.count) + " x " + l.bomb->name;
+                    burst = std::to_string(int(l.bomb->bursterKg)) + " kg";
+                    if (l.bomb2) what += " + " + std::to_string(l.count2) + " x " + l.bomb2->name;
+                } else {
+                    what = tr(l.id == "guns" ? "unitref.load_guns" : "unitref.load_recon");
+                    burst = "-";
+                }
+                ImGui::TextUnformatted(what.c_str());
+                ImGui::TableNextColumn();
+                ImGui::TextUnformatted(burst.c_str());
+            }
+            ImGui::EndTable();
+        }
+        for (const auto& l : a.loadouts)
+            if (l.torpedo) {
+                const sim::TorpedoDef* td = l.torpedo;
+                sectionHeader(td->name.c_str());
+                if (ImGui::BeginTable("atorp", 2, ImGuiTableFlags_SizingStretchProp)) {
+                    kv(tr("unitref.diameter"), std::to_string(int(td->diameterMm)) + " mm");
+                    kv(tr("unitref.warhead"), std::to_string(int(td->warheadKg)) + " kg");
+                    for (const auto& st : td->settings) kv(tr("unitref.setting"), fmtKnots(st.speedKn) + "  -  " + fmtRange(st.range, metric));
+                    kv(tr("unitref.drop"), fmtKnots(td->dropKn) + ", " + std::to_string(int(td->dropAltM)) + " m");
+                    kv(tr("unitref.reliability"), fmtPercent(1.0 - td->dudChance - td->deepRunChance - td->erraticChance));
+                    ImGui::EndTable();
+                }
+                break;
+            }
+        ImGui::EndTabItem();
+    }
+    ImGui::EndTabBar();
+}
+
+void UnitReference::drawPreview(const sim::ShipClassDef& c, float width, float height) { drawPreview(c.id, width, height); }
+
+void UnitReference::drawPreview(const std::string& id, float width, float height) {
+    ImGui::BeginGroup();
+    uint64_t tex = ui_.svc.shipPreview(id, view_, uint32_t(std::max(64.0f, width)), uint32_t(std::max(64.0f, height)));
     ImVec2 p = ImGui::GetCursorScreenPos();
     if (tex) ImGui::Image(ImTextureRef(ImTextureID(tex)), {width, height});
     else {

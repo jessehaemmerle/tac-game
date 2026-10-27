@@ -1,0 +1,426 @@
+{
+  "id": "force_z",
+  "title": "scenario.force_z.title",
+  "briefing": "scenario.force_z.briefing",
+  "history": "scenario.force_z.history",
+  "theater": "pacific",
+  "location": {
+    "lat": 3.7,
+    "lon": 104.075
+  },
+  "terrain": "terrain/force_z.json",
+  "date": {
+    "year": 1941,
+    "month": 12,
+    "day": 10,
+    "hour": 11.0,
+    "utc_offset": 7.5
+  },
+  "weather": {
+    "cloud_cover": 0.3,
+    "cloud_base_m": 1100,
+    "visibility_km": 30,
+    "sea_state": 2,
+    "wind_dir": 30,
+    "wind_kn": 12,
+    "squalls": 1,
+    "squall_intensity": 0.5
+  },
+  "time_limit_s": 10800,
+  "player_sides": [
+    "allies",
+    "axis"
+  ],
+  "default_player": "allies",
+  "groups": [
+    {
+      "id": "forcez",
+      "name": "group.force_z.capital",
+      "side": "allies",
+      "formation": "column",
+      "spacing": 1400,
+      "doctrine": "rn_1941_eastern",
+      "position": {
+        "lat": 3.86,
+        "lon": 104.45
+      },
+      "course": 160,
+      "speed_kn": 25,
+      "crew": "regular",
+      "readiness": 1.0,
+      "ships": [
+        {
+          "class": "rn_bb_kgv",
+          "name": "Prince of Wales",
+          "sensors": [
+            "rn_lookouts",
+            "rn_281"
+          ]
+        },
+        {
+          "class": "rn_bc_repulse",
+          "name": "Repulse",
+          "crew": "veteran"
+        }
+      ],
+      "mission": {
+        "type": "transit",
+        "waypoints": [
+          {
+            "lat": 3.2,
+            "lon": 104.75
+          },
+          {
+            "lat": 1.6,
+            "lon": 104.5
+          }
+        ],
+        "speed_kn": 25,
+        "exit": [
+          {
+            "lat": 3.1,
+            "lon": 104.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "screen",
+      "name": "group.force_z.screen",
+      "side": "allies",
+      "formation": "screen",
+      "spacing": 2500,
+      "doctrine": "rn_1941_eastern",
+      "position": {
+        "lat": 3.88,
+        "lon": 104.445
+      },
+      "course": 160,
+      "speed_kn": 25,
+      "crew": "regular",
+      "readiness": 1.0,
+      "ships": [
+        {
+          "class": "rn_dd_e",
+          "name": "Electra"
+        },
+        {
+          "class": "rn_dd_e",
+          "name": "Express"
+        },
+        {
+          "class": "ran_dd_v",
+          "name": "Vampire"
+        }
+      ],
+      "mission": {
+        "type": "escort",
+        "escort": "forcez",
+        "escort_offset_m": 2500,
+        "speed_kn": 25
+      }
+    }
+  ],
+  "air_bases": [
+    {
+      "id": "saigon",
+      "name": "base.force_z.saigon",
+      "side": "axis",
+      "position": {
+        "lat": 10.8,
+        "lon": 106.7
+      },
+      "turnaround_s": 7200
+    },
+    {
+      "id": "sembawang",
+      "name": "base.force_z.sembawang",
+      "side": "allies",
+      "position": {
+        "lat": 1.42,
+        "lon": 103.83
+      },
+      "turnaround_s": 3600,
+      "launch_interval_s": 20
+    }
+  ],
+  "air_groups": [
+    {
+      "id": "search",
+      "name": "air.force_z.search",
+      "side": "axis",
+      "base": "saigon",
+      "aircraft": "ijn_g3m2",
+      "loadout": "recon",
+      "count": 1,
+      "crew": "veteran",
+      "airborne": {
+        "position": {
+          "lat": 4.2,
+          "lon": 104.62
+        },
+        "altitude_m": 1500,
+        "heading": 200
+      },
+      "order": {
+        "type": "patrol",
+        "route": [
+          {
+            "lat": 3.85,
+            "lon": 104.5
+          },
+          {
+            "lat": 3.5,
+            "lon": 104.6
+          }
+        ]
+      }
+    },
+    {
+      "id": "mihoro1",
+      "name": "air.force_z.mihoro1",
+      "side": "axis",
+      "base": "saigon",
+      "aircraft": "ijn_g3m2",
+      "loadout": "bomb250",
+      "count": 8,
+      "crew": "veteran",
+      "airborne": {
+        "position": {
+          "lat": 4.3,
+          "lon": 104.85
+        },
+        "altitude_m": 3000,
+        "heading": 215
+      },
+      "order": {
+        "type": "patrol",
+        "route": [
+          {
+            "lat": 3.75,
+            "lon": 104.5
+          }
+        ],
+        "strike": true
+      }
+    },
+    {
+      "id": "genzan1",
+      "name": "air.force_z.genzan1",
+      "side": "axis",
+      "base": "saigon",
+      "aircraft": "ijn_g3m2",
+      "loadout": "torpedo",
+      "count": 9,
+      "crew": "veteran",
+      "airborne": {
+        "position": {
+          "lat": 4.45,
+          "lon": 104.95
+        },
+        "altitude_m": 2000,
+        "heading": 210
+      },
+      "order": {
+        "type": "patrol",
+        "route": [
+          {
+            "lat": 3.65,
+            "lon": 104.55
+          }
+        ],
+        "strike": true
+      },
+      "appear_s": 900
+    },
+    {
+      "id": "genzan2",
+      "name": "air.force_z.genzan2",
+      "side": "axis",
+      "base": "saigon",
+      "aircraft": "ijn_g3m2",
+      "loadout": "torpedo",
+      "count": 8,
+      "crew": "veteran",
+      "airborne": {
+        "position": {
+          "lat": 4.5,
+          "lon": 104.9
+        },
+        "altitude_m": 2000,
+        "heading": 210
+      },
+      "order": {
+        "type": "patrol",
+        "route": [
+          {
+            "lat": 3.65,
+            "lon": 104.55
+          }
+        ],
+        "strike": true
+      },
+      "appear_s": 1020
+    },
+    {
+      "id": "kanoya1",
+      "name": "air.force_z.kanoya1",
+      "side": "axis",
+      "base": "saigon",
+      "aircraft": "ijn_g4m1",
+      "loadout": "torpedo",
+      "count": 9,
+      "crew": "elite",
+      "airborne": {
+        "position": {
+          "lat": 4.6,
+          "lon": 104.7
+        },
+        "altitude_m": 2500,
+        "heading": 190
+      },
+      "order": {
+        "type": "patrol",
+        "route": [
+          {
+            "lat": 3.55,
+            "lon": 104.5
+          }
+        ],
+        "strike": true
+      },
+      "appear_s": 3600
+    },
+    {
+      "id": "kanoya2",
+      "name": "air.force_z.kanoya2",
+      "side": "axis",
+      "base": "saigon",
+      "aircraft": "ijn_g4m1",
+      "loadout": "torpedo",
+      "count": 9,
+      "crew": "elite",
+      "airborne": {
+        "position": {
+          "lat": 4.62,
+          "lon": 104.8
+        },
+        "altitude_m": 2500,
+        "heading": 190
+      },
+      "order": {
+        "type": "patrol",
+        "route": [
+          {
+            "lat": 3.55,
+            "lon": 104.5
+          }
+        ],
+        "strike": true
+      },
+      "appear_s": 3660
+    },
+    {
+      "id": "kanoya3",
+      "name": "air.force_z.kanoya3",
+      "side": "axis",
+      "base": "saigon",
+      "aircraft": "ijn_g4m1",
+      "loadout": "torpedo",
+      "count": 8,
+      "crew": "elite",
+      "airborne": {
+        "position": {
+          "lat": 4.64,
+          "lon": 104.6
+        },
+        "altitude_m": 2500,
+        "heading": 190
+      },
+      "order": {
+        "type": "patrol",
+        "route": [
+          {
+            "lat": 3.55,
+            "lon": 104.5
+          }
+        ],
+        "strike": true
+      },
+      "appear_s": 3720
+    },
+    {
+      "id": "mihoro2",
+      "name": "air.force_z.mihoro2",
+      "side": "axis",
+      "base": "saigon",
+      "aircraft": "ijn_g3m2",
+      "loadout": "bomb500",
+      "count": 9,
+      "crew": "veteran",
+      "airborne": {
+        "position": {
+          "lat": 4.3,
+          "lon": 104.4
+        },
+        "altitude_m": 3000,
+        "heading": 180
+      },
+      "order": {
+        "type": "patrol",
+        "route": [
+          {
+            "lat": 3.55,
+            "lon": 104.48
+          }
+        ],
+        "strike": true
+      },
+      "appear_s": 5400
+    },
+    {
+      "id": "buffalo",
+      "name": "air.force_z.buffalo",
+      "side": "allies",
+      "base": "sembawang",
+      "aircraft": "raaf_buffalo",
+      "loadout": "guns",
+      "count": 11,
+      "crew": "green"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "capital",
+      "side": "axis",
+      "type": "destroy_group",
+      "group": "forcez",
+      "value": 0.5,
+      "points": 300
+    },
+    {
+      "id": "both",
+      "side": "axis",
+      "type": "destroy_group",
+      "group": "forcez",
+      "value": 1.0,
+      "points": 300
+    },
+    {
+      "id": "save",
+      "side": "allies",
+      "type": "protect_group",
+      "group": "forcez",
+      "value": 0.5,
+      "points": 400
+    },
+    {
+      "id": "all",
+      "side": "allies",
+      "type": "protect_group",
+      "group": "forcez",
+      "value": 1.0,
+      "points": 300
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "sim/AntiAir.h"
 #include "sim/Ballistics.h"
 #include "sim/Damage.h"
 #include "sim/FireControl.h"
@@ -84,6 +85,14 @@ void World::emit(Event e) {
             break;
         case EventType::ContactNew:
             break;
+        case EventType::AirContactNew:
+            // Air raid warning: the side's ships near the raid go to action stations.
+            for (auto& s : ships_)
+                if (s->side == e.side && distanceSq(s->pos, e.pos.xy()) < sqr(80000.0)) s->alert(time_);
+            break;
+        case EventType::AirAttack:
+            if (Ship* s = ship(e.b)) s->alert(time_);
+            break;
         case EventType::Collision: {
             double& last = lastCollision_[{std::min(e.a, e.b), std::max(e.a, e.b)}];
             if (last > 0 && time_ - last < 60.0) {
@@ -96,7 +105,8 @@ void World::emit(Event e) {
         default: break;
     }
     events_.push_back(e);
-    if (history_.size() < 200000 && e.type != EventType::ShellSplash && e.type != EventType::GunFired) history_.push_back(e);
+    if (history_.size() < 200000 && e.type != EventType::ShellSplash && e.type != EventType::GunFired && e.type != EventType::AaFire)
+        history_.push_back(e);
 }
 
 std::vector<Event> World::takeEvents() {
@@ -340,31 +350,6 @@ void World::setSearchlight(Ship& s, bool on, uint32_t track) {
     }
 }
 
-bool World::launchAircraft(Ship& s, AircraftMission::Kind kind, const Vec2& target) {
-    if (!s.operational() || s.floatplanes <= 0 || s.dmg.aviation < 0.4) return false;
-    s.floatplanes--;
-    AircraftMission a;
-    a.id = nextId();
-    a.kind = kind;
-    a.side = s.side;
-    a.parent = s.id;
-    a.pos = s.pos;
-    a.target = target;
-    a.heading = bearingTo(s.pos, target);
-    a.stateTime = 0;
-    a.flaresLeft = kind == AircraftMission::Kind::Flares ? 8 : 2;
-    aircraft_.push_back(a);
-    Event e;
-    e.type = EventType::Report;
-    e.time = time_;
-    e.a = s.id;
-    e.side = s.side;
-    e.text = kind == AircraftMission::Kind::Flares ? "report.aircraft_flares" : "report.aircraft_recon";
-    e.args = {s.name};
-    emit(e);
-    return true;
-}
-
 // ------------------------------------------------------------------------------------- stepping
 void World::step() {
     const double dt = kStep;
@@ -390,6 +375,20 @@ void World::step() {
     for (int si = 0; si < kSideCount; ++si) {
         ContactPicture& pic = pictures_[size_t(si)];
         for (const auto& c : pic.takeChanges()) {
+            if (c.air) {
+                if (const AirTrack* at = pic.findAir(c.track)) {
+                    Event e;
+                    e.type = EventType::AirContactNew;
+                    e.time = time_;
+                    e.side = Side(si);
+                    e.track = at->id;
+                    e.pos = {at->pos, std::max(0.0, at->altitude)};
+                    e.value = at->count;
+                    e.value2 = c.radar ? 1.0 : 0.0;
+                    emit(e);
+                }
+                continue;
+            }
             const Track* t = pic.find(c.track);
             if (!t) continue;
             Event e;
@@ -409,7 +408,11 @@ void World::step() {
     stepShells(dt);
     stepTorpedoes(dt);
     stepFlares(dt);
-    stepAircraft(dt);
+    air::step(*this, dt);
+    if (tick_ % 5 == 0)
+        for (auto& s : ships_) aa::step(*this, *s, dt * 5.0);
+    for (auto& s : ships_)
+        if (tick_ % 100 == uint64_t(s->id % 100)) sensors::airWatch(*this, *s, 5.0);
     for (auto& s : ships_) damage::update(*this, *s, dt);
     if (tick_ % 10 == 0) stepCollisions();
     if (tick_ % 20 == 0) {
@@ -417,6 +420,14 @@ void World::step() {
             for (uint32_t id : pictures_[size_t(si)].update(time_)) {
                 Event e;
                 e.type = EventType::ContactLost;
+                e.time = time_;
+                e.side = Side(si);
+                e.track = id;
+                emit(e);
+            }
+            for (uint32_t id : pictures_[size_t(si)].takeLostAir()) {
+                Event e;
+                e.type = EventType::AirContactLost;
                 e.time = time_;
                 e.side = Side(si);
                 e.track = id;
@@ -534,6 +545,8 @@ void World::stepShells(double dt) {
             if (damage::intersect(t, sh.prevPos, sh.pos, hit)) {
                 damage::shellHit(*this, t, sh, hit);
                 if (Ship* f = ship(sh.firer)) f->stats.hitsScored++;
+                else if (Aircraft* a = plane(sh.firer))
+                    if (Flight* fl = flight(a->flight)) fl->hits++;
                 if (sv) {
                     sv->hits++;
                     sv->landed++;
@@ -616,7 +629,7 @@ void World::stepTorpedoes(double dt) {
             t.heading = wrap360(t.baseHeading + std::sin(t.wanderPhase + t.run / 900.0) * t.wanderAmp);
         t.pos += bearingVector(t.heading) * (t.speed * dt);
         t.run += t.speed * dt;
-        bool armed = t.run > 250.0;
+        bool armed = t.run > t.def->armM;
         if (t.run >= t.maxRun) {
             t.alive = false;
         } else if (terrain_.heightAt(t.pos) > -2.0) {
@@ -654,6 +667,8 @@ void World::stepTorpedoes(double dt) {
                     emit(e);
                     damage::torpedoHit(*this, s, t, l);
                     if (Ship* f = ship(t.firer)) f->stats.torpedoHits++;
+                    else if (Aircraft* a = plane(t.firer))
+                        if (Flight* fl = flight(a->flight)) fl->hits++;
                 }
                 break;
             }
@@ -677,85 +692,6 @@ void World::stepFlares(double dt) {
         if (f.life > f.maxLife || f.pos.z < 5.0) f.alive = false;
     }
     flares_.erase(std::remove_if(flares_.begin(), flares_.end(), [](const Flare& f) { return !f.alive; }), flares_.end());
-}
-
-void World::stepAircraft(double dt) {
-    for (auto& a : aircraft_) {
-        a.stateTime += dt;
-        Ship* parent = ship(a.parent);
-        auto flyTo = [&](const Vec2& p) {
-            a.heading = bearingTo(a.pos, p);
-            a.pos += bearingVector(a.heading) * (a.speed * dt);
-            return distance(a.pos, p) < 1500.0;
-        };
-        switch (a.state) {
-            case AircraftMission::State::Launching:
-                if (parent) a.pos = parent->pos;
-                if (a.stateTime > 90.0) { a.state = AircraftMission::State::Outbound; a.stateTime = 0; }
-                break;
-            case AircraftMission::State::Outbound:
-                if (flyTo(a.target)) { a.state = AircraftMission::State::OnStation; a.stateTime = 0; a.nextFlare = 0; }
-                break;
-            case AircraftMission::State::OnStation: {
-                // Orbit the target area.
-                a.heading = wrap360(a.heading + 3.0 * dt);
-                a.pos = a.target + bearingVector(a.heading - 90.0) * 3000.0;
-                if (a.kind == AircraftMission::Kind::Flares && a.stateTime >= a.nextFlare && a.flaresLeft > 0) {
-                    Flare f;
-                    f.pos = {a.target + bearingVector(rng_.uniform(0, 360)) * rng_.uniform(0, 2500.0), a.altitude};
-                    f.intensity = 1.5;
-                    f.maxLife = 150.0;
-                    f.fallRate = 4.0;
-                    f.side = a.side;
-                    f.aircraft = true;
-                    addFlare(f);
-                    a.flaresLeft--;
-                    a.nextFlare = a.stateTime + 75.0;
-                    Event e;
-                    e.type = EventType::FlareDropped;
-                    e.time = time_;
-                    e.a = a.parent;
-                    e.side = a.side;
-                    e.pos = f.pos;
-                    emit(e);
-                }
-                if (a.stateTime >= a.nextScan) {
-                    a.nextScan = a.stateTime + 20.0;
-                    // Aircraft observers spot wakes and ships under the flares.
-                    for (auto& sp : ships_) {
-                        Ship& s = *sp;
-                        if (!s.operational() || s.side == a.side) continue;
-                        double d = distance(s.pos, a.pos);
-                        double light = illuminationOn(s);
-                        double range = 4000.0 + 20000.0 * std::pow(clamp(light, 0.0, 1.0), 0.6);
-                        if (d > range || !rng_.chance(0.6)) continue;
-                        Measurement m;
-                        m.observer = kNoEntity;
-                        m.truth = s.id;
-                        m.sense = kSenseAircraft;
-                        m.pos = s.pos + Vec2{rng_.normal() * 900.0, rng_.normal() * 900.0};
-                        m.sigma = 1200.0;
-                        m.level = d < range * 0.4 ? ClassLevel::TypeKnown : ClassLevel::SizeKnown;
-                        m.size = s.cls->size();
-                        m.typeGuess = rng_.chance(0.3) ? (s.cls->type == ShipType::DD ? ShipType::CL : ShipType::BB) : s.cls->type;
-                        m.hasVelocity = true;
-                        m.velocity = s.velocity() + Vec2{rng_.normal() * 2.0, rng_.normal() * 2.0};
-                        m.velSigma = 4.0;
-                        picture(a.side).report(m, time_);
-                    }
-                }
-                if ((a.kind == AircraftMission::Kind::Flares && a.flaresLeft <= 0) || a.stateTime > a.endurance)
-                    a.state = AircraftMission::State::Returning;
-                break;
-            }
-            case AircraftMission::State::Returning:
-                if (!parent || flyTo(parent->pos)) a.state = AircraftMission::State::Done;
-                break;
-            case AircraftMission::State::Done: break;
-        }
-    }
-    aircraft_.erase(std::remove_if(aircraft_.begin(), aircraft_.end(), [](const AircraftMission& a) { return a.state == AircraftMission::State::Done; }),
-                    aircraft_.end());
 }
 
 void World::stepCollisions() {

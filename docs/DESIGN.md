@@ -73,7 +73,37 @@ MinGW). Die Oberfläche spricht Renderer, Audio und Fenster nur über die Schnit
   Besatzung. Die Strukturfestigkeit je Klasse (`hull_strength`) bestimmt, wie viel Sprengwirkung
   der Rumpf aufnimmt; nicht durchschlagene schwere Panzerung lässt fast nichts durch.
 - **Torpedos**: Laufstufen (Geschwindigkeit/Reichweite), Tiefenlauf, Versager, Fächer;
-  Ausweichen durch Kämmen der Laufbahnen.
+  Ausweichen durch Kämmen der Laufbahnen. Lufttorpedos tauchen zu schnell oder zu hoch
+  abgeworfen tief weg, laufen unregelmäßig oder brechen auseinander.
+- **Großkampfschiffe unter Torpedotreffern**: Über 20.000 t wächst der Wassereinbruch je Treffer
+  mit der Größe der Abteilungen und streut je nach Trefferort; die zum Meer offenen Räume
+  (`holed`) können die Pumpen nicht lenzen. Gegenfluten richtet das Schiff auf, kostet aber
+  Auftrieb; liegt es tief (über ein Drittel der Reserveverdrängung), dringt das Wasser über
+  Schotte, Lüfter und Wellentunnel weiter vor – ohne Strom verlieren die Leckwehrtrupps diesen
+  Kampf. Kalibriert an Force Z: Repulse sinkt nach drei Treffern in etwa der Hälfte der Fälle,
+  nach vier sicher; Prince of Wales (King George V) nach sechs meist, nach fünf selten.
+- **Luftstreitkräfte** (`Air.cpp`): Ein *Verband* (`Flight`) ist die befehligte Einheit, er
+  besteht aus einzelnen *Flugzeugen* (`Aircraft`), die in Formation fliegen, ihre Angriffe selbst
+  fliegen, einzeln getroffen und einzeln gezeichnet werden. Verbände starten von *Basen*
+  (Flugplätze, auch weit außerhalb der Karte, und Katapultschiffe) und folgen einer
+  Zustandsmaschine (startbereit → Start → Anflug → Suche/Station/Abfangen/Angriff → Sammeln →
+  Rückflug → Aufmunitionieren). Befehle: Suchflug (bewaffnet: greift an, was er findet), Angriff
+  auf einen Kontakt, Jagdschutz über Punkt oder Verband, Begleitschutz, Leuchtbomben,
+  Fühlunghalten mit Schussbeobachtung, Rückflug; Startzeit und Flughöhe sind wählbar. Angriffsart
+  nach Zuladung: Torpedo im Zangenangriff mit Prüfung des Anlaufwinkels, Horizontalwurf mit
+  Bombenzielgerät (Fallzeit und Wurfweite), Sturzangriff; Jäger greifen in Anflügen mit
+  Feuerstößen und Abschwung an, Bomber schießen gemeinsam zurück. Treibstoff begrenzt die
+  Einsatzzeit; Verbände melden Sichtungen, Angriffe, Treibstoffmangel und Verluste.
+- **Flugabwehr** (`AntiAir.cpp`): leichte Flak aus den Modellteilen (`aa.json`: Kadenz,
+  Reichweite, Schuss je Abschuss) und Mehrzweckgeschütze mit Flakfeuerleitung; Trefferchance je
+  Schuss aus Zielgeschwindigkeit, Kurs, Entfernung, Höhe, Licht, eigener Bewegung und
+  nationaler Feuerleitung, Poisson-verteilt je Feuerstoß. Mehrzweckgeschütze bleiben bei
+  Seezielen und schießen nur auf angreifende Flugzeuge; nachts halten sie gegen Fühlunghalter
+  und Leuchtbombenträger das Feuer (das Mündungsfeuer verriete das Schiff).
+- **Luftlage**: Luftsuchradar (Reichweite nach Radarhorizont und Größe des Verbands) und
+  Ausguck (Licht, Wolkenuntergrenze) melden Luftkontakte (`AirTrack`: Anzahl, Rolle, Höhe,
+  greift an); Flugzeuge entdecken Schiffe (Sicht, ASV-Radar). Ein Luftkontakt alarmiert die
+  Schiffe in der Nähe.
 
 ## Gegner-KI (`src/ai`)
 
@@ -102,6 +132,13 @@ Alternativen und Überlegungen landet im **Entscheidungsprotokoll** und ist im K
    Entfernung schießt ein Verband nur, wenn er selbst Treffer erhält, nicht schon, weil der
    Gegner irgendwo feuert.
 
+**Luftkrieg der KI**: Der Luftbefehlshaber verteilt bewaffnete Verbände auf die wertvollsten
+bekannten Schiffskontakte in Reichweite (Großkampfschiffe zuerst, Angriffe gestreut), setzt
+suchende Verbände auf gemeldete Ziele an, lässt Aufklärer Fühlung halten und schickt Jäger als
+Jagdschutz über bedrohte Verbände – unter Funkstille (Doktrin `air_cover_delay_s`, Force Z) erst
+nach dem ersten Angriff. Verbände unter Luftbedrohung laufen äußerste Kraft (nicht im
+Seegefecht), Kommandanten drehen gegen anlaufende Torpedoflugzeuge.
+
 **Fairness**: Die KI liest ausschließlich ihr Lagebild (`SideView`), nie die Wahrheit. Das
 Schwierigkeitsniveau ändert Reaktionszeit und Taktikqualität, nie die Informationslage.
 **Doktrinen** (`data/doctrine/*.json`) legen Aggressivität, Vorsicht, Nachtvorliebe, bevorzugte
@@ -111,9 +148,14 @@ Scheinwerfer, Bordflugzeuge), Feuerdisziplin, Rückzug vor Tagesanbruch und Füh
 ## Spielsitzung (`src/game`)
 
 `Session` verbindet Szenario, Welt und beide KIs: Verbände erscheinen zeitgesteuert, Spieler-
-befehle (Kurs, Fahrt, Formation, Ziel, Feuererlaubnis, Torpedos, Scheinwerfer, Leuchtgranaten,
-Bordflugzeuge) werden geprüft und als Quittung (`OrderAcknowledged`) gemeldet. Auf der
-Spielerseite laufen nur Kommandanten-Automatismen (Ausweichen, Stationshalten). Das Ende ergibt
+befehle (Kurs, Fahrt, Formation, Wegpunkt-Routen für Verband oder Einzelschiff, Ziel,
+Feuererlaubnis, Torpedos, Scheinwerfer, Leuchtgranaten, Bordflugzeuge, Befehle an Luftverbände)
+werden geprüft und als Quittung (`OrderAcknowledged`) gemeldet. Auf der Spielerseite laufen nur
+Kommandanten-Automatismen (Ausweichen, Stationshalten) – es sei denn, der Spieler übergibt einen
+Verband an die KI-Führung (`delegateGroup`) oder einen Luftverband an den KI-Luftbefehlshaber
+(`commandFlight`); er kann beides jederzeit zurücknehmen. Routen steuert die Sitzung: Der
+Leitschiffkurs zeigt auf den nächsten Wegpunkt, erreichte Punkte fallen weg, am Ende kommt eine
+Meldung. Das Ende ergibt
 sich aus Zeitlimit, Vernichtung oder Lösen vom Gegner; die Wertung aus versenkter und verlorener
 Tonnage plus Szenarioziele (Tonnage, Verband vernichten oder schützen, Verband erhalten,
 Gebiet erreichen, überleben).
@@ -123,9 +165,10 @@ Gebiet erreichen, überleben).
 | Pfad | Inhalt |
 |---|---|
 | `db/ships/*.json` | Schiffsklassen: Abmessungen, Verdrängung, Antrieb, Panzerung, Geschütz- und Torpedoaufstellungen mit Bestreichungswinkeln, Richtungsgeber, Sensoren, Scheinwerfer, Bordflugzeuge, Modellparameter, Schiffsnamen (Klassengeschichte in den Sprachdateien) |
-| `db/guns.json`, `torpedoes.json`, `sensors.json`, `nations.json` | Geschütze (Ballistik, Granaten, Kadenz), Torpedos (Laufstufen, Kielwasser, Versager), Sensoren, Nationen |
+| `db/guns.json`, `torpedoes.json`, `sensors.json`, `nations.json` | Geschütze (Ballistik, Granaten, Kadenz, Flakwerte der Mehrzweckgeschütze), Torpedos (Laufstufen, Kielwasser, Versager, Abwurfgrenzen der Lufttorpedos), Sensoren (auch Luftsuchreichweite), Nationen |
+| `db/aircraft.json`, `bombs.json`, `aa.json` | Flugzeugtypen (Leistung, Robustheit, Bewaffnung, Zuladungen, Modellparameter), Bomben, leichte Flak |
 | `doctrine/*.json` | KI-Doktrinen |
-| `scenarios/*.json` | Missionen: Zeit, Ort, Wetter, Verbände mit Auftrag, Doktrin, Besatzungsgüte, Bereitschaft, Ziele; je Schiff Sensor-Umrüstungen und Vorschäden (Antrieb, Strom, Wassereinbruch – z. B. die gestoppte Pola bei Matapan) |
+| `scenarios/*.json` | Missionen: Zeit, Ort, Wetter, Verbände mit Auftrag, Doktrin, Besatzungsgüte, Bereitschaft, Ziele; je Schiff Sensor-Umrüstungen und Vorschäden (Antrieb, Strom, Wassereinbruch – z. B. die gestoppte Pola bei Matapan); Flugplätze und Luftverbände (Basis, Typ, Zuladung, Anzahl, Startzeit oder schon in der Luft, Befehl) |
 | `terrain/` | Höhenmodell (Int16, 100 m) mit Georeferenz |
 | `shaders/` | HLSL (SM 5.1), zur Laufzeit kompiliert und zwischengespeichert |
 | `loc/` | Sprachdateien, erzeugt aus `tools/loc/*.py` |
@@ -141,11 +184,14 @@ SRV-Tabellen, eine UAV-Tabelle, statische Sampler). Pro Bild:
    Determinante) per Compute-Shader
 3. HDR-Szene mit MSAA: Himmel mit Sonne, Mond und Sternen, Gelände, Ozean (radiales Gitter bis
    60 km), Schiffe (artikulierte Türme, Rohre, Torpedosätze, Scheinwerfer, Radar; Seegangs-
-   bewegung, Sinken), Partikel (Rauch, Feuer, Wassersäulen, Glut, Funken, Lichtkegel)
+   bewegung, Sinken), Flugzeuge (Luftschrauben, Zuladung, Querlage, Rauchfahne, Absturz,
+   Wrack), Partikel (Rauch, Feuer, Wassersäulen, Glut, Funken, Lichtkegel, Leuchtspur,
+   Flakwolken, Regen und Schnee um die Kamera, Regenvorhänge unter den Böen)
 4. Tiefenauflösung, Augenadaption (Luminanz-Compute), Bloom, ACES-Tonemapping, Filmkorn
 
-Schiffsmodelle entstehen prozedural aus den Klassendaten (`src/procgen`); glTF-Modelle können sie
-je Klasse ersetzen (siehe [CREDITS.md](../CREDITS.md)). Der Generator ist in Module geteilt:
+Schiffs- und Flugzeugmodelle (`AircraftModel.cpp`: Ein- und Doppeldecker, Schwimmer, Flugboote,
+ein bis vier Motoren, Tarnanstrich und Hoheitszeichen je Nation) entstehen prozedural aus den
+Daten (`src/procgen`); glTF-Modelle können Schiffe je Klasse ersetzen (siehe [CREDITS.md](../CREDITS.md)). Der Generator ist in Module geteilt:
 
 | Datei | Inhalt |
 |---|---|
@@ -167,18 +213,23 @@ Meters auf dem Bildschirm gewählt wird.
 ## Oberfläche (`src/ui`)
 
 Dear ImGui mit eigenem Thema (Barlow, IBM Plex Mono). Bildschirme: Hauptmenü mit laufender
-Hintergrundszene, Missionen, Briefing, Gefecht (3D, Plot, geteilt; Gliederung, Schiffspanel mit
-Ruder/Waffen/Schäden/Sensoren, Kontaktliste, Meldungen, Minikarte, KI-Einblick), Nachbesprechung
-mit Gefechtsplot, Einheitenhandbuch, Szenario-Editor, Einstellungen, Credits. Alle Texte laufen
+Hintergrundszene, Missionen, Briefing, Gefecht (3D, Plot, geteilt; Gliederung mit Luftverbänden,
+Schiffspanel mit Ruder/Wegpunkten/Waffen/Schäden/Sensoren oder Befehlspanel des gewählten
+Luftverbands (`UiAir.cpp`), Kontaktliste mit Luftkontakten, anklickbare Meldungen, Alarmbanner,
+Minikarte, KI-Einblick), Nachbesprechung mit Gefechtsplot, Einheitenhandbuch (Schiffe und
+Flugzeuge), Szenario-Editor, Einstellungen, Credits. Der Plot zeigt eigene Luftverbände mit ihren
+Befehlslinien, das Luftlagebild der Seite und die Flugplätze; Befehle an Schiffe und Luftverbände
+gibt es per Rechtsklick, Punktbefehle (Suchgebiet, Jagdschutzraum, Route) per Klick. Alle Texte laufen
 über Lokalisierungsschlüssel; ein Test prüft, dass jeder im Code benutzte Schlüssel in beiden
 Sprachen existiert.
 
 ## Bekannte Grenzen
 
-- Schauplätze bisher: Pazifik 1942 (Ironbottom Sound), Mittelmeer 1941 (Matapan) und Nordmeer
-  1943 (Nordkap). Atlantik, Kanal und Biskaya sind vorgesehen.
-- Keine U-Boote, Flugzeugträger und Landziele im Spiel; Bordflugzeuge nur als Aufklärer und
-  Leuchtbombenträger.
+- Schauplätze bisher: Pazifik 1942 (Ironbottom Sound), Südchinesisches Meer 1941 (Force Z),
+  Mittelmeer 1941 (Matapan) und Nordmeer 1943 (Nordkap). Atlantik, Kanal und Biskaya sind
+  vorgesehen.
+- Keine U-Boote, Flugzeugträger und Landziele im Spiel; Flugzeuge starten von Flugplätzen und
+  Katapulten.
 - KI-gegen-KI-Gefechte verlaufen oft verlustreicher als die historischen Vorbilder; die
   Abstimmung von Nachtgefechtstreffsicherheit und Rückzugsentscheidungen ist laufende Arbeit
   (Werkzeug: `irontide_headless --events`).

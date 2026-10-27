@@ -44,6 +44,7 @@ struct Doctrine {
     double columnSpacing = 900;
     // Strategic
     double withdrawBeforeDawnMinutes = 0; // > 0: retire so as to be out of air range at dawn
+    double airCoverDelay = 0;             // s after the first air attack before the force breaks radio silence to call fighters
     double forceRatioEngage = 0.8;        // estimated own/enemy power needed to engage
     double forceRatioWithdraw = 0.4;      // below this, break off
     std::map<sim::ShipType, double> targetPriority;

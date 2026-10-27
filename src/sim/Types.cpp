@@ -153,4 +153,36 @@ Formation formationFromString(const std::string& str) {
     return Formation::Column;
 }
 
+AirRole airRoleFromString(const std::string& str) {
+    std::string s = lower(str);
+    if (s == "fighter") return AirRole::Fighter;
+    if (s == "torpedo") return AirRole::Torpedo;
+    if (s == "dive") return AirRole::Dive;
+    if (s == "level") return AirRole::Level;
+    if (s == "patrol") return AirRole::Patrol;
+    return AirRole::Recon;
+}
+
+const char* airRoleId(AirRole r) {
+    switch (r) {
+        case AirRole::Fighter: return "fighter";
+        case AirRole::Torpedo: return "torpedo";
+        case AirRole::Dive: return "dive";
+        case AirRole::Level: return "level";
+        case AirRole::Patrol: return "patrol";
+        default: return "recon";
+    }
+}
+
+const char* airRoleKey(AirRole r) {
+    switch (r) {
+        case AirRole::Fighter: return "air.role.fighter";
+        case AirRole::Torpedo: return "air.role.torpedo";
+        case AirRole::Dive: return "air.role.dive";
+        case AirRole::Level: return "air.role.level";
+        case AirRole::Patrol: return "air.role.patrol";
+        default: return "air.role.recon";
+    }
+}
+
 }  // namespace it::sim

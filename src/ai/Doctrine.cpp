@@ -41,6 +41,7 @@ Doctrine parseDoctrine(const Json& j) {
     d.formation = sim::formationFromString(jstr(j, "formation", "column"));
     d.columnSpacing = jnum(j, "column_spacing_m", d.columnSpacing);
     d.withdrawBeforeDawnMinutes = jnum(j, "withdraw_before_dawn_min", d.withdrawBeforeDawnMinutes);
+    d.airCoverDelay = jnum(j, "air_cover_delay_s", d.airCoverDelay);
     d.forceRatioEngage = jnum(j, "force_ratio_engage", d.forceRatioEngage);
     d.forceRatioWithdraw = jnum(j, "force_ratio_withdraw", d.forceRatioWithdraw);
     const Json& tp = jobj(j, "target_priority");

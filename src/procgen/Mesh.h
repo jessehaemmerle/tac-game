@@ -48,6 +48,7 @@ enum class PartKind : uint8_t {
     Rudder,        // turns about a vertical axis
     SearchlightLamp,  // the lamp barrel: elevates, child of its searchlight
     Shell,         // shell or cartridge in a loading tray (close-ups only)
+    Ordnance,      // an aircraft's torpedo (`sub` 0) or bombs (`sub` 1): hidden once dropped
 };
 
 struct MeshPart {

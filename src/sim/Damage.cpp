@@ -331,11 +331,21 @@ void torpedoHit(World& w, Ship& s, const Torpedo& t, const Vec2& local) {
     const auto& c = *s.cls;
     double kg = t.def->warheadKg;
     double prot = c.armor.torpedoProtection;
-    double flood = kg * 4.2 * (1.0 - prot);
+    // Big ships have big compartments: a torpedo hole in a battleship lets in far more water than one in
+    // a cruiser (Prince of Wales took some 2,400 t and an 11-degree list from her first hit). The water lies
+    // on the side of the hit; counter-flooding needs pumps, and pumps need power.
+    // Capital ships only: below some 20,000 t the earlier calibration against the night actions holds.
+    double capital = smoothstep(20000.0, 32000.0, s.displacement());
+    double size = lerp(1.0, clamp(std::pow(s.displacement() / 8000.0, 0.6), 1.0, 3.0), capital);
+    double flood = kg * 4.2 * (1.0 - prot) * size;
+    if (capital > 0.0) flood *= lerp(1.0, w.rng().uniform(0.55, 1.45), capital);  // a bulkhead, a bulge, a magazine flat
     s.dmg.flooding += flood;
-    s.dmg.floodRate += kg * 0.004 * (1.0 - prot);
+    s.dmg.holed += flood * capital;  // the compartments open to the sea stay flooded
+    s.dmg.floodRate += kg * 0.004 * (1.0 - prot) * size;
     s.dmg.hullIntegrity -= kg / (std::pow(s.displacement(), 0.85) * 0.9 * std::sqrt(std::max(0.3, c.hullStrength))) * (1.0 - 0.5 * prot);
-    s.dmg.list += (local.y >= 0 ? 1.0 : -1.0) * flood / s.displacement() * 25.0;
+    // Water amidships lies in the wing compartments and heels the ship; at the ends it trims her instead.
+    double mid = 1.0 - std::min(1.0, std::fabs(fOf(s, local.x) - 0.5) * 2.0);
+    s.dmg.list += (local.y >= 0 ? 1.0 : -1.0) * std::min(18.0, flood / s.displacement() * lerp(25.0, 150.0 * (0.25 + 0.75 * mid), capital));
     s.dmg.crewLoss = std::min(1.0, s.dmg.crewLoss + kg / (c.crew * 0.6) * 0.03);
     s.dmg.torpedoHitsTaken++;
     if (s.displacement() < 3500 && kg > 200 && w.rng().chance(0.6)) s.dmg.brokenBack = true;
@@ -346,6 +356,12 @@ void torpedoHit(World& w, Ship& s, const Torpedo& t, const Vec2& local) {
         double share = machineryShare(c) * (1.0 - 0.5 * prot);  // the side protection system absorbs much of it
         systemHit(w, s, s.dmg.propulsion, 0.5 * share, "system.propulsion");
         systemHit(w, s, s.dmg.power, 0.45 * share, "system.power");
+    }
+    if (f > 0.65 && f <= 0.85 && c.shafts >= 2 && capital > 0.0) {
+        // Abaft the machinery the shafts run through the hull: a hit there tears open shaft tunnels and
+        // glands and floods along them (Prince of Wales' outer port shaft), and stops that shaft.
+        s.dmg.floodRate += kg * 0.006 * (1.0 - prot) * size * capital;
+        systemHit(w, s, s.dmg.propulsion, 0.35 * machineryShare(c) * capital, "system.propulsion");
     }
     if (f > 0.85) systemHit(w, s, s.dmg.steering, 0.8, "system.steering");
     if (w.rng().chance(0.3)) startFire(w, s, f, 0.4);
@@ -394,10 +410,27 @@ void update(World& w, Ship& s, double dt) {
     double dc = crewRate(s) * (d.sinking ? 0.0 : 1.0);
 
     // Flooding: inflow, damage-control shoring and pumps.
+    double capital = smoothstep(20000.0, 32000.0, s.displacement());
+    double pumps = lerp(1.0, 0.3 + 0.7 * clamp(d.power, 0.0, 1.0), capital);
     d.flooding += d.floodRate * dt;
-    d.floodRate *= std::exp(-dt * 0.004 * dc);
-    d.flooding = std::max(0.0, d.flooding - s.displacement() * 0.000015 * dc * dt);
-    d.list *= std::exp(-dt * 0.0015 * dc);  // counter-flooding
+    d.floodRate *= std::exp(-dt * 0.004 * dc * pumps);
+    d.holed = std::min(d.holed, d.flooding);
+    d.flooding = std::max(d.holed, d.flooding - s.displacement() * 0.000015 * dc * pumps * dt);
+    // Counter-flooding rights the ship; in a capital ship it does so by letting water into the
+    // compartments opposite (Prince of Wales flooded hers until she lay low and level).
+    double listBefore = d.list;
+    d.list *= std::exp(-dt * 0.0015 * dc * pumps);
+    if (capital > 0.0) {
+        double counter = std::fabs(listBefore - d.list) * s.displacement() / 200.0 * capital;
+        d.flooding += counter;
+        d.holed += counter;
+        // Low in the water, a big ship floods progressively through sprung bulkheads, ventilation
+        // trunks and shaft passages; without power the damage-control parties lose that fight.
+        double low = clamp((d.flooding / std::max(1.0, s.displacement() * c.reserveBuoyancy) - 0.33) / 0.67, 0.0, 1.0);
+        double creep = capital * 0.0012 * d.holed * low * (1.2 - 0.8 * dc * pumps) * dt;
+        d.flooding += creep;
+        d.holed += creep;
+    }
 
     // Fires grow when not fought, spread, and damage nearby systems. Index-based: spreading fires and
     // secondary damage may append to d.fires while we iterate.
@@ -478,7 +511,12 @@ void update(World& w, Ship& s, double dt) {
         else if (d.brokenBack) { cause = "report.sunk_broken"; rate = 1.0 / 80.0; }
         else if (d.hullIntegrity <= 0.0) { cause = "report.sunk_structural"; rate = 1.0 / 150.0; }
         else if (d.flooding >= reserve) { cause = "report.sunk_flooding"; rate = 1.0 / 240.0; }
-        else if (std::fabs(d.list) > 30.0) { cause = "report.capsized"; rate = 1.0 / 60.0; d.capsized = true; }
+        // A ship low in the water has lost much of her stability: she capsizes at a smaller list (Repulse).
+        else if (std::fabs(d.list) > 30.0 * (1.0 - 0.7 * capital * clamp(d.flooding / std::max(1.0, reserve), 0.0, 1.0))) {
+            cause = "report.capsized";
+            rate = 1.0 / 60.0;
+            d.capsized = true;
+        }
         if (cause) {
             d.sinking = true;
             d.sinkRate = rate;

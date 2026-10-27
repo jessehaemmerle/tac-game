@@ -63,6 +63,7 @@ Options parseOptions(const std::vector<std::string>& args) {
     a.side = argValue(args, "--side", a.side);
     a.unitClass = argValue(args, "--class");
     a.focus = argValue(args, "--focus");
+    a.flight = argValue(args, "--flight");
     a.advance = std::atof(argValue(args, "--advance", "0").c_str());
     a.frames = std::atoi(argValue(args, "--frames", "30").c_str());
     a.camYaw = std::atof(argValue(args, "--yaw", "-1").c_str());

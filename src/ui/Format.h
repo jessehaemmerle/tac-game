@@ -16,6 +16,8 @@ std::string fmtTonnes(double t);
 std::string fmtKnots(double kn);
 std::string fmtPercent(double fraction);
 std::string fmtInt(long long v);
+/// A name that may be a localisation key (scenario groups, flights, bases) or a literal (ship names).
+std::string locName(const std::string& keyOrLiteral);
 /// Localised names for enums.
 const char* sideName(sim::Side s);
 const char* nationName(sim::Nation n);

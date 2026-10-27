@@ -38,7 +38,7 @@ struct GpuParticle {
 };
 static_assert(sizeof(GpuParticle) == 64, "particle layout");
 
-enum ParticleType { kSmoke = 0, kFire = 1, kColumn = 2, kGlow = 3, kSpark = 4, kBeam = 5 };
+enum ParticleType { kSmoke = 0, kFire = 1, kColumn = 2, kGlow = 3, kSpark = 4, kBeam = 5, kTracer = 6, kRain = 7, kSnow = 8, kCurtain = 9 };
 
 struct Particle {
     Vec3 pos, vel;
@@ -49,6 +49,14 @@ struct Particle {
     int type = kSmoke;
     float seed = 0, emissive = 0, stretch = 1;
     float drag = 0.5f, buoyancy = 0;
+};
+
+/// A heavy AA shell on its way: it bursts at `pos` when the visual clock reaches `at`.
+struct FlakBurst {
+    Vec3 pos;
+    double at = 0;
+    float size = 6;
+    bool night = false;
 };
 
 struct FlashLight {
@@ -146,6 +154,7 @@ struct Renderer::Impl {
     std::unordered_map<sim::EntityId, WakeTrail> trails;
     std::unordered_map<uint32_t, WakeTrail> torpedoTrails;
     std::vector<FoamStamp> foam;
+    std::vector<FlakBurst> flak;
     double smokeAccum = 0;
     std::vector<GpuLight> lights;
     std::unordered_map<sim::EntityId, ShipAnim> anims;
@@ -207,7 +216,16 @@ void buildOceanSpectrum(Renderer::Impl& p, GpuDevice& dev, double seaState, Vec2
 void dispatchOcean(Renderer::Impl& p, GpuDevice& dev, double time);
 void drawOcean(Renderer::Impl& p, GpuDevice& dev);
 void buildTerrain(Renderer::Impl& p, GpuDevice& dev, const sim::Terrain& t, GpuResource& chart);
+// Model-space rotations (deg) and a rotation about a part's pivot.
+inline Mat4f rotZ(float deg) { return Mat4f::rotation(Quatf::axisAngle({0, 0, 1}, float(deg * kDegToRad))); }
+inline Mat4f rotY(float deg) { return Mat4f::rotation(Quatf::axisAngle({0, 1, 0}, float(deg * kDegToRad))); }
+inline Mat4f rotX(float deg) { return Mat4f::rotation(Quatf::axisAngle({1, 0, 0}, float(deg * kDegToRad))); }
+inline Mat4f aboutPivot(const Vec3f& pivot, const Mat4f& r) { return Mat4f::translation(pivot) * r * Mat4f::translation(-pivot); }
+
 const GpuMesh* shipMeshFor(Renderer::Impl& p, GpuDevice& dev, const sim::ShipClassDef& c);
+const GpuMesh* aircraftMeshFor(Renderer::Impl& p, GpuDevice& dev, const sim::AircraftDef& a);
+/// Sphere vs. view frustum (camera-relative centre).
+bool sphereVisible(const Mat4f& viewProj, const Vec3f& c, float r);
 /// Load the ship material texture arrays (missing files leave the shader on flat paint).
 bool loadShipTextures(Renderer::Impl& p, GpuDevice& dev);
 /// Bind the ship material textures to the per-pass table (t16, t17).
@@ -230,7 +248,7 @@ std::vector<Muzzle> muzzles(const GpuMesh& mesh, const ShipPose& pose, int mount
 /// Record weapon events (salvos) and torpedo launches for the animations.
 void recordShipEvents(Renderer::Impl& p, const sim::World& w, const std::vector<sim::Event>& events);
 void updateShipAnims(Renderer::Impl& p, const sim::World& w);
-/// Floatplanes in the air (aircraft missions), drawn with their parent class's model.
+/// Aircraft in the air (and fresh wrecks on the water), each with its own procedural model.
 void drawFlyingAircraft(Renderer::Impl& p, GpuDevice& dev, const sim::World& w, const Camera& cam, double visualTime);
 Mat4f shipWorldMatrix(const sim::Ship& s, const Vec3& camPos, double visualTime, double seaState);
 /// Ship model space (x fwd, y stbd, z up) to render space at heading 0 (x east, y up, z north), as a matrix.

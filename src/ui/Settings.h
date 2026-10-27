@@ -27,6 +27,7 @@ struct Settings {
     bool autoEvade = true;        // own ships comb sighted torpedo tracks on their own
     bool revealEnemyAi = false;   // show enemy AI decisions during the battle (spoiler)
     bool pauseOnContact = false;  // pause when a new enemy contact is reported
+    bool slowOnAlert = true;      // drop time compression to 1x on air raids, torpedo sightings and new contacts
 
     bool load(const std::string& path);
     bool save(const std::string& path) const;

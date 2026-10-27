@@ -1,0 +1,26 @@
+// Light anti-aircraft weapons, keyed by the "aa" model part styles of the ship classes.
+// kill_rounds: rounds per aircraft destroyed at reference conditions (daylight, crossing target well
+// inside range_m, regular crew); range_m: effective slant range; ceiling_m: effective altitude.
+// Sources: navweaps.com (WNUS_20mm, WNUS_11in, WNUS_40mm, WNBR_2pdr, WNJAP_25mm, WNIT_37mm, WNGER_37mm,
+// WNGER_2cm), US Navy "Antiaircraft Action Summary" (COMINCH 1945) for rounds per bird.
+[
+  { "id": "usn_20mm", "name": "20 mm/70 Oerlikon", "nation": "usn", "caliber_mm": 20, "barrels": 1, "rof_rpm": 300, "range_m": 1400, "ceiling_m": 1500, "kill_rounds": 4500 },
+  { "id": "usn_28mm_4", "name": "1.1\"/75 quadruple", "nation": "usn", "caliber_mm": 28, "barrels": 4, "rof_rpm": 100, "range_m": 2200, "ceiling_m": 2500, "kill_rounds": 3000 },
+  { "id": "usn_40mm_2", "name": "40 mm/56 Bofors twin", "nation": "usn", "caliber_mm": 40, "barrels": 2, "rof_rpm": 140, "range_m": 3000, "ceiling_m": 3500, "kill_rounds": 2000 },
+  { "id": "usn_40mm_4", "name": "40 mm/56 Bofors quadruple", "nation": "usn", "caliber_mm": 40, "barrels": 4, "rof_rpm": 140, "range_m": 3000, "ceiling_m": 3500, "kill_rounds": 2000 },
+  { "id": "usn_50cal", "name": ".50 cal M2 machine gun", "nation": "usn", "caliber_mm": 12.7, "barrels": 1, "rof_rpm": 400, "range_m": 900, "ceiling_m": 900, "kill_rounds": 12000 },
+  { "id": "ijn_25mm_2", "name": "25 mm/60 Type 96 twin", "nation": "ijn", "caliber_mm": 25, "barrels": 2, "rof_rpm": 120, "range_m": 1800, "ceiling_m": 2000, "kill_rounds": 4500 },
+  { "id": "ijn_25mm_3", "name": "25 mm/60 Type 96 triple", "nation": "ijn", "caliber_mm": 25, "barrels": 3, "rof_rpm": 120, "range_m": 1800, "ceiling_m": 2000, "kill_rounds": 4500 },
+  { "id": "ijn_13mm_2", "name": "13.2 mm Type 93 twin", "nation": "ijn", "caliber_mm": 13.2, "barrels": 2, "rof_rpm": 250, "range_m": 1000, "ceiling_m": 1000, "kill_rounds": 10000 },
+  { "id": "rn_pompom_8", "name": "QF 2-pdr Mk VIII octuple (pom-pom)", "nation": "rn", "caliber_mm": 40, "barrels": 8, "rof_rpm": 96, "range_m": 1600, "ceiling_m": 1800, "kill_rounds": 6500 },
+  { "id": "rn_pompom_4", "name": "QF 2-pdr Mk VIII quadruple (pom-pom)", "nation": "rn", "caliber_mm": 40, "barrels": 4, "rof_rpm": 96, "range_m": 1600, "ceiling_m": 1800, "kill_rounds": 6500 },
+  { "id": "rn_pompom_1", "name": "QF 2-pdr Mk II (pom-pom)", "nation": "rn", "caliber_mm": 40, "barrels": 1, "rof_rpm": 90, "range_m": 1500, "ceiling_m": 1800, "kill_rounds": 7000 },
+  { "id": "rn_05in_4", "name": "0.5\" Vickers Mk III quadruple", "nation": "rn", "caliber_mm": 12.7, "barrels": 4, "rof_rpm": 450, "range_m": 800, "ceiling_m": 800, "kill_rounds": 16000 },
+  { "id": "rn_20mm", "name": "20 mm/70 Oerlikon", "nation": "rn", "caliber_mm": 20, "barrels": 1, "rof_rpm": 300, "range_m": 1400, "ceiling_m": 1500, "kill_rounds": 4500 },
+  { "id": "rm_37mm_2", "name": "37 mm/54 Breda twin", "nation": "rm", "caliber_mm": 37, "barrels": 2, "rof_rpm": 70, "range_m": 2500, "ceiling_m": 3000, "kill_rounds": 3000 },
+  { "id": "rm_20mm_2", "name": "20 mm/65 Breda twin", "nation": "rm", "caliber_mm": 20, "barrels": 2, "rof_rpm": 200, "range_m": 1400, "ceiling_m": 1500, "kill_rounds": 5000 },
+  { "id": "rm_13mm_2", "name": "13.2 mm Breda twin", "nation": "rm", "caliber_mm": 13.2, "barrels": 2, "rof_rpm": 250, "range_m": 1000, "ceiling_m": 1000, "kill_rounds": 10000 },
+  { "id": "km_37mm_2", "name": "3.7 cm SK C/30 twin", "nation": "km", "caliber_mm": 37, "barrels": 2, "rof_rpm": 30, "range_m": 2500, "ceiling_m": 3000, "kill_rounds": 2500 },
+  { "id": "km_20mm", "name": "2 cm C/38", "nation": "km", "caliber_mm": 20, "barrels": 1, "rof_rpm": 220, "range_m": 1400, "ceiling_m": 1500, "kill_rounds": 4500 },
+  { "id": "km_20mm_4", "name": "2 cm Flakvierling 38", "nation": "km", "caliber_mm": 20, "barrels": 4, "rof_rpm": 220, "range_m": 1400, "ceiling_m": 1500, "kill_rounds": 4500 }
+]

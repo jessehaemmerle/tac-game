@@ -362,15 +362,21 @@ void GameUi::drawSettings(bool inGame) {
             changed |= ImGui::SliderInt(tr("settings.enemy_crew"), &settings.enemyCrewShift, -1, 1);
             changed |= ImGui::Checkbox(tr("settings.auto_evade"), &settings.autoEvade);
             changed |= ImGui::Checkbox(tr("settings.pause_on_contact"), &settings.pauseOnContact);
+            changed |= ImGui::Checkbox(tr("settings.slow_on_alert"), &settings.slowOnAlert);
+            helpMarker(tr("settings.slow_on_alert_help"));
             changed |= ImGui::Checkbox(tr("settings.reveal_ai"), &settings.revealEnemyAi);
             helpMarker(tr("settings.reveal_ai_help"));
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem(tr("settings.controls"))) {
-            static const char* keys[][2] = {{"Space", "keys.pause"},     {"1 - 6", "keys.timescale"}, {"M / F1 / F2 / F3", "keys.views"},
-                                            {"Tab", "keys.next_ship"},   {"F", "keys.follow"},        {"B / V", "keys.bridge"},
-                                            {"I", "keys.insight"},       {"U", "keys.unitref"},       {"W A S D", "keys.free_cam"},
-                                            {"RMB", "keys.orbit"},       {"Ctrl + LMB", "keys.measure"}, {"Esc", "keys.menu"}};
+            static const char* keys[][2] = {{"Space", "keys.pause"},          {"1 - 6", "keys.timescale"},     {"M / F1 / F2 / F3", "keys.views"},
+                                            {"Tab", "keys.next_ship"},        {"Q", "keys.next_flight"},       {"F", "keys.follow"},
+                                            {"Left / Right", "keys.course"},  {"Up / Down", "keys.speed"},
+                                            {"G", "keys.helm_mode"},          {"X", "keys.weapons"},           {"T", "keys.torpedoes"},
+                                            {"Shift + RMB", "keys.waypoint"}, {"Backspace", "keys.clear_route"}, {"R", "keys.flight_return"},
+                                            {"B / V", "keys.bridge"},         {"I", "keys.insight"},           {"U", "keys.unitref"},
+                                            {"W A S D", "keys.free_cam"},     {"RMB", "keys.orbit"},           {"Ctrl + LMB", "keys.measure"},
+                                            {"Esc", "keys.menu"}};
             if (ImGui::BeginTable("keys", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
                 for (auto& k : keys) {
                     ImGui::TableNextRow();

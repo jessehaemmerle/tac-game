@@ -26,6 +26,8 @@ build/linux-debug/irontide_tests -tc="torpedo*"
 | `test_procgen.cpp` | Prozedurale Modelle sind gültig und treffen die Klassenmaße, Rumpfform, Dreiecksbudget je Detailstufe, nichts ragt seitlich heraus, Teilehierarchie (jedes Rohr eigenes Teil unter seiner Wiege, Torpedos in ihren Rohrsätzen, Flugzeuge auf ihren Katapulten), Flak aus den Klassendaten; Zeitverläufe von Rückstoß, Torpedoausstoß, Katapultstart und Waffenvorführung |
 | `test_sim.cpp` | Astronomie (Savo-Nacht war dunkel), Schiffsführung, Sichtentdeckung nach Licht und Optik, SG vs. SC und Funkschatten, Artillerieduell bei Tag, Type-93-Fächer treffen, Schadenswirkung (Torpedo gegen Schlachtschiff und Zerstörer, Mittelartillerie über dem Gürtel erreicht weder Munitionskammern noch Maschinen), schwere See bremst Zerstörer, Determinismus, Kontaktereignisse, Vorab-Aufklärung identifiziert beim ersten Kontakt |
 | `test_ai.cpp` | Fairness (keine Reaktion auf unentdeckte Gegner), IJN-Doktrin (Torpedos zuerst, Geschütze dunkel), Kämmen gemeldeter Laufbahnen, Rückzug eines einzelnen Zerstörers vor Kreuzern, Rückzug dreht von einer Abmarschroute ab, die auf den Gegner zuführt, Vorposten kehren nach Treffern nicht zurück, Befehlsquittungen, Torpedofächer gegen eigene Schiffe, Savo Island KI gegen KI deterministisch, Vorschäden im Szenario (Pola bei Matapan) |
+| `test_air.cpp` | Luftwaffe: Zuladungen und Katapultflugzeuge je Marine, Start–Suche–Landung, Torpedobomber treffen ein Schlachtschiff, Sturzkampfbomber einen Kreuzer, Bombenteppich der Horizontalbomber, Flak beschädigt Angreifer und schweigt bei Feuerverbot, Radar meldet Verbände vor dem Ausguck, Jagdschutz fängt einen Angriff ab, Leuchtbomben eines Bordflugzeugs, Lufttorpedos versenken Repulse und Prince of Wales wie am 10. Dezember 1941 (zwei Treffer nicht) |
+| `test_command.cpp` | Befehlsführung: Verband fährt Wegpunkte ab und meldet den letzten, neuer Kurs ersetzt die Route, Einzelschiff mit eigener Route und Wiedereingliederung, Übergabe an die KI-Führung und Rücknahme, Force Z ruft die Buffalos (Start, Schutz über dem Verband), fremde Luftverbände nehmen keine Befehle an |
 | `test_ui.cpp` | Jeder Bildschirm baut headless (ohne Grafik), Schiedsrichter-Gefecht mit allen Panels, Sprachtabellen vollständig und deckungsgleich, jeder im Code benutzte Schlüssel existiert |
 
 Die Tests laufen unter Linux (GCC) und Windows (MSVC) gleichermaßen; die Oberfläche wird dabei
@@ -47,7 +49,8 @@ build/linux-release/irontide_headless --data data --scenario tassafaronga --runs
 
 Die Zusammenfassung zeigt je Seite Tonnageverluste, Punkte, Torpedo- und Granattrefferquoten,
 die Trefferquote der schweren Artillerie (ab 200 mm) mit mittlerer Trefferentfernung, die
-Zahl der Läufe, in denen jedes Missionsziel erreicht wurde,
+Luftbilanz (Einsätze, abgeworfene Torpedos und Bomben, Treffer, verlorene Flugzeuge, davon durch
+Flak), die Zahl der Läufe, in denen jedes Missionsziel erreicht wurde,
 versenkte Schiffe über alle Läufe und die Häufigkeit jeder Entscheidung. Damit werden
 KI-Änderungen bewertet: Ein Lauf vorher und nachher über dieselben Seeds zeigt, ob sich
 Verhalten und Ergebnis in die gewünschte Richtung bewegen, und `--events` erklärt Ausreißer
@@ -56,7 +59,8 @@ Verhalten und Ergebnis in die gewünschte Richtung bewegen, und `--events` erkl�
 ## 3. Bildprüfung des Windows-Programms
 
 Das Spiel lässt sich vollständig über Startparameter steuern, rendert eine Anzahl Bilder,
-speichert ein Bildschirmfoto und beendet sich:
+speichert ein Bildschirmfoto und beendet sich. Automatisierte Gefechte laufen mit festem Seed,
+damit Aufnahmen reproduzierbar sind:
 
 ```
 IronTide.exe --screen battle --scenario savo_island --side axis --advance 2400 --focus Chokai \
@@ -69,7 +73,8 @@ IronTide.exe --screen battle --scenario savo_island --side axis --advance 2400 -
 | `--screen` | `menu`, `missions`, `briefing`, `settings`, `credits`, `unitref`, `editor`, `battle`, `map`, `split`, `debrief` |
 | `--scenario`, `--side` | Mission und Seite (`allies`, `axis`, `none` = Schiedsrichter) |
 | `--advance` | Sekunden Gefechtszeit, die vorher simuliert werden |
-| `--focus`, `--class` | gewähltes Schiff im Gefecht, Klasse im Handbuch |
+| `--focus`, `--class` | gewähltes Schiff im Gefecht, Klasse oder Flugzeugtyp im Handbuch |
+| `--flight` | gewählter Luftverband im Gefecht (Name oder Schlüssel, z. B. `air.force_z.genzan1`); die Kamera fliegt mit |
 | `--yaw`, `--pitch`, `--distance` | Kamera |
 | `--insight`, `--insight-filter` | KI-Einblick öffnen; 0 eigene, 1 gegnerische, 2 alle (gegnerische nur als Schiedsrichter) |
 | `--frames`, `--size`, `--msaa`, `--lang` | Bilder vor dem Foto, Auflösung, Kantenglättung, Sprache |
@@ -90,7 +95,8 @@ Unter Linux läuft das mit dem MinGW-Build unter **Wine mit vkd3d** (D3D12 → V
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) läuft bei jedem Push auf `main` und bei
 Pull Requests:
 
-- **Linux** (Ubuntu 24.04, GCC): Build, Test-Suite, kurze KI-Batches aller Missionen.
+- **Linux** (Ubuntu 24.04, GCC): Build, Test-Suite, kurze KI-Batches aller Missionen
+  (einschließlich Force Z, wo die Seite der Achsenmächte nur aus Luftverbänden besteht).
 - **Windows** (Windows Server 2022, MSVC): Build von Spiel, Tests und Werkzeugen, Test-Suite,
   Rauchtest des Spiels auf dem WARP-Software-Renderer (Hauptmenü-Screenshot als Artefakt) und das
   fertige Spielpaket `IronTide-windows-x64` als Artefakt.

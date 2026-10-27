@@ -5,6 +5,7 @@
 #include <deque>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "ai/Doctrine.h"
@@ -27,6 +28,7 @@ struct Automation {
     std::string side = "allies";   // allies, axis, none
     std::string unitClass;         // unit reference selection
     std::string focus;             // ship to select and follow
+    std::string flight;            // flight to select (name or localisation key, e.g. air.force_z.genzan1)
     double advance = 0;            // simulated seconds to run before the capture
     int frames = 30;               // frames to render before the capture
     double camYaw = -1, camPitch = -100, camDistance = -1;
@@ -41,6 +43,11 @@ struct LogLine {
     double time = 0;
     std::string text;
     ImVec4 color;
+    // What a click on the line brings into view.
+    sim::EntityId ship = sim::kNoEntity;
+    int flight = -1;
+    bool hasPos = false;
+    Vec2 pos;
 };
 
 class GameUi {
@@ -111,6 +118,22 @@ private:
     void drawDamageTab(sim::Ship& s);
     void drawSensorsTab(sim::Ship& s);
     void drawSceneLabels();
+    // Air command (UiAir.cpp)
+    void drawAirList();
+    void drawFlightPanel(sim::Flight& f);
+    void flightMapMenu(sim::Flight& f, const MapOutput& ctx);
+    bool issueFlightOrder(int flight, sim::AirOrder o);
+    void issueMapOrder(const Vec2& p);
+    void selectFlight(int id, bool follow = true);
+    void cycleFlight(int dir);
+    sim::Flight* selectedFlight();
+    std::vector<const sim::AirTrack*> knownAirTracks() const;
+    // Command helpers
+    void shipMapMenu(sim::Ship& s, const MapOutput& ctx);
+    void addWaypoint(const Vec2& p, bool append);
+    void handleBattleKeys();
+    void alert(const char* key, const ImVec4& color, double simTime);
+    void drawAlertBanner();
     // Helpers
     sim::Ship* selected();
     void selectShip(sim::EntityId id, bool follow = true);
@@ -118,6 +141,7 @@ private:
     std::vector<const sim::Track*> knownHostiles() const;
     std::string trackName(const sim::Track& t) const;
     void addLog(const std::string& text, const ImVec4& color);
+    void addLog(const LogLine& line);
     void recordPlot();
     void backgroundPanel(const char* id, ImVec2 pos, ImVec2 size);
 
@@ -147,6 +171,20 @@ private:
     bool showSettingsInBattle_ = false;
     sim::EntityId selShip_ = sim::kNoEntity;
     uint32_t selTrack_ = 0;
+    int selFlight_ = -1;          // selected own flight (the right panel shows it instead of the ship)
+    uint32_t selAirTrack_ = 0;    // selected enemy air contact
+    // An order waiting for a point on the plot.
+    enum class MapOrder { None, Search, Recon, Cap, Flares, Waypoints };
+    MapOrder mapOrder_ = MapOrder::None;
+    int airAltitude_ = 0;         // 0 by role, 1 low, 2 medium, 3 high
+    int launchDelayMin_ = 0;      // flights at their base: minutes until take-off
+    std::string lastAirMsg_;
+    MapOutput mapCtx_;            // what the plot's context menu was opened on
+    std::string banner_;
+    ImVec4 bannerColor_{1, 1, 1, 1};
+    double bannerUntil_ = -1;     // real seconds (battleRealTime_)
+    double lastAlertSim_ = -1e9;
+    std::unordered_map<uint64_t, double> attackLogged_;  // ship x attack kind -> last log time
     bool follow_ = true;
     int helmMode_ = 0;  // 0 = orders to the group, 1 = this ship only
     bool hideUi_ = false;

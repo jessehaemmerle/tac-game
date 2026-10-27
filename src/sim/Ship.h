@@ -20,6 +20,8 @@ struct MountState {
     bool onTarget = false;
     bool bears = false;  // target within arc
     int shotsFired = 0;
+    double aaUntil = -1;       // dual-purpose mount busy firing at aircraft until
+    double lastSurface = -1e9; // last round at a surface target
     bool operational() const { return health > 0.25; }
     int totalAmmo() const;
 };
@@ -69,6 +71,20 @@ struct SensorState {
     bool working(double now) const { return health > 0.3 && on && now >= outageUntil; }
 };
 
+/// An anti-aircraft battery: a light AA mount from the model or a dual-purpose gun mount.
+struct AaBatteryState {
+    const AaWeaponDef* def = nullptr;  // light AA weapon (dual-purpose mounts: nullptr)
+    int mount = -1;                    // dual-purpose mount index
+    Vec3 local;                        // ship-local position
+    double health = 1.0;
+    EntityId target = kNoEntity;       // aircraft engaged (sim-internal)
+    double firingUntil = -1;           // the guns are firing (tracers, flak) until
+    double nextRound = 0;
+    double train = 0, elevation = 0;   // where the guns point (deg, relative bearing / elevation)
+    int roundsFired = 0;
+    bool operational() const { return health > 0.3; }
+};
+
 struct Fire {
     double f = 0.5;          // position along hull (0 bow .. 1 stern)
     double intensity = 0.3;  // 0..1
@@ -78,6 +94,7 @@ struct DamageState {
     double hullIntegrity = 1.0;  // structural; < 0 = breaks up
     double flooding = 0;         // tonnes of water aboard
     double floodRate = 0;        // tonnes / s (uncontrolled inflow)
+    double holed = 0;            // tonnes of the flooding open to the sea or counter-flooded: pumps cannot clear it
     double list = 0;             // deg, + = starboard
     double trim = 0;             // deg, + = bow down
     double crewLoss = 0;         // fraction of crew killed/wounded
@@ -106,6 +123,7 @@ struct ShipOrders {
     bool playerSteering = false;   // ship detached from formation, steered by the player
     uint32_t playerTarget = 0;     // main battery target chosen by the player (0 = captain's choice)
     bool playerHoldTorpedoes = true;
+    std::vector<Vec2> route;       // player waypoints while detached from the formation, first = next
 };
 
 struct ShipStats {
@@ -136,6 +154,9 @@ public:
     std::vector<TorpedoMountState> torpedoMounts;
     std::vector<DirectorState> directors;
     std::vector<SensorState> sensors;
+    std::vector<AaBatteryState> aa;
+    double aaSuppressedUntil = -1;  // strafing fighters drive the light AA crews to cover
+    int aircraftShotDown = 0;
     DamageState dmg;
     ShipOrders orders;
     ShipStats stats;

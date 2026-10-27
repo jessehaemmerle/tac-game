@@ -1,0 +1,210 @@
+{
+  "id": "rn_dd_s1918",
+  "nation": "rn",
+  "type": "DD",
+  "name": "S (Admiralty, 1918)",
+  "year": 1918,
+  "ships": [
+    "Tenedos",
+    "Thanet",
+    "Scout",
+    "Stronghold",
+    "Thracian"
+  ],
+  "sources": "Preston, V & W Class Destroyers 1917-1945; Friedman, British Destroyers; naval-history.net",
+  "dimensions": {
+    "length": 84.0,
+    "length_wl": 81.8,
+    "beam": 8.1,
+    "draft": 3.2,
+    "mast_height": 20,
+    "lookout_height": 9,
+    "superstructure_height": 6.5
+  },
+  "displacement": {
+    "standard": 905,
+    "full": 1221
+  },
+  "propulsion": {
+    "max_speed_kn": 34.0,
+    "cruise_speed_kn": 15,
+    "shp": 27000,
+    "accel_kn_per_min": 9.5,
+    "tactical_diameter_m": 500,
+    "shafts": 2
+  },
+  "crew": 98,
+  "mounts": [
+    {
+      "id": "A",
+      "weapon": "rn_4in45",
+      "barrels": 1,
+      "f": 0.14,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "shield",
+      "armor": 3,
+      "ammo": {
+        "HE": 160,
+        "Common": 40,
+        "Starshell": 15
+      },
+      "aa": false
+    },
+    {
+      "id": "X",
+      "weapon": "rn_4in45",
+      "barrels": 1,
+      "f": 0.5,
+      "arc_min": -150,
+      "arc_max": 150,
+      "style": "shield",
+      "raise": 1.5,
+      "armor": 3,
+      "ammo": {
+        "HE": 160,
+        "Common": 40,
+        "Starshell": 15
+      },
+      "aa": false
+    },
+    {
+      "id": "Y",
+      "weapon": "rn_4in45",
+      "barrels": 1,
+      "f": 0.84,
+      "arc_min": 30,
+      "arc_max": 330,
+      "style": "shield",
+      "armor": 3,
+      "ammo": {
+        "HE": 160,
+        "Common": 40,
+        "Starshell": 15
+      },
+      "aa": false
+    }
+  ],
+  "torpedo_mounts": [
+    {
+      "id": "T1",
+      "weapon": "rn_mk9",
+      "tubes": 2,
+      "f": 0.56,
+      "arc_min": 35,
+      "arc_max": 145,
+      "mirrored": true,
+      "reloads": 0
+    },
+    {
+      "id": "T2",
+      "weapon": "rn_mk9",
+      "tubes": 2,
+      "f": 0.66,
+      "arc_min": 35,
+      "arc_max": 145,
+      "mirrored": true,
+      "reloads": 0
+    }
+  ],
+  "directors": [
+    {
+      "id": "main",
+      "role": "main",
+      "rangefinder_m": 1.5,
+      "height": 9,
+      "f": 0.24
+    }
+  ],
+  "sensors": [
+    {
+      "id": "rn_lookouts",
+      "height": 9,
+      "f": 0.24
+    }
+  ],
+  "hull_strength": 0.65,
+  "model": {
+    "bow_rake": 0.03,
+    "stern": 0.0,
+    "freeboard_bow": 5.0,
+    "freeboard_mid": 3.4,
+    "freeboard_stern": 2.4,
+    "forecastle_end": 0.25,
+    "forecastle_drop": 1.6,
+    "fineness": 0.45,
+    "flare": 0.15,
+    "hull_paint": "rn_507c",
+    "deck_paint": "teak",
+    "parts": [
+      {
+        "type": "bridge",
+        "f": 0.23,
+        "len": 5.5,
+        "wid": 5.5,
+        "h": 2.2,
+        "levels": 2,
+        "style": "rn"
+      },
+      {
+        "type": "mast",
+        "f": 0.26,
+        "h": 16,
+        "rake": 6
+      },
+      {
+        "type": "funnel",
+        "f": 0.33,
+        "len": 3.2,
+        "wid": 2.4,
+        "h": 5.4,
+        "rake": 7
+      },
+      {
+        "type": "funnel",
+        "f": 0.42,
+        "len": 3.6,
+        "wid": 2.4,
+        "h": 5.6,
+        "rake": 7
+      },
+      {
+        "type": "deckhouse",
+        "f": 0.375,
+        "len": 11,
+        "wid": 4.5,
+        "h": 2.0
+      },
+      {
+        "type": "searchlight",
+        "f": 0.45,
+        "z": 3.4
+      },
+      {
+        "type": "boat",
+        "f": 0.31,
+        "y": 3.2,
+        "z": 1.1,
+        "len": 6,
+        "mirror": true
+      },
+      {
+        "type": "aa",
+        "style": "rn_pompom_1",
+        "f": 0.74,
+        "z": 2.6
+      }
+    ]
+  },
+  "armor": {
+    "belt": 0,
+    "deck": 0,
+    "turret_face": 3,
+    "torpedo_protection": 0.0
+  },
+  "searchlights": 1,
+  "searchlight_cm": 51,
+  "depth_charges": 20,
+  "rcs": 0.32,
+  "reserve_buoyancy": 0.45
+}

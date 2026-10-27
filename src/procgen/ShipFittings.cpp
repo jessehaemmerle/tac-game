@@ -117,7 +117,6 @@ void catapult(Ctx& cx, const sim::ModelPart& pt) {
 }
 
 // ---------------------------------------------------------------------------------------- aircraft
-namespace {
 
 /// Wing panel from root to tip (y), airfoil chord along x, thin, with dihedral (z rise at the tip).
 void wing(MeshBuilder& mb, Vec3f root, float rootChord, float tipChord, float span, float sweep, float dihedral, float thick) {
@@ -205,7 +204,7 @@ void marking(MeshBuilder& mb, sim::Nation nation, Vec3f c, Vec3f n, float r) {
 }
 
 /// Floatplane in a local frame: x forward, origin under the main float, z up.
-void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style, sim::Nation nation) {
+void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style, sim::Nation nation, bool blades) {
     bool biplane = style == "soc" || style == "pete" || style == "walrus";
     bool walrus = style == "walrus";
     bool kingfisher = style == "kingfisher";  // Vought OS2U: monoplane, central float, long canopy
@@ -229,7 +228,7 @@ void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style,
         mb.setMaterial(skin);
         mb.lathe(cowl + Vec3f{0.55f, 0, 0}, {1, 0, 0}, {{0.16f, 0}, {0.12f, 0.2f}, {0.0f, 0.35f}}, 8, false);
         mb.setMaterial(p.black);
-        for (int b = 0; b < 2; ++b) {
+        for (int b = 0; b < 2 && blades; ++b) {
             float a = float(b) * float(kPi) + 0.6f;
             Vec3f d{0, std::cos(a), std::sin(a)};
             mb.orientedBox(cowl + Vec3f{0.62f, 0, 0} + d * 0.7f, {0.03f, 0.08f, 0.68f}, {1, 0, 0}, d);
@@ -269,7 +268,7 @@ void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style,
         Vec3f nac{wingX - chord * 0.3f, 0, wz + 0.9f};
         mb.lathe(nac + Vec3f{-1.4f, 0, 0}, {1, 0, 0}, {{0.0f, 0}, {0.45f, 0.4f}, {0.5f, 1.2f}, {0.3f, 1.8f}, {0.0f, 2.0f}}, 12, false);
         mb.setMaterial(p.black);
-        for (int b = 0; b < 4; ++b) {
+        for (int b = 0; b < 4 && blades; ++b) {
             float a = float(b) * float(kPi) * 0.5f;
             Vec3f d{0, std::cos(a), std::sin(a)};
             mb.orientedBox(nac + Vec3f{-1.5f, 0, 0} + d * 0.8f, {0.03f, 0.1f, 0.78f}, {1, 0, 0}, d);
@@ -329,8 +328,6 @@ void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style,
     }
     (void)dark;
 }
-
-}  // namespace
 
 void aircraft(Ctx& cx, const sim::ModelPart& pt) {
     double xx = cx.x(pt.f);

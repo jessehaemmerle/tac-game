@@ -1,0 +1,19 @@
+// Aircraft bombs. caliber_mm is the body diameter (penetration and splash size); kind follows the
+// shell kinds: AP (armour-piercing, small burster), Common (semi-armour-piercing), HE (general purpose).
+// Sources: navweaps.com (WAJAP_Bombs, WAUS_Bombs, WABR_Bombs), Francillon "Japanese Aircraft of the
+// Pacific War", US Strategic Bombing Survey ordnance tables.
+[
+  { "id": "ijn_60kg", "name": "Type 97 No. 6 (60 kg)", "nation": "ijn", "mass_kg": 56, "burster_kg": 23, "caliber_mm": 200, "kind": "HE" },
+  { "id": "ijn_250kg_sap", "name": "Type 99 No. 25 Ordinary Model 1 (250 kg SAP)", "nation": "ijn", "mass_kg": 250, "burster_kg": 61, "caliber_mm": 300, "kind": "Common" },
+  { "id": "ijn_250kg", "name": "Type 98 No. 25 Land Model 1 (250 kg)", "nation": "ijn", "mass_kg": 242, "burster_kg": 96, "caliber_mm": 300, "kind": "HE" },
+  { "id": "ijn_500kg", "name": "Type 92 No. 50 (500 kg)", "nation": "ijn", "mass_kg": 500, "burster_kg": 225, "caliber_mm": 450, "kind": "HE" },
+  { "id": "ijn_800kg_ap", "name": "Type 99 No. 80 Mk 5 (800 kg AP)", "nation": "ijn", "mass_kg": 797, "burster_kg": 23, "caliber_mm": 450, "kind": "AP" },
+  { "id": "usn_500lb", "name": "AN-M43 (500 lb GP)", "nation": "usn", "mass_kg": 227, "burster_kg": 121, "caliber_mm": 360, "kind": "HE" },
+  { "id": "usn_1000lb_sap", "name": "AN-M59 (1,000 lb SAP)", "nation": "usn", "mass_kg": 454, "burster_kg": 141, "caliber_mm": 380, "kind": "Common" },
+  { "id": "rn_250lb_sap", "name": "250 lb SAP Mk I", "nation": "rn", "mass_kg": 113, "burster_kg": 19, "caliber_mm": 230, "kind": "Common" },
+  { "id": "rn_500lb_sap", "name": "500 lb SAP Mk I", "nation": "rn", "mass_kg": 227, "burster_kg": 41, "caliber_mm": 300, "kind": "Common" },
+  { "id": "km_sc250", "name": "SC 250 (250 kg)", "nation": "km", "mass_kg": 250, "burster_kg": 130, "caliber_mm": 368, "kind": "HE" },
+  { "id": "km_sc500", "name": "SC 500 (500 kg)", "nation": "km", "mass_kg": 500, "burster_kg": 220, "caliber_mm": 470, "kind": "HE" },
+  { "id": "km_sc50", "name": "SC 50 (50 kg)", "nation": "km", "mass_kg": 50, "burster_kg": 25, "caliber_mm": 200, "kind": "HE" },
+  { "id": "rm_250kg", "name": "GP 250 (250 kg)", "nation": "rm", "mass_kg": 250, "burster_kg": 120, "caliber_mm": 360, "kind": "HE" }
+]

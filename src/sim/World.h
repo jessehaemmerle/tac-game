@@ -4,9 +4,11 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "core/Random.h"
+#include "sim/Air.h"
 #include "sim/Contacts.h"
 #include "sim/Database.h"
 #include "sim/Environment.h"
@@ -75,23 +77,6 @@ struct Flare {
     bool alive = true;
 };
 
-struct AircraftMission {
-    enum class Kind : uint8_t { Recon, Flares };
-    enum class State : uint8_t { Launching, Outbound, OnStation, Returning, Done };
-    uint32_t id = 0;
-    Kind kind = Kind::Recon;
-    State state = State::Launching;
-    Side side = Side::Neutral;
-    EntityId parent = kNoEntity;
-    Vec2 pos, target;
-    double heading = 0, speed = 55.0, altitude = 900;
-    double stateTime = 0;
-    double endurance = 3 * 3600;
-    int flaresLeft = 6;
-    double nextFlare = 0;
-    double nextScan = 0;
-};
-
 class World {
 public:
     World(const Database& db, uint64_t seed);
@@ -127,7 +112,6 @@ public:
     const std::vector<Shell>& shells() const { return shells_; }
     const std::vector<Torpedo>& torpedoes() const { return torpedoes_; }
     const std::vector<Flare>& flares() const { return flares_; }
-    const std::vector<AircraftMission>& aircraft() const { return aircraft_; }
     std::vector<Salvo>& salvos() { return salvos_; }
     ContactPicture& picture(Side s) { return pictures_[sideIndex(s)]; }
     const ContactPicture& picture(Side s) const { return pictures_[sideIndex(s)]; }
@@ -153,7 +137,36 @@ public:
     int fireTorpedoesOnCourse(Ship& s, double course, int count, double spreadDeg, int speedSetting, std::string* why = nullptr);
     void setDirectorTarget(Ship& s, int director, uint32_t track);
     void setSearchlight(Ship& s, bool on, uint32_t track = 0);
-    bool launchAircraft(Ship& s, AircraftMission::Kind kind, const Vec2& target);
+    /// Catapult a floatplane for reconnaissance or flare dropping over a point.
+    bool launchAircraft(Ship& s, bool flares, const Vec2& target);
+
+    // ------------------------------------------------------------------ air units (Air.cpp)
+    int addAirBase(const AirBase& b);
+    AirBase* airBase(int id);
+    const AirBase* airBase(int id) const;
+    const std::vector<AirBase>& airBases() const { return airBases_; }
+    /// A flight of `count` aircraft parked at a base, ready to take off.
+    Flight& addFlight(const std::string& name, Side side, const AircraftDef& def, const std::string& loadout, int count, int base,
+                      CrewQuality crew);
+    /// Put a flight in the air at a position (scenario start).
+    void putAirborne(Flight& f, const Vec2& pos, double altitude, double heading);
+    std::vector<Flight>& flights() { return flights_; }
+    const std::vector<Flight>& flights() const { return flights_; }
+    Flight* flight(int id);
+    const Flight* flight(int id) const;
+    Flight* flightOfEntity(EntityId e);
+    std::vector<Aircraft>& planes() { return planes_; }
+    const std::vector<Aircraft>& planes() const { return planes_; }
+    Aircraft* plane(EntityId id);
+    const Aircraft* plane(EntityId id) const;
+    /// Give a flight an order (launches it if at its base). Returns false (with a reason key) if impossible.
+    bool orderFlight(int flight, const AirOrder& o, std::string* why = nullptr);
+    void dropTorpedo(Aircraft& a, const TorpedoDef& t, double heading);
+    void releaseBomb(Aircraft& a, const BombDef& b, const Vec3& vel, EntityId intended);
+    /// Damage an aircraft (fraction of a durability-1 airframe); shoots it down when spent.
+    void aircraftHit(Aircraft& a, double damage, EntityId by);
+    /// Does an own aircraft have this ship in sight (spotting the fall of shot)? Sim-internal.
+    bool aircraftSpotting(Side side, EntityId shipTruth) const;
 
     // internal helpers used by subsystems
     uint32_t nextId() { return ++idCounter_; }
@@ -171,7 +184,6 @@ private:
     void stepShells(double dt);
     void stepTorpedoes(double dt);
     void stepFlares(double dt);
-    void stepAircraft(double dt);
     void stepCollisions();
     void updateTrails();
 
@@ -187,7 +199,10 @@ private:
     std::vector<Salvo> salvos_;
     std::vector<Torpedo> torpedoes_;
     std::vector<Flare> flares_;
-    std::vector<AircraftMission> aircraft_;
+    std::vector<AirBase> airBases_;
+    std::vector<Flight> flights_;
+    std::vector<Aircraft> planes_;
+    std::unordered_map<EntityId, size_t> planeIndex_;
     std::vector<Group> groups_;
     std::array<ContactPicture, kSideCount> pictures_{ContactPicture(Side::Allies), ContactPicture(Side::Axis),
                                                      ContactPicture(Side::Neutral)};

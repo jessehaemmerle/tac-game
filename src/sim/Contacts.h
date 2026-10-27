@@ -78,6 +78,47 @@ private:
     EntityId truth_ = kNoEntity;
 };
 
+/// A sighting or radar return of an aircraft formation.
+struct AirMeasurement {
+    EntityId observer = kNoEntity;  // ship (kNoEntity: reported by aircraft)
+    EntityId truth = kNoEntity;     // internal association key (the formation)
+    Vec2 pos;
+    double sigma = 1000;
+    double altitude = -1;           // estimate (m); < 0: unknown (radar without height finding)
+    int count = 0;                  // estimated number of aircraft (0: unknown)
+    bool roleKnown = false;
+    AirRole role = AirRole::Recon;
+    bool attacking = false;         // seen diving, running in low or releasing
+    uint32_t sense = kSenseVisual;
+    bool hasVelocity = false;
+    Vec2 velocity;
+};
+
+/// The side's estimate of an aircraft formation ("raid").
+struct AirTrack {
+    uint32_t id = 0;
+    Vec2 pos, vel;
+    double posSigma = 2000;
+    double altitude = -1;
+    int count = 0;
+    bool roleKnown = false;
+    AirRole role = AirRole::Recon;
+    bool attacking = false;
+    double attackSeen = -1e9;
+    double firstSeen = 0, lastSeen = 0, lastUpdate = 0;
+    bool lost = false;
+    uint32_t sense = 0;
+    double sharedAt = 0;
+    std::vector<Holder> holders;
+    double age(double now) const { return now - lastSeen; }
+    Vec2 predict(double now) const { return pos + vel * (now - lastUpdate); }
+    bool heldBy(EntityId ship, double now, double maxAge = 20.0) const;
+
+private:
+    friend class ContactPicture;
+    EntityId truth_ = kNoEntity;
+};
+
 class ContactPicture {
 public:
     explicit ContactPicture(Side owner = Side::Neutral) : owner_(owner) {}
@@ -97,6 +138,7 @@ public:
         uint32_t track = 0;
         bool identified = false;  // false: new contact
         bool radar = false;       // new contact made by radar
+        bool air = false;         // new air contact
     };
     std::vector<Change> takeChanges() {
         std::vector<Change> out;
@@ -111,6 +153,18 @@ public:
     const std::vector<Track>& tracks() const { return tracks_; }
     std::vector<Track>& tracks() { return tracks_; }
 
+    /// Air picture: aircraft formations seen by radar, lookouts and own aircraft.
+    AirTrack* reportAir(const AirMeasurement& m, double now, bool* created = nullptr);
+    const std::vector<AirTrack>& airTracks() const { return airTracks_; }
+    AirTrack* findAir(uint32_t id);
+    const AirTrack* findAir(uint32_t id) const;
+    /// Air tracks that became lost in the last update (World turns them into events).
+    std::vector<uint32_t> takeLostAir() {
+        std::vector<uint32_t> out;
+        out.swap(lostAir_);
+        return out;
+    }
+
     /// Prior intelligence (decrypts, earlier sightings): a track on this ship is identified as soon as it
     /// is first detected. Sim/scenario use only.
     void addPriorIntel(EntityId truth, ShipType type, SizeClass size, const std::string& classId) { intel_[truth] = {type, size, classId}; }
@@ -118,6 +172,8 @@ public:
     // Internal (sim only): association by true entity.
     Track* byTruth(EntityId truth);
     EntityId truthOf(const Track& t) const { return t.truth_; }
+    AirTrack* airByTruth(EntityId truth);
+    EntityId truthOf(const AirTrack& t) const { return t.truth_; }
     void forget(EntityId truth);
 
 private:
@@ -126,6 +182,8 @@ private:
     double reportMin_ = 20, reportMax_ = 60, reportReliability_ = 0.9;
     Rng* rng_ = nullptr;
     std::vector<Track> tracks_;
+    std::vector<AirTrack> airTracks_;
+    std::vector<uint32_t> lostAir_;
     std::vector<Change> changes_;
     struct Intel {
         ShipType type;

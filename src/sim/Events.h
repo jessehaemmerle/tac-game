@@ -38,6 +38,19 @@ enum class EventType : uint8_t {
     Report,           // generic bridge report: text = loc key, args
     ScenarioMessage,  // text = loc key / literal
     OrderAcknowledged,// a = ship (or group flagship), side, text = bridge reply (aye, course_steady, engines, open_fire, cease_fire)
+    // Air units (value = flight id where a flight is concerned)
+    AirContactNew,    // side, track (air track id), pos
+    AirContactLost,   // side, track
+    FlightLaunched,   // side, value = flight
+    FlightLanded,     // side, value = flight
+    FlightReport,     // side, value = flight, text = loc key (fuel, target sighted, attacking, aborted ...), args
+    AirAttack,        // a = aircraft, b = target ship, side, pos, text = "torpedo" | "dive" | "level" | "strafe"
+    BombReleased,     // a = aircraft, side, pos, value = bomb mass kg
+    TorpedoDropped,   // a = aircraft, side, pos (splash of the drop)
+    AircraftHit,      // a = aircraft, b = shooter (ship or aircraft), side = aircraft's side, pos
+    AircraftShotDown, // a = aircraft, b = credited ship or aircraft, side = aircraft's side, pos, value = flight
+    AircraftCrashed,  // a = aircraft, side, pos (hits the water)
+    AaFire,           // a = ship, b = aircraft, value = calibre, value2 = battery index, pos = gun (heavy AA rounds)
 };
 
 struct Event {

@@ -20,6 +20,10 @@ void textColored(const ImVec4& c, const char* fmt, ...);
 /// NTDS-like symbols adapted to the period plot: own ships (filled hull), contacts by identification level.
 void drawShipSymbol(ImDrawList* dl, ImVec2 c, float size, float headingRad, ImU32 color, bool filled, float thickness = 1.5f);
 void drawContactSymbol(ImDrawList* dl, ImVec2 c, float size, bool hostile, bool lost, ImU32 color);
+/// Aircraft silhouette (fuselage, wings, tailplane) pointing along the heading.
+void drawAircraftSymbol(ImDrawList* dl, ImVec2 c, float size, float headingRad, ImU32 color, float thickness = 1.6f);
+/// Air base: a runway cross in a square.
+void drawAirBaseSymbol(ImDrawList* dl, ImVec2 c, float size, ImU32 color);
 void drawFlag(ImDrawList* dl, ImVec2 pos, ImVec2 size, sim::Nation n);
 /// Button that looks like a tab-strip toggle.
 bool toggleButton(const char* label, bool active, const ImVec2& size = {0, 0});

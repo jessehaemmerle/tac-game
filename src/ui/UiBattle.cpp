@@ -87,7 +87,7 @@ std::string describeDetail(const ai::DecisionRecord& r, bool metric) {
                                                      fmtRange(std::atof(parts[2].c_str()), metric)});
     if (r.decision == "ai.d.torpedoes_launched" && parts.size() == 3)
         return loc::format("insight.detail_torpedoes", {parts[0], parts[1], fmtRange(std::atof(parts[2].c_str()), metric)});
-    if ((r.decision == "ai.d.comb_torpedo" || r.decision == "ai.d.evade_torpedo") && parts.size() == 1)
+    if ((r.decision == "ai.d.comb_torpedo" || r.decision == "ai.d.evade_torpedo" || r.decision == "ai.d.evade_aircraft") && parts.size() == 1)
         return loc::format("insight.detail_course", {fmtBearing(std::atof(parts[0].c_str()))});
     return r.detail;
 }
@@ -113,11 +113,17 @@ void GameUi::drawBattle() {
     if (!mapFitted_) {
         const sim::World& w = session_->world();
         Vec2 lo{1e18, 1e18}, hi{-1e18, -1e18};
+        auto add = [&](const Vec2& p) {
+            lo = {std::min(lo.x, p.x), std::min(lo.y, p.y)};
+            hi = {std::max(hi.x, p.x), std::max(hi.y, p.y)};
+        };
         for (const auto& s : w.ships())
-            if (s->side == playerSide() || playerSide() == sim::Side::Neutral) {
-                lo = {std::min(lo.x, s->pos.x), std::min(lo.y, s->pos.y)};
-                hi = {std::max(hi.x, s->pos.x), std::max(hi.y, s->pos.y)};
-            }
+            if (s->side == playerSide() || playerSide() == sim::Side::Neutral) add(s->pos);
+        for (const auto& f : w.flights())
+            if (f.airborne() && (f.side == playerSide() || playerSide() == sim::Side::Neutral)) add(f.pos);
+        // A side fighting with aircraft alone also looks at what its scouts have found.
+        if (playerSide() != sim::Side::Neutral)
+            for (const sim::Track* t : knownHostiles()) add(t->pos);
         if (lo.x <= hi.x) {
             map_.fit(lo - Vec2{15000, 15000}, hi + Vec2{15000, 15000}, {L.W - L.leftW - L.rightW, L.H - L.top - L.bottomH});
             miniMap_.focus((lo + hi) * 0.5, 120.0);
@@ -158,6 +164,7 @@ void GameUi::drawBattle() {
     // 3D view interaction when the mouse is over no window.
     if (view_ != View::Map) handleSceneInput();
     if (pauseMenu_) drawPauseMenu();
+    drawAlertBanner();
     // Paused banner.
     if (session_->paused && !pauseMenu_) {
         const char* t = tr("ui.paused");
@@ -240,10 +247,17 @@ void GameUi::drawFleetPanel(ImVec2 pos, ImVec2 size) {
         if (!any) continue;
         ImGui::PushID(g.id);
         std::string head = std::string(tr(g.name.c_str()));
-        if (!g.playerControlled && me != sim::Side::Neutral) head += std::string("  (") + tr("fleet.ai_controlled") + ")";
+        if (g.aiDelegated && me != sim::Side::Neutral) head += std::string("  (") + tr("fleet.ai_delegated") + ")";
+        else if (!g.playerControlled && me != sim::Side::Neutral) head += std::string("  (") + tr("fleet.ai_controlled") + ")";
+        if (!g.route.empty()) head += "  \xC2\xBB" + std::to_string(g.route.size());
         ImGui::PushStyleColor(ImGuiCol_Text, me == sim::Side::Neutral ? sideColor(g.side) : col::kText);
         bool open = ImGui::TreeNodeEx("##grp", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth, "%s", head.c_str());
         ImGui::PopStyleColor();
+        if (me != sim::Side::Neutral && (g.playerControlled || g.aiDelegated) && ImGui::BeginPopupContextItem("grpctx")) {
+            if (g.playerControlled && ImGui::MenuItem(tr("fleet.delegate"))) session_->delegateGroup(g.id, true);
+            if (g.aiDelegated && ImGui::MenuItem(tr("fleet.take_command"))) session_->delegateGroup(g.id, false);
+            ImGui::EndPopup();
+        }
         if (open) {
             for (auto id : g.members) {
                 const sim::Ship* s = w.ship(id);
@@ -252,7 +266,7 @@ void GameUi::drawFleetPanel(ImVec2 pos, ImVec2 size) {
                 bool sel = id == selShip_;
                 ImVec4 c = s->dmg.sunk || s->dmg.sinking ? col::kTextDim : s->dmg.hitsTaken > 0 ? col::kWarn : col::kText;
                 ImGui::PushStyleColor(ImGuiCol_Text, c);
-                if (ImGui::Selectable("##ship", sel, ImGuiSelectableFlags_SpanAllColumns)) selectShip(id);
+                if (ImGui::Selectable("##ship", sel && selFlight_ < 0, ImGuiSelectableFlags_SpanAllColumns)) selectShip(id);
                 ImGui::SameLine(0, 0);
                 ImGui::Text("%s %s", s->cls ? shipTypeAbbrev(s->cls->type) : "", s->name.c_str());
                 ImGui::PopStyleColor();
@@ -279,6 +293,7 @@ void GameUi::drawFleetPanel(ImVec2 pos, ImVec2 size) {
         }
         ImGui::PopID();
     }
+    drawAirList();
     ImGui::End();
 }
 
@@ -287,6 +302,11 @@ void GameUi::drawShipPanel(ImVec2 pos, ImVec2 size) {
     ImGui::SetNextWindowPos(pos);
     ImGui::SetNextWindowSize(size);
     ImGui::Begin("##shippanel", nullptr, kPanel);
+    if (sim::Flight* f = selectedFlight()) {
+        drawFlightPanel(*f);
+        ImGui::End();
+        return;
+    }
     sim::Ship* s = selected();
     if (!s || !s->cls) {
         ImGui::TextDisabled("%s", tr("ship.none_selected"));
@@ -350,6 +370,11 @@ void GameUi::drawHelmTab(sim::Ship& s) {
     bool groupCtl = g && g->playerControlled && !s.orders.playerSteering;
     bool canCommand = playerSide() == sim::Side::Neutral || (g && g->playerControlled) || s.orders.playerSteering;
     if (!canCommand) {
+        if (g && g->aiDelegated) {
+            ImGui::TextWrapped("%s", tr("ship.ai_delegated_hint"));
+            if (ImGui::Button(tr("fleet.take_command"), {-1, 0})) session_->delegateGroup(g->id, false);
+            return;
+        }
         ImGui::TextWrapped("%s", tr("ship.ai_group_hint"));
         if (ImGui::Button(tr("ship.detach"))) session_->orderShipCourse(s.id, s.heading, s.speedKn());
         return;
@@ -409,6 +434,37 @@ void GameUi::drawHelmTab(sim::Ship& s) {
         float spacing = float(g->spacing);
         ImGui::SetNextItemWidth(-1);
         if (ImGui::SliderFloat("##spacing", &spacing, 300.0f, 3000.0f, "%.0f m")) session_->orderGroupFormation(g->id, g->formation, spacing);
+    }
+    // Waypoints.
+    const std::vector<Vec2>& route = toGroup ? g->route : s.orders.route;
+    sectionHeader(tr("ship.route"));
+    if (route.empty()) ImGui::TextDisabled("%s", tr("ship.route_none"));
+    else {
+        double len = distance(toGroup && w.guideOf(*g) ? w.guideOf(*g)->pos : s.pos, route.front());
+        for (size_t i = 1; i < route.size(); ++i) len += distance(route[i - 1], route[i]);
+        ImGui::Text("%s", loc::format("ship.route_legs", {std::to_string(route.size()), fmtRange(len, settings.metric)}).c_str());
+        if (speed > 0.5) {
+            ImGui::SameLine();
+            ImGui::TextDisabled("(%s)", fmtDuration(len / (speed * 0.514444)).c_str());
+        }
+    }
+    bool plotting = mapOrder_ == MapOrder::Waypoints;
+    if (toggleButton(tr("ship.route_plot"), plotting, {ImGui::GetContentRegionAvail().x * 0.5f - 3, 0})) {
+        mapOrder_ = plotting ? MapOrder::None : MapOrder::Waypoints;
+        if (mapOrder_ == MapOrder::Waypoints && view_ == View::Scene3D) view_ = View::Split;
+    }
+    ImGui::SameLine();
+    ImGui::BeginDisabled(route.empty());
+    if (ImGui::Button(tr("ship.route_clear"), {-1, 0})) {
+        if (toGroup) session_->orderGroupRoute(g->id, {}, false);
+        else session_->orderShipRoute(s.id, {}, false);
+    }
+    ImGui::EndDisabled();
+    if (plotting) ImGui::TextColored(col::kBrass, "%s", tr("ship.route_hint"));
+    if (toGroup) {
+        ImGui::Spacing();
+        if (ImGui::Button(tr("fleet.delegate"), {-1, 0})) session_->delegateGroup(g->id, true);
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", tr("fleet.delegate_help"));
     }
     ImGui::Spacing();
     ImGui::TextDisabled("%s", tr("ship.helm_hint"));
@@ -649,12 +705,33 @@ void GameUi::drawMessageLog(ImVec2 pos, ImVec2 size) {
     ImGui::Begin("##log", nullptr, kPanel);
     sectionHeader(tr("log.title"));
     ImGui::BeginChild("lines");
+    const sim::World& w = session_->world();
+    int i = 0;
     for (const auto& l : log_) {
-        ImGui::TextDisabled("%s", fmtClock(session_->world().env().localHour() - (session_->world().time() - l.time) / 3600.0).c_str());
+        ImGui::PushID(i++);
+        ImGui::TextDisabled("%s", fmtClock(w.env().localHour() - (w.time() - l.time) / 3600.0).c_str());
         ImGui::SameLine();
         ImGui::PushTextWrapPos(0.0f);
         ImGui::TextColored(l.color, "%s", l.text.c_str());
         ImGui::PopTextWrapPos();
+        // A click brings the ship, the flight or the place into view.
+        bool target = l.ship != sim::kNoEntity || l.flight >= 0 || l.hasPos;
+        if (target && ImGui::IsItemHovered()) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                if (const sim::Flight* f = l.flight >= 0 ? w.flight(l.flight) : nullptr; f && f->side == playerSide() && f->alive(w) > 0) {
+                    selectFlight(f->id);
+                    if (f->airborne()) map_.focus(f->pos);
+                } else if (const sim::Ship* s = w.ship(l.ship); s && s->alive() && (s->side == playerSide() || playerSide() == sim::Side::Neutral)) {
+                    selectShip(s->id);
+                    map_.focus(s->pos);
+                } else if (l.hasPos) {
+                    map_.focus(l.pos);
+                    if (view_ == View::Scene3D) view_ = View::Split;
+                }
+            }
+        }
+        ImGui::PopID();
     }
     if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY() - 4.0f) ImGui::SetScrollHereY(1.0f);
     ImGui::EndChild();
@@ -673,7 +750,19 @@ void GameUi::drawContactsList(ImVec2 pos, ImVec2 size) {
         ImGui::End();
         return;
     }
-    const sim::Ship* own = w.ship(selShip_);
+    // Bearings and ranges from the selected ship, or from the selected flight of an air-only side.
+    const sim::Ship* ownShip = w.ship(selShip_);
+    struct Ref {
+        Vec2 pos;
+    } ref;
+    const Ref* own = nullptr;
+    if (const sim::Flight* f = selFlight_ >= 0 ? w.flight(selFlight_) : nullptr; f && f->airborne()) {
+        ref.pos = f->pos;
+        own = &ref;
+    } else if (ownShip) {
+        ref.pos = ownShip->pos;
+        own = &ref;
+    }
     if (ImGui::BeginTable("ct", 6, ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingStretchProp)) {
         ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableSetupColumn(tr("contacts.track"), ImGuiTableColumnFlags_WidthStretch, 2.0f);
@@ -715,6 +804,31 @@ void GameUi::drawContactsList(ImVec2 pos, ImVec2 size) {
             ImGui::TableNextColumn();
             ImGui::TextDisabled("%s", senseText(t->sense).c_str());
         }
+        // Aircraft formations on the plot.
+        for (const sim::AirTrack* a : knownAirTracks()) {
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::PushID(int(a->id) + 500000);
+            std::string lbl = "A" + std::to_string(a->id);
+            if (a->count > 0) lbl += "  " + std::to_string(a->count) + "x";
+            lbl += std::string(" ") + (a->roleKnown ? tr(sim::airRoleKey(a->role)) : tr("air.unknown_type"));
+            if (a->altitude >= 0) lbl += "  " + std::to_string(int(std::round(a->altitude / 100.0) * 100)) + " m";
+            ImGui::PushStyleColor(ImGuiCol_Text, a->attacking ? col::kBad : col::kAxis);
+            if (ImGui::Selectable(lbl.c_str(), selAirTrack_ == a->id, ImGuiSelectableFlags_SpanAllColumns)) selAirTrack_ = a->id;
+            ImGui::PopStyleColor();
+            ImGui::PopID();
+            Vec2 ap = a->predict(w.time());
+            ImGui::TableNextColumn();
+            if (own) ImGui::TextUnformatted(fmtBearing(bearingTo(own->pos, ap)).c_str());
+            ImGui::TableNextColumn();
+            if (own) ImGui::TextUnformatted(fmtRange(distance(own->pos, ap), settings.metric).c_str());
+            ImGui::TableNextColumn();
+            ImGui::TextUnformatted(fmtBearing(bearingOf(a->vel)).c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text("%.0f", length(a->vel) / 0.514444);
+            ImGui::TableNextColumn();
+            ImGui::TextDisabled("%s", senseText(a->sense).c_str());
+        }
         ImGui::EndTable();
     }
     ImGui::End();
@@ -731,11 +845,14 @@ void GameUi::drawMapView(ImVec2 pos, ImVec2 size, bool compact) {
     in.world = &w;
     in.terrain = &w.terrain();
     in.side = playerSide();
-    in.selectedShip = selShip_;
+    in.selectedShip = selFlight_ >= 0 ? sim::kNoEntity : selShip_;
     in.selectedTrack = selTrack_;
+    in.selectedFlight = selFlight_;
+    in.selectedAirTrack = selAirTrack_;
     in.chartTexture = svc.chartTexture();
     in.metric = settings.metric;
     in.compact = compact;
+    in.targeting = !compact && mapOrder_ != MapOrder::None;
     if (const sim::Ship* s = w.ship(selShip_); s && s->cls) {
         in.selectedGroup = s->groupId;
         double gun = 0;
@@ -746,37 +863,109 @@ void GameUi::drawMapView(ImVec2 pos, ImVec2 size, bool compact) {
             !s->torpedoMounts.front().def->torpedo->settings.empty())
             in.torpedoRange = s->torpedoMounts.front().def->torpedo->settings.front().range;
         in.plannedCourse = {s->pos, s->pos + bearingVector(s->orders.playerSteering ? s->orders.course : s->heading) * (s->speed * 600.0 + 500.0)};
-        if (const sim::Group* g = w.group(s->groupId); g && g->playerControlled && !s->orders.playerSteering)
-            in.plannedCourse = {s->pos, s->pos + bearingVector(g->course) * (g->speedKn * 0.514444 * 600.0 + 500.0)};
+        if (s->orders.playerSteering && !s->orders.route.empty()) {
+            in.plannedCourse = {s->pos};
+            in.plannedCourse.insert(in.plannedCourse.end(), s->orders.route.begin(), s->orders.route.end());
+            in.plannedIsRoute = true;
+        }
+        if (sim::Group* g = w.group(s->groupId); g && g->playerControlled && !s->orders.playerSteering) {
+            const sim::Ship* guide = w.guideOf(*g);
+            Vec2 from = guide ? guide->pos : s->pos;
+            in.plannedCourse = {from, from + bearingVector(g->course) * (g->speedKn * 0.514444 * 600.0 + 500.0)};
+            if (!g->route.empty()) {
+                in.plannedCourse = {from};
+                in.plannedCourse.insert(in.plannedCourse.end(), g->route.begin(), g->route.end());
+                in.plannedIsRoute = true;
+            }
+        }
     }
     TacticalMap& m = compact ? miniMap_ : map_;
-    if (compact)
-        if (const sim::Ship* s = w.ship(selShip_)) m.center = s->pos;
+    if (compact) {
+        if (const sim::Flight* f = selFlight_ >= 0 ? w.flight(selFlight_) : nullptr; f && f->airborne()) m.center = f->pos;
+        else if (const sim::Ship* s = w.ship(selShip_)) m.center = s->pos;
+    }
     MapOutput out = m.draw("plot", size, in);
-    if (out.clickedShip != sim::kNoEntity) selectShip(out.clickedShip, !compact);
-    if (out.clickedTrack) selTrack_ = out.clickedTrack;
+    if (in.targeting && out.clickedEmpty) issueMapOrder(out.mouseWorld);
+    else {
+        if (out.clickedShip != sim::kNoEntity) selectShip(out.clickedShip, !compact);
+        if (out.clickedTrack) selTrack_ = out.clickedTrack;
+        if (out.clickedFlight >= 0) selectFlight(out.clickedFlight, !compact);
+        if (out.clickedAirTrack) selAirTrack_ = out.clickedAirTrack;
+    }
     if (compact && out.doubleClicked) view_ = View::Map;
-    if (out.rightClicked && !compact) ImGui::OpenPopup("mapctx");
-    static Vec2 ctxPos;
-    if (out.rightClicked) ctxPos = out.rightClickPos;
-    if (ImGui::BeginPopup("mapctx")) {
-        if (sim::Ship* s = selected(); s && (s->side == playerSide() || playerSide() == sim::Side::Neutral)) {
-            double brg = bearingTo(s->pos, ctxPos);
-            const sim::Group* g = w.group(s->groupId);
-            ImGui::TextDisabled("%s %s  %s", tr("ui.bearing"), fmtBearing(brg).c_str(), fmtRange(distance(s->pos, ctxPos), settings.metric).c_str());
-            if (g && g->playerControlled && !s->orders.playerSteering && ImGui::MenuItem(tr("map.ctx.group_steer")))
-                session_->orderGroupCourse(g->id, brg, g->speedKn);
-            if (ImGui::MenuItem(tr("map.ctx.ship_steer"))) session_->orderShipCourse(s->id, brg, s->orders.playerSteering ? s->orders.speedKn : s->speedKn());
+    if (out.rightClicked && !compact) {
+        if (mapOrder_ != MapOrder::None) {
+            mapOrder_ = MapOrder::None;  // a right click ends plotting
+        } else if (out.rightShift && selFlight_ < 0) {
+            addWaypoint(out.rightClickPos, true);
+        } else {
+            mapCtx_ = out;
+            ImGui::OpenPopup("mapctx");
         }
-        if (ImGui::MenuItem(tr("map.ctx.center"))) map_.center = ctxPos;
+    }
+    if (ImGui::BeginPopup("mapctx")) {
+        sim::Flight* f = selectedFlight();
+        if (f && f->playerControlled && f->side == playerSide()) flightMapMenu(*f, mapCtx_);
+        else if (sim::Ship* s = selected(); s && (s->side == playerSide() || playerSide() == sim::Side::Neutral)) shipMapMenu(*s, mapCtx_);
+        ImGui::Separator();
+        if (ImGui::MenuItem(tr("map.ctx.center"))) map_.center = mapCtx_.rightClickPos;
         ImGui::EndPopup();
     }
     if (!compact) {
         ImGui::SetCursorPos({8, 8});
-        ImGui::TextDisabled("%s", tr("map.hint"));
+        ImGui::TextDisabled("%s", tr(mapOrder_ == MapOrder::Waypoints ? "ship.route_hint" : mapOrder_ != MapOrder::None ? "air.pick_point_hint" : "map.hint"));
     }
     ImGui::End();
     ImGui::PopStyleVar();
+}
+
+void GameUi::addWaypoint(const Vec2& p, bool append) {
+    sim::Ship* s = selected();
+    if (!s || !session_->playerShip(s->id)) return;
+    sim::Group* g = session_->world().group(s->groupId);
+    bool toGroup = g && g->playerControlled && !s->orders.playerSteering && helmMode_ == 0;
+    if (toGroup) session_->orderGroupRoute(g->id, {p}, append);
+    else session_->orderShipRoute(s->id, {p}, append);
+}
+
+void GameUi::shipMapMenu(sim::Ship& s, const MapOutput& ctx) {
+    sim::World& w = session_->world();
+    Vec2 at = ctx.rightClickPos;
+    double brg = bearingTo(s.pos, at);
+    sim::Group* g = w.group(s.groupId);
+    bool groupSteer = g && g->playerControlled && !s.orders.playerSteering;
+    ImGui::TextDisabled("%s  %s %s  %s", s.name.c_str(), tr("ui.bearing"), fmtBearing(brg).c_str(), fmtRange(distance(s.pos, at), settings.metric).c_str());
+    ImGui::Separator();
+    if (session_->playerShip(s.id)) {
+        if (const sim::Track* t = ctx.rightTrack ? w.picture(s.side).find(ctx.rightTrack) : nullptr; t && !t->lost) {
+            std::string n = trackName(*t);
+            if (ImGui::MenuItem(loc::format("map.ctx.engage", {n}).c_str())) session_->orderTarget(s.id, t->id);
+            if (s.torpedoesReady() > 0 && ImGui::MenuItem(loc::format("map.ctx.torpedoes", {n}).c_str())) {
+                std::string why;
+                int k = session_->orderTorpedoes(s.id, t->id, std::min(torpedoCount_, s.torpedoesReady()), torpedoSpread_, &why);
+                addLog(s.name + ": " + (k > 0 ? loc::format("weapons.launched", {std::to_string(k)}) : (why.empty() ? tr("weapons.no_solution") : tr(why.c_str()))),
+                       k > 0 ? col::kGood : col::kWarn);
+            }
+            if (ImGui::MenuItem(loc::format("map.ctx.illuminate", {n}).c_str())) session_->orderSearchlight(s.id, true, t->id);
+            ImGui::Separator();
+        }
+        if (groupSteer && ImGui::MenuItem(tr("map.ctx.group_steer"))) session_->orderGroupCourse(g->id, brg, g->speedKn);
+        if (ImGui::MenuItem(tr("map.ctx.ship_steer"))) session_->orderShipCourse(s.id, brg, s.orders.playerSteering ? s.orders.speedKn : s.speedKn());
+        const std::vector<Vec2>& route = groupSteer && helmMode_ == 0 ? g->route : s.orders.route;
+        if (ImGui::MenuItem(tr("map.ctx.waypoint_go"))) addWaypoint(at, false);
+        if (ImGui::MenuItem(tr("map.ctx.waypoint_add"), "Shift+RMB")) addWaypoint(at, true);
+        if (!route.empty() && ImGui::MenuItem(tr("ship.route_clear"))) {
+            if (groupSteer && helmMode_ == 0) session_->orderGroupRoute(g->id, {}, false);
+            else session_->orderShipRoute(s.id, {}, false);
+        }
+        if (s.floatplanes > 0) {
+            ImGui::Separator();
+            if (ImGui::MenuItem(tr("map.ctx.floatplane_recon"))) session_->orderFloatplane(s.id, false, at);
+            if (ImGui::MenuItem(tr("map.ctx.floatplane_flares"))) session_->orderFloatplane(s.id, true, at);
+        }
+    } else if (playerSide() == sim::Side::Neutral) {
+        if (ImGui::MenuItem(tr("map.ctx.ship_steer"))) session_->orderShipCourse(s.id, brg, s.speedKn());
+    }
 }
 
 // ------------------------------------------------------------------------------------------ 3D labels
@@ -815,6 +1004,33 @@ void GameUi::drawSceneLabels() {
         ImVec2 ts = ImGui::CalcTextSize(s->name.c_str());
         dl->AddText({p.x - ts.x * 0.5f, p.y - ts.y}, c, s->name.c_str());
     }
+    for (const auto& f : w.flights()) {
+        if (!f.airborne() || (me != sim::Side::Neutral && f.side != me)) continue;
+        const sim::Aircraft* lead = nullptr;
+        for (sim::EntityId pid : f.planes)
+            if (const sim::Aircraft* a = w.plane(pid); a && a->flying()) {
+                lead = a;
+                break;
+            }
+        if (!lead) continue;
+        double d = length(render::toRender(lead->pos.xy(), lead->pos.z) - cam_.pos);
+        if (d > 15000.0 && f.id != selFlight_) continue;
+        ImVec2 p;
+        if (!project(render::toRender(lead->pos.xy(), lead->pos.z + 25.0), p)) continue;
+        ImU32 c = f.id == selFlight_ ? toU32(col::kBrass) : toU32(ImVec4{0.55f, 0.85f, 1.0f, 1.0f}, 0.75f);
+        std::string n = locName(f.name);
+        ImVec2 ts = ImGui::CalcTextSize(n.c_str());
+        dl->AddText({p.x - ts.x * 0.5f, p.y - ts.y}, c, n.c_str());
+    }
+    if (me != sim::Side::Neutral)
+        for (const sim::AirTrack* t : knownAirTracks()) {
+            ImVec2 p;
+            if (!project(render::toRender(t->predict(w.time()), std::max(300.0, t->altitude)), p)) continue;
+            ImU32 c = toU32(col::kAxis, 0.8f);
+            drawAircraftSymbol(dl, p, 8.0f, float(bearingOf(t->vel) * kDegToRad), c, 1.4f);
+            std::string n = "A" + std::to_string(t->id) + (t->count > 0 ? "  " + std::to_string(t->count) + "x" : "");
+            dl->AddText({p.x + 12, p.y - 8}, c, n.c_str());
+        }
     if (me != sim::Side::Neutral)
         for (const sim::Track* t : knownHostiles()) {
             ImVec2 p;

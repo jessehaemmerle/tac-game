@@ -113,6 +113,7 @@ void Environment::parse(const Json& j, DateTime& dt, WeatherConfig& w) {
     dt.utcOffset = jnum(d, "utc_offset", dt.utcOffset);
     const Json& wj = jobj(j, "weather");
     w.cloudCover = jnum(wj, "cloud_cover", w.cloudCover);
+    w.cloudBaseM = jnum(wj, "cloud_base_m", w.cloudBaseM);
     w.visibilityKm = jnum(wj, "visibility_km", w.visibilityKm);
     w.seaState = jnum(wj, "sea_state", w.seaState);
     w.windDirDeg = jnum(wj, "wind_dir", w.windDirDeg);

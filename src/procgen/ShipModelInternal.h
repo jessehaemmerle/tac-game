@@ -129,6 +129,12 @@ void deckFittings(Ctx& cx);   // bollards, fairleads, vents, hatches, lockers (f
 void railings(Ctx& cx);
 void depthCharges(Ctx& cx);
 void ensign(Ctx& cx);
+/// Wing panel from root to tip (y), airfoil chord along x, with sweep and dihedral (tip rise).
+void wing(MeshBuilder& mb, Vec3f root, float rootChord, float tipChord, float span, float sweep, float dihedral, float thick);
+/// National aircraft marking (roundel, hinomaru, star, Balkenkreuz, fasces) centred on c, facing n.
+void marking(MeshBuilder& mb, sim::Nation nation, Vec3f c, Vec3f n, float r);
+/// Ship floatplane of a style, in a local frame: x forward, origin under the main float, z up.
+void floatplane(MeshBuilder& mb, const PaintScheme& p, const std::string& style, sim::Nation nation, bool blades = true);
 /// Red and white air-recognition bands across the forecastle (Regia Marina, from late 1940).
 void recognitionStripes(Ctx& cx);
 /// Inclined ladder with handrails from (x0, y, z0) up to (x1, y, z1).

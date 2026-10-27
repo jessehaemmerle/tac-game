@@ -118,6 +118,8 @@ const char* shipTypeName(sim::ShipType t) {
     }
 }
 
+std::string locName(const std::string& k) { return loc::has(k) ? std::string(tr(k.c_str())) : k; }
+
 const char* shipTypeAbbrev(sim::ShipType t) {
     switch (t) {
         case sim::ShipType::BB: return "BB";

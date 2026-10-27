@@ -15,6 +15,19 @@ namespace {
 
 constexpr float kPickRadius = 13.0f;
 
+}  // namespace
+
+struct Pick {
+    ImVec2 s;
+    sim::EntityId ship = sim::kNoEntity;
+    uint32_t track = 0;
+    int marker = -1;
+    int flight = -1;
+    uint32_t airTrack = 0;
+};
+
+namespace {
+
 double niceStep(double raw) {
     double e = std::pow(10.0, std::floor(std::log10(raw)));
     for (double m : {1.0, 2.0, 5.0, 10.0})
@@ -56,7 +69,139 @@ bool sideKnows(const sim::Track& t, const sim::World& w, sim::Side side) {
     return false;
 }
 
+bool sideKnowsAir(const sim::AirTrack& t, const sim::World& w, sim::Side side) {
+    if (t.sharedAt <= w.time()) return true;
+    for (const auto& h : t.holders)
+        if (w.time() - h.lastSeen < 30.0)
+            if (const sim::Ship* s = w.ship(h.ship); s && s->side == side) return true;
+    return false;
+}
+
+/// Where a flight's order takes it (for the order line on the plot).
+std::vector<Vec2> orderPath(const sim::World& w, const sim::Flight& f, sim::Side perspective) {
+    using T = sim::AirOrderType;
+    std::vector<Vec2> out{f.pos};
+    const auto& o = f.order;
+    auto trackPos = [&](uint32_t id, Vec2& p) {
+        if (const sim::Track* t = w.picture(perspective == sim::Side::Neutral ? f.side : perspective).find(id)) {
+            p = t->lost ? t->pos : t->predict(w.time());
+            return true;
+        }
+        return false;
+    };
+    Vec2 p;
+    switch (o.type) {
+        case T::Patrol:
+            for (size_t i = std::min(f.leg, o.route.size()); i < o.route.size(); ++i) out.push_back(o.route[i]);
+            if (o.route.empty()) out.push_back(o.point);
+            break;
+        case T::Attack:
+        case T::Flares:
+        case T::Spot:
+            if (o.track && trackPos(o.track, p)) out.push_back(p);
+            else out.push_back(o.point);
+            break;
+        case T::Cap:
+            if (const sim::Group* g = w.group(o.group))
+                for (auto id : g->members)
+                    if (const sim::Ship* s = w.ship(id); s && s->operational()) {
+                        out.push_back(s->pos);
+                        break;
+                    }
+            if (out.size() == 1) out.push_back(o.point);
+            break;
+        case T::Escort:
+            if (const sim::Flight* e = w.flight(o.escort)) out.push_back(e->pos);
+            break;
+        case T::Return:
+            if (const sim::AirBase* b = w.airBase(f.base)) {
+                if (const sim::Ship* s = w.ship(b->ship)) out.push_back(s->pos);
+                else out.push_back(b->pos);
+            }
+            break;
+        default: break;
+    }
+    return out;
+}
+
 }  // namespace
+
+void TacticalMap::drawAir(ImDrawList* dl, const MapInput& in, std::vector<Pick>& picks) {
+    const sim::World& w = *in.world;
+    const double now = w.time();
+    const bool umpire = in.side == sim::Side::Neutral;
+    // Air bases (catapult ships are their own symbol).
+    for (const auto& b : w.airBases()) {
+        if (b.ship != sim::kNoEntity || (!umpire && b.side != in.side)) continue;
+        ImVec2 c = toScreen(b.pos);
+        ImU32 colr = toU32(umpire ? sideColor(b.side) : col::kAllies, 0.85f);
+        drawAirBaseSymbol(dl, c, 6.0f, colr);
+        if (!in.compact) dl->AddText({c.x + 10, c.y - 7}, colr, locName(b.name).c_str());
+    }
+    // Own flights.
+    for (const auto& f : w.flights()) {
+        if (!umpire && f.side != in.side) continue;
+        if (!f.airborne() || f.alive(w) == 0) continue;
+        bool sel = f.id == in.selectedFlight;
+        ImVec4 base = umpire ? sideColor(f.side) : ImVec4{0.55f, 0.85f, 1.0f, 1.0f};
+        ImU32 colr = toU32(base, f.playerControlled || umpire ? 1.0f : 0.7f);
+        ImVec2 c = toScreen(f.pos);
+        // Order line: full for the selected flight, a faint hint for the others.
+        if (!in.compact && (sel || mpp < 120)) {
+            auto path = orderPath(w, f, in.side);
+            for (size_t i = 0; i + 1 < path.size(); ++i)
+                dashedLine(dl, toScreen(path[i]), toScreen(path[i + 1]), toU32(base, sel ? 0.8f : 0.3f), sel ? 6.0f : 4.0f, sel ? 1.5f : 1.0f);
+            if (sel && path.size() > 1) dl->AddCircle(toScreen(path.back()), 5.0f, toU32(base, 0.8f), 12, 1.5f);
+        }
+        if (mpp < 9.0) {
+            // Close in: every aircraft of the formation.
+            for (sim::EntityId pid : f.planes)
+                if (const sim::Aircraft* a = w.plane(pid); a && a->flying())
+                    drawAircraftSymbol(dl, toScreen(a->pos.xy()), 4.5f, float(a->heading * kDegToRad), colr, 1.2f);
+        } else {
+            drawAircraftSymbol(dl, c, 7.5f, float(f.heading * kDegToRad), colr);
+        }
+        if (sel) dl->AddCircle(c, 14.0f, toU32(col::kBrass), 24, 2.0f);
+        if (!in.compact && (mpp < 150 || sel)) {
+            char b[96];
+            std::snprintf(b, sizeof(b), "%s  %d", locName(f.name).c_str(), f.alive(w));
+            dl->AddText({c.x + 11, c.y - 16}, toU32(base, 0.9f), b);
+        }
+        Pick p;
+        p.s = c;
+        p.flight = f.id;
+        picks.push_back(p);
+    }
+    // The side's air picture.
+    if (umpire) return;
+    for (const auto& t : w.picture(in.side).airTracks()) {
+        if (!sideKnowsAir(t, w, in.side)) continue;
+        if (t.lost && t.age(now) > 120.0) continue;
+        Vec2 pos = t.lost ? t.pos : t.predict(now);
+        ImVec2 c = toScreen(pos);
+        ImU32 colr = t.lost ? IM_COL32(150, 150, 150, 200) : t.attacking ? toU32(col::kAxis) : toU32(col::kAxis, 0.85f);
+        if (!t.lost && length(t.vel) > 5.0) dl->AddLine(c, toScreen(pos + t.vel * 120.0), colr, 1.3f);
+        float hdg = length(t.vel) > 5.0 ? float(bearingOf(t.vel) * kDegToRad) : 0.0f;
+        drawAircraftSymbol(dl, c, 7.0f, hdg, colr);
+        dl->AddCircle(c, 10.0f, (colr & 0x00ffffff) | 0x60000000, 16, 1.0f);
+        if (now - t.attackSeen < 8.0) {
+            float k = float(1.0 - (now - t.attackSeen) / 8.0);
+            dl->AddCircle(c, 13.0f + 6.0f * (1.0f - k), IM_COL32(255, 120, 90, int(230 * k)), 16, 2.0f);
+        }
+        if (t.id == in.selectedAirTrack) dl->AddRect({c.x - 13, c.y - 13}, {c.x + 13, c.y + 13}, toU32(col::kBrass), 0.0f, 0, 2.0f);
+        if (!in.compact && mpp < 150) {
+            std::string lbl = "A" + std::to_string(t.id);
+            if (t.count > 0) lbl += "  " + std::to_string(t.count) + "x";
+            if (t.roleKnown) lbl += std::string(" ") + tr(sim::airRoleKey(t.role));
+            if (t.altitude >= 0) lbl += "  " + std::to_string(int(std::round(t.altitude / 100.0) * 100)) + " m";
+            dl->AddText({c.x + 12, c.y - 7}, (colr & 0x00ffffff) | 0xd0000000, lbl.c_str());
+        }
+        Pick p;
+        p.s = c;
+        p.airTrack = t.id;
+        picks.push_back(p);
+    }
+}
 
 void TacticalMap::fit(const Vec2& lo, const Vec2& hi, ImVec2 size) {
     center = (lo + hi) * 0.5;
@@ -167,12 +312,6 @@ MapOutput TacticalMap::draw(const char* id, ImVec2 size, const MapInput& in) {
     drawGrid(dl, in);
 
     // Hit-test candidates.
-    struct Pick {
-        ImVec2 s;
-        sim::EntityId ship = sim::kNoEntity;
-        uint32_t track = 0;
-        int marker = -1;
-    };
     std::vector<Pick> picks;
 
     if (w) {
@@ -279,6 +418,7 @@ MapOutput TacticalMap::draw(const char* id, ImVec2 size, const MapInput& in) {
             if (!in.compact && (mpp < 60 || sel)) dl->AddText({c.x + 10, c.y + 2}, toU32(sc, 0.9f), s.name.c_str());
             picks.push_back({c, s.id, 0, -1});
         }
+        drawAir(dl, in, picks);
         // ---- Selected ship overlays: weapon ranges, planned course
         if (const sim::Ship* s = w->ship(in.selectedShip); s && s->alive()) {
             ImVec2 c = toScreen(s->pos);
@@ -291,8 +431,18 @@ MapOutput TacticalMap::draw(const char* id, ImVec2 size, const MapInput& in) {
                 if (!in.compact)
                     dl->AddText({c.x + 4, c.y + float(in.torpedoRange / mpp) + 2}, IM_COL32(120, 200, 255, 170), tr("map.torpedo_range"));
             }
-            for (size_t i = 0; i + 1 < in.plannedCourse.size(); ++i)
+            for (size_t i = 0; i + 1 < in.plannedCourse.size(); ++i) {
                 dashedLine(dl, toScreen(in.plannedCourse[i]), toScreen(in.plannedCourse[i + 1]), toU32(col::kBrass, 0.8f), 6.0f, 1.5f);
+                if (in.plannedIsRoute) {
+                    ImVec2 v = toScreen(in.plannedCourse[i + 1]);
+                    dl->AddCircle(v, 5.0f, toU32(col::kBrass, 0.9f), 12, 1.5f);
+                    if (!in.compact) {
+                        char b[24];
+                        std::snprintf(b, sizeof(b), "%zu", i + 1);
+                        dl->AddText({v.x + 7, v.y - 7}, toU32(col::kBrass, 0.8f), b);
+                    }
+                }
+            }
         }
     }
 
@@ -362,10 +512,12 @@ MapOutput TacticalMap::draw(const char* id, ImVec2 size, const MapInput& in) {
     if (hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !panning_ && !measuring_) {
         bool wasDrag = std::abs(mouse.x - pressPos_.x) + std::abs(mouse.y - pressPos_.y) > 4.0f;
         if (!wasDrag) {
-            if (const Pick* p = nearest()) {
+            if (const Pick* p = in.targeting ? nullptr : nearest()) {
                 out.clickedShip = p->ship;
                 out.clickedTrack = p->track;
                 out.clickedMarker = p->marker;
+                out.clickedFlight = p->flight;
+                out.clickedAirTrack = p->airTrack;
             } else {
                 out.clickedEmpty = true;
             }
@@ -379,7 +531,19 @@ MapOutput TacticalMap::draw(const char* id, ImVec2 size, const MapInput& in) {
     }
     if (hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
         out.rightClicked = true;
+        out.rightShift = io.KeyShift;
         out.rightClickPos = toWorld(mouse);
+        if (const Pick* p = nearest()) {
+            out.rightShip = p->ship;
+            out.rightTrack = p->track;
+            out.rightAirTrack = p->airTrack;
+            out.rightFlight = p->flight;
+        }
+    }
+    if (hovered && in.targeting) {
+        dl->AddCircle(mouse, 9.0f, toU32(col::kBrass), 20, 1.5f);
+        dl->AddLine({mouse.x - 14, mouse.y}, {mouse.x + 14, mouse.y}, toU32(col::kBrass), 1.0f);
+        dl->AddLine({mouse.x, mouse.y - 14}, {mouse.x, mouse.y + 14}, toU32(col::kBrass), 1.0f);
     }
     if (measuring_) {
         ImVec2 a = toScreen(measureStart_);
@@ -412,6 +576,20 @@ MapOutput TacticalMap::draw(const char* id, ImVec2 size, const MapInput& in) {
                     }
                     if (t->lost) ImGui::TextDisabled("%s %s", tr("ui.contact.lost_since"), fmtDuration(t->age(now)).c_str());
                 }
+            } else if (const sim::Flight* f = w->flight(p->flight)) {
+                ImGui::TextColored(in.side == sim::Side::Neutral ? sideColor(f->side) : col::kAllies, "%s", locName(f->name).c_str());
+                ImGui::TextDisabled("%d x %s  |  %s", f->alive(*w), f->def->name.c_str(), tr(sim::flightStateKey(f->state)));
+                ImGui::Text("%s  %s %s  %.0f m", tr(sim::airOrderKey(f->order.type)), tr("ui.course"), fmtBearing(f->heading).c_str(), f->altitude);
+            } else if (const sim::AirTrack* a = w->picture(in.side).findAir(p->airTrack)) {
+                ImGui::TextColored(col::kAxis, "A%u  %s", a->id, a->roleKnown ? tr(sim::airRoleKey(a->role)) : tr("air.unknown_type"));
+                if (a->count > 0) ImGui::Text("%s: ~%d", tr("air.count"), a->count);
+                if (a->altitude >= 0) ImGui::Text("%s: ~%.0f m", tr("air.altitude"), a->altitude);
+                ImGui::Text("%s %s  ~%s", tr("ui.course"), fmtBearing(bearingOf(a->vel)).c_str(), fmtKnots(length(a->vel) / 0.514444).c_str());
+                if (const sim::Ship* own = w->ship(in.selectedShip)) {
+                    Vec2 ap = a->predict(now);
+                    ImGui::Text("%s %s  %s", tr("ui.range"), fmtRange(distance(own->pos, ap), in.metric).c_str(), fmtBearing(bearingTo(own->pos, ap)).c_str());
+                }
+                if (a->attacking) ImGui::TextColored(col::kBad, "%s", tr("air.attacking"));
             }
             ImGui::EndTooltip();
         }

@@ -8,6 +8,7 @@
 
 #include "core/FileSystem.h"
 #include "core/Log.h"
+#include "procgen/AircraftModel.h"
 #include "procgen/ShipModel.h"
 #include "sim/Database.h"
 
@@ -22,11 +23,21 @@ int main(int argc, char** argv) {
     setLogLevel(LogLevel::Warn);
     sim::Database db;
     if (!db.loadFromDirectory(fs::dataPath("db").string())) return 1;
-    std::vector<const sim::ShipClassDef*> classes;
-    if (std::string(argv[1]) == "all")
-        for (auto& c : db.shipClasses()) classes.push_back(c.get());
-    else if (auto* c = db.shipClass(argv[1]))
-        classes.push_back(c);
+    // Ship classes, or aircraft types ("aircraft" for all of them).
+    struct Entry {
+        std::string id;
+        const sim::ShipClassDef* cls = nullptr;
+        procgen::Model model;
+        float size = 100;
+    };
+    std::vector<Entry> classes;
+    std::string what = argv[1];
+    if (what == "all")
+        for (auto& c : db.shipClasses()) classes.push_back({c->id, c.get(), {}, float(c->length)});
+    else if (auto* c = db.shipClass(what))
+        classes.push_back({c->id, c, {}, float(c->length)});
+    for (auto& a : db.aircraftTypes())
+        if (what == "aircraft" || what == a->id) classes.push_back({a->id, nullptr, procgen::buildAircraftModel(*a), float(std::max(a->model.span, a->model.length))});
     if (classes.empty()) return 1;
     float yaw = argc > 3 ? float(std::atof(argv[3])) : 35.0f, pitch = argc > 4 ? float(std::atof(argv[4])) : 12.0f;
     int W = argc > 5 ? std::atoi(argv[5]) : 1200;
@@ -46,8 +57,8 @@ int main(int argc, char** argv) {
     float cp = std::cos(pitch * float(kDegToRad)), sp = std::sin(pitch * float(kDegToRad));
     Vec3f light = normalize(Vec3f{0.4f, -0.5f, 0.75f});
     for (size_t ci = 0; ci < classes.size(); ++ci) {
-        procgen::Model m = procgen::buildShipModel(*classes[ci]);
-        float scale = W * 0.92f / float(classes[ci]->length * 1.05) * zoom;
+        procgen::Model m = classes[ci].cls ? procgen::buildShipModel(*classes[ci].cls) : classes[ci].model;
+        float scale = W * 0.92f / float(classes[ci].size * 1.05) * zoom;
         float ox = W * 0.5f, oy = float(ci * rowH) + rowH * (zoom > 1.0f ? 0.5f : 0.62f);
         auto project = [&](const Vec3f& p0, float& sx, float& syy, float& depth) {
             // view: rotate around z by yaw, then tilt by pitch; camera looks along +y
@@ -63,8 +74,8 @@ int main(int argc, char** argv) {
         for (size_t pi = 0; pi < m.parts.size(); ++pi) {
             const auto& part = m.parts[pi];
             float rot = 0;
-            if (part.kind == procgen::PartKind::Turret && part.mount >= 0) {
-                const auto& md = classes[ci]->mounts[size_t(part.mount)];
+            if (part.kind == procgen::PartKind::Turret && part.mount >= 0 && classes[ci].cls) {
+                const auto& md = classes[ci].cls->mounts[size_t(part.mount)];
                 if (md.arcMin > 0 && md.arcMax > 180) rot = float(kPi);
                 else if (md.arcMin > 0) rot = float(kPi) * 0.5f;
                 else if (md.arcMax < 0) rot = -float(kPi) * 0.5f;
@@ -127,7 +138,7 @@ int main(int argc, char** argv) {
             }
             std::printf("  triangles by level of detail: %zu / %zu / %zu\n", lodTris[0], lodTris[1], lodTris[2]);
         }
-        std::printf("%-22s %7zu triangles, bounds %.1f x %.1f x %.1f m\n", classes[ci]->id.c_str(), m.triangleCount(),
+        std::printf("%-22s %7zu triangles, bounds %.1f x %.1f x %.1f m\n", classes[ci].id.c_str(), m.triangleCount(),
                     m.bounds.hi.x - m.bounds.lo.x, m.bounds.hi.y - m.bounds.lo.y, m.bounds.hi.z - m.bounds.lo.z);
     }
     FILE* f = std::fopen(argv[2], "wb");

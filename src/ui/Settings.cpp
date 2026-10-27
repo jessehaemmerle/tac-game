@@ -29,6 +29,7 @@ bool Settings::load(const std::string& path) {
     autoEvade = jbool(*j, "auto_evade", autoEvade);
     revealEnemyAi = jbool(*j, "reveal_enemy_ai", revealEnemyAi);
     pauseOnContact = jbool(*j, "pause_on_contact", pauseOnContact);
+    slowOnAlert = jbool(*j, "slow_on_alert", slowOnAlert);
     return true;
 }
 
@@ -55,6 +56,7 @@ bool Settings::save(const std::string& path) const {
     j["auto_evade"] = autoEvade;
     j["reveal_enemy_ai"] = revealEnemyAi;
     j["pause_on_contact"] = pauseOnContact;
+    j["slow_on_alert"] = slowOnAlert;
     return fs::writeTextFile(path, j.dump(2));
 }
 

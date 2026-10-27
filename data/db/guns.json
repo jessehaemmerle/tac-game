@@ -1,5 +1,8 @@
 // Naval guns. Sources: navweaps.com datapages (Tony DiGiulian), Campbell "Naval Weapons of World War Two".
 // max_range_m / max_range_elev are used to calibrate the drag model of the first shell.
+// Dual-purpose guns: aa_kill_rounds = rounds expended per aircraft destroyed at reference conditions
+// (daylight, target inside aa_range_m, regular crew); 1942 USN experience with the Mk 37 director and
+// timed fuzes was some 600-1,000 rounds of 5-inch per aircraft, British HACS systems did far worse.
 [
   { "id": "usn_8in55", "name": "8\"/55 Mark 9/12/14", "nation": "usn", "caliber_mm": 203.2, "calibres": 55,
     "rof_rpm": 3.0, "elev_max": 41, "elev_min": -5, "traverse_dps": 5, "elev_dps": 8,
@@ -15,19 +18,19 @@
       { "kind": "Common", "name": "HC Mark 34 (105 lb)", "mass_kg": 47.6, "mv": 812, "burster_kg": 6.2 } ] },
   { "id": "usn_5in38", "name": "5\"/38 Mark 12", "nation": "usn", "caliber_mm": 127.0, "calibres": 38,
     "rof_rpm": 15.0, "elev_max": 85, "elev_min": -15, "traverse_dps": 25, "elev_dps": 15,
-    "max_range_m": 15900, "max_range_elev": 45, "dispersion": 0.007, "dual_purpose": true,
+    "max_range_m": 15900, "max_range_elev": 45, "dispersion": 0.007, "dual_purpose": true, "aa_kill_rounds": 650, "aa_range_m": 9000,
     "shells": [
       { "kind": "Common", "name": "AAC Mark 28 (55 lb)", "mass_kg": 25.0, "mv": 792, "burster_kg": 3.3 },
       { "kind": "Starshell", "name": "Illum Mark 25", "mass_kg": 24.5, "mv": 640, "burster_kg": 0.0 } ] },
   { "id": "usn_5in25", "name": "5\"/25 Mark 10/13", "nation": "usn", "caliber_mm": 127.0, "calibres": 25,
     "rof_rpm": 10.0, "elev_max": 85, "elev_min": -10, "traverse_dps": 20, "elev_dps": 14,
-    "max_range_m": 13260, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true,
+    "max_range_m": 13260, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true, "aa_kill_rounds": 1000, "aa_range_m": 7500,
     "shells": [
       { "kind": "Common", "name": "AAC Mark 31 (54 lb)", "mass_kg": 24.4, "mv": 657, "burster_kg": 3.3 },
       { "kind": "Starshell", "name": "Illum Mark 24", "mass_kg": 24.0, "mv": 600, "burster_kg": 0.0 } ] },
   { "id": "usn_3in50", "name": "3\"/50 Mark 10/20", "nation": "usn", "caliber_mm": 76.2, "calibres": 50,
     "rof_rpm": 15.0, "elev_max": 85, "elev_min": -10, "traverse_dps": 20, "elev_dps": 15,
-    "max_range_m": 13350, "max_range_elev": 43, "dispersion": 0.008, "dual_purpose": true,
+    "max_range_m": 13350, "max_range_elev": 43, "dispersion": 0.008, "dual_purpose": true, "aa_kill_rounds": 1500, "aa_range_m": 6000,
     "shells": [ { "kind": "Common", "name": "AAC (13 lb)", "mass_kg": 5.9, "mv": 823, "burster_kg": 0.35 } ] },
   { "id": "rn_8in50", "name": "BL 8\"/50 Mark VIII", "nation": "rn", "caliber_mm": 203.2, "calibres": 50,
     "rof_rpm": 3.0, "elev_max": 70, "elev_min": -3, "traverse_dps": 5, "elev_dps": 10,
@@ -37,9 +40,16 @@
       { "kind": "HE", "name": "HE (256 lb)", "mass_kg": 116.1, "mv": 831, "burster_kg": 10.4 } ] },
   { "id": "rn_4in45", "name": "QF 4\"/45 Mark V", "nation": "rn", "caliber_mm": 101.6, "calibres": 45,
     "rof_rpm": 12.0, "elev_max": 80, "elev_min": -5, "traverse_dps": 15, "elev_dps": 12,
-    "max_range_m": 14900, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true,
+    "max_range_m": 14900, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true, "aa_kill_rounds": 2600, "aa_range_m": 7000,
     "shells": [
       { "kind": "HE", "name": "HE (31 lb)", "mass_kg": 14.1, "mv": 728, "burster_kg": 1.2 },
+      { "kind": "Starshell", "name": "Starshell", "mass_kg": 14.0, "mv": 600, "burster_kg": 0.0 } ] },
+  { "id": "rn_4in44_bl", "name": "BL 4\"/44 Mark IX (triple)", "nation": "rn", "caliber_mm": 101.6, "calibres": 44,
+    "rof_rpm": 10.0, "elev_max": 30, "elev_min": -10, "traverse_dps": 8, "elev_dps": 6,
+    "max_range_m": 12660, "max_range_elev": 30, "dispersion": 0.009,
+    "shells": [
+      { "kind": "HE", "name": "HE (31 lb)", "mass_kg": 14.1, "mv": 800, "burster_kg": 1.2 },
+      { "kind": "Common", "name": "CPBC (31 lb)", "mass_kg": 14.1, "mv": 800, "burster_kg": 0.8 },
       { "kind": "Starshell", "name": "Starshell", "mass_kg": 14.0, "mv": 600, "burster_kg": 0.0 } ] },
   { "id": "ijn_20cm50", "name": "20 cm/50 3rd Year Type No. 2", "nation": "ijn", "caliber_mm": 203.2, "calibres": 50,
     "rof_rpm": 2.5, "elev_max": 55, "elev_min": -5, "loading_elev": 5, "traverse_dps": 4, "elev_dps": 6,
@@ -67,7 +77,7 @@
       { "kind": "Starshell", "name": "Illuminating", "mass_kg": 19.0, "mv": 650, "burster_kg": 0.0 } ] },
   { "id": "ijn_12cm45_ha", "name": "12 cm/45 10th Year Type HA", "nation": "ijn", "caliber_mm": 120.0, "calibres": 45,
     "rof_rpm": 10.0, "elev_max": 75, "elev_min": -10, "traverse_dps": 10, "elev_dps": 10,
-    "max_range_m": 15600, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true,
+    "max_range_m": 15600, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true, "aa_kill_rounds": 2200, "aa_range_m": 7500,
     "shells": [
       { "kind": "Common", "name": "Common", "mass_kg": 20.4, "mv": 825, "burster_kg": 1.5 },
       { "kind": "Starshell", "name": "Illuminating", "mass_kg": 19.0, "mv": 650, "burster_kg": 0.0 } ] },
@@ -91,13 +101,13 @@
       { "kind": "Starshell", "name": "Illuminating", "mass_kg": 41.0, "mv": 700, "burster_kg": 0.0 } ] },
   { "id": "ijn_127_40", "name": "12.7 cm/40 Type 89 HA", "nation": "ijn", "caliber_mm": 127.0, "calibres": 40,
     "rof_rpm": 14.0, "elev_max": 90, "elev_min": -8, "traverse_dps": 16, "elev_dps": 12,
-    "max_range_m": 14800, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true,
+    "max_range_m": 14800, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true, "aa_kill_rounds": 1500, "aa_range_m": 8000,
     "shells": [
       { "kind": "Common", "name": "Type 0 HE", "mass_kg": 23.0, "mv": 725, "burster_kg": 1.8 },
       { "kind": "Starshell", "name": "Illuminating", "mass_kg": 21.0, "mv": 650, "burster_kg": 0.0 } ] },
   { "id": "ijn_10cm65", "name": "10 cm/65 Type 98", "nation": "ijn", "caliber_mm": 100.0, "calibres": 65,
     "rof_rpm": 19.0, "elev_max": 90, "elev_min": -10, "traverse_dps": 16, "elev_dps": 16,
-    "max_range_m": 19500, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true,
+    "max_range_m": 19500, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true, "aa_kill_rounds": 900, "aa_range_m": 10000,
     "shells": [
       { "kind": "Common", "name": "Type 98 HE", "mass_kg": 13.0, "mv": 1010, "burster_kg": 0.95 },
       { "kind": "Starshell", "name": "Illuminating", "mass_kg": 12.5, "mv": 800, "burster_kg": 0.0 } ] },
@@ -115,7 +125,7 @@
       { "kind": "Starshell", "name": "Starshell", "mass_kg": 45.0, "mv": 700, "burster_kg": 0.0 } ] },
   { "id": "rn_4in45_mk16", "name": "QF 4\"/45 Mark XVI", "nation": "rn", "caliber_mm": 101.6, "calibres": 45,
     "rof_rpm": 15.0, "elev_max": 80, "elev_min": -10, "traverse_dps": 15, "elev_dps": 12,
-    "max_range_m": 18150, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true,
+    "max_range_m": 18150, "max_range_elev": 45, "dispersion": 0.008, "dual_purpose": true, "aa_kill_rounds": 1900, "aa_range_m": 8000,
     "shells": [
       { "kind": "HE", "name": "HE (35 lb)", "mass_kg": 15.9, "mv": 811, "burster_kg": 1.6 },
       { "kind": "Starshell", "name": "Starshell", "mass_kg": 15.9, "mv": 700, "burster_kg": 0.0 } ] },
@@ -140,7 +150,7 @@
       { "kind": "HE", "name": "Granata dirompente (110 kg)", "mass_kg": 110.6, "mv": 940, "burster_kg": 8.0 } ] },
   { "id": "rm_100_47", "name": "100 mm/47 OTO Mod. 1928", "nation": "rm", "caliber_mm": 100.0, "calibres": 47,
     "rof_rpm": 8.0, "elev_max": 85, "elev_min": -5, "traverse_dps": 10, "elev_dps": 8,
-    "max_range_m": 15240, "max_range_elev": 45, "dispersion": 0.0085, "dual_purpose": true,
+    "max_range_m": 15240, "max_range_elev": 45, "dispersion": 0.0085, "dual_purpose": true, "aa_kill_rounds": 2600, "aa_range_m": 7000,
     "shells": [
       { "kind": "HE", "name": "Granata dirompente (13.8 kg)", "mass_kg": 13.8, "mv": 880, "burster_kg": 1.1 },
       { "kind": "Starshell", "name": "Proietto illuminante", "mass_kg": 13.5, "mv": 750, "burster_kg": 0.0 } ] },
@@ -159,7 +169,7 @@
       { "kind": "HE", "name": "HE Mark IIA (1,590 lb)", "mass_kg": 721.0, "mv": 757, "burster_kg": 80.0 } ] },
   { "id": "rn_525in50", "name": "QF 5.25\"/50 Mark I", "nation": "rn", "caliber_mm": 133.0, "calibres": 50,
     "rof_rpm": 7.0, "elev_max": 70, "elev_min": -5, "traverse_dps": 10, "elev_dps": 10,
-    "max_range_m": 21400, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true,
+    "max_range_m": 21400, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true, "aa_kill_rounds": 2000, "aa_range_m": 9000,
     "shells": [
       { "kind": "Common", "name": "SAP (80 lb)", "mass_kg": 36.3, "mv": 814, "burster_kg": 1.5 },
       { "kind": "HE", "name": "HE (80 lb)", "mass_kg": 36.3, "mv": 814, "burster_kg": 3.7 },
@@ -193,7 +203,7 @@
       { "kind": "Starshell", "name": "Leuchtgranate", "mass_kg": 44.0, "mv": 760, "burster_kg": 0.0 } ] },
   { "id": "km_105_65", "name": "10.5 cm/65 SK C/33", "nation": "km", "caliber_mm": 105.0, "calibres": 65,
     "rof_rpm": 15.0, "elev_max": 80, "elev_min": -8, "traverse_dps": 12, "elev_dps": 12,
-    "max_range_m": 17700, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true,
+    "max_range_m": 17700, "max_range_elev": 45, "dispersion": 0.0075, "dual_purpose": true, "aa_kill_rounds": 1300, "aa_range_m": 8500,
     "shells": [
       { "kind": "HE", "name": "Sprgr. (15.1 kg)", "mass_kg": 15.1, "mv": 900, "burster_kg": 1.5 },
       { "kind": "Starshell", "name": "Leuchtgranate", "mass_kg": 14.8, "mv": 780, "burster_kg": 0.0 } ] }

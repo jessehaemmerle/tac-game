@@ -215,4 +215,83 @@ void torpedoWatch(World& w, Ship& observer) {
     }
 }
 
+void airWatch(World& w, Ship& obs, double interval) {
+    if (!obs.operational()) return;
+    double now = w.time();
+    double crew = crewFactor(obs.crew) * (1.0 - 0.5 * obs.dmg.crewLoss) * (0.6 + 0.4 * obs.readiness);
+    double light = w.env().ambientLight();
+    const auto& wx = w.env().weather();
+    ContactPicture& pic = w.picture(obs.side);
+    for (const auto& f : w.flights()) {
+        if (f.side == obs.side || f.side == Side::Neutral || !f.airborne()) continue;
+        Vec2 c{};
+        double alt = 0;
+        int n = 0;
+        bool attacking = false;
+        AirRole role = f.def->role;
+        for (EntityId id : f.planes) {
+            const Aircraft* a = w.plane(id);
+            if (!a || !a->flying()) continue;
+            c += a->pos.xy();
+            alt += a->pos.z;
+            ++n;
+            if (a->run == Aircraft::Run::Run || a->run == Aircraft::Run::Dive) attacking = true;
+        }
+        if (n == 0) continue;
+        c = c / double(n);
+        alt /= n;
+        double r = distance(obs.pos, c);
+        if (r > 220000.0) continue;
+        Vec2 vel = bearingVector(f.heading) * f.speed;
+        // Air search radar: big, high raids first; aircraft skimming the sea hide below the beam.
+        for (auto& sen : obs.sensors) {
+            const SensorDef* d = sen.def ? sen.def->def : nullptr;
+            if (!d || d->kind != SensorKind::Radar || !d->airSearch || d->fireControl || d->rangeAir <= 0 || !sen.working(now) ||
+                obs.dmg.power < 0.4)
+                continue;
+            double horizon = 4120.0 * (std::sqrt(std::max(1.0, sen.def->height)) + std::sqrt(std::max(10.0, alt)));
+            double rr = d->rangeAir * std::pow(n / 9.0, 0.25) * (0.3 + 0.7 * smoothstep(0.0, 3000.0, alt));
+            rr = std::min(rr, horizon);
+            if (r > rr * 1.3) continue;
+            if (!w.rng().chance(sweepProbability(r, rr, interval, 6.0) * clamp(crew, 0.3, 1.0))) continue;
+            AirMeasurement m;
+            m.observer = obs.id;
+            m.truth = f.entity;
+            m.sense = kSenseRadar;
+            double bearingErr = w.rng().normal() * d->bearingAccuracyDeg * 2.0;
+            double rangeErr = w.rng().normal() * std::max(200.0, d->rangeAccuracy * 4.0);
+            m.pos = obs.pos + bearingVector(bearingTo(obs.pos, c) + bearingErr) * std::max(100.0, r + rangeErr);
+            m.sigma = std::max(500.0, r * d->bearingAccuracyDeg * 2.0 * kDegToRad);
+            m.count = std::max(1, int(std::lround(n * w.rng().uniform(0.6, 1.6))));
+            m.hasVelocity = true;
+            m.velocity = vel;
+            pic.reportAir(m, now);
+        }
+        // Lookouts: formations against the sky by day; by night only the engines and exhaust flames close aboard.
+        double vr = light > 0.3 ? (9000.0 + 16000.0 * std::pow(std::min(n, 27) / 9.0, 0.3)) * std::pow(light, 0.3) : 1200.0 + 5000.0 * light;
+        if (alt < 300.0) vr *= 0.55;  // low over the water, against the haze
+        if (alt > wx.cloudBaseM) vr *= 1.0 - 0.8 * wx.cloudCover;
+        vr = std::min(vr, wx.visibilityKm * 1000.0) * w.env().squallTransmission(obs.pos, c) * crew;
+        double horizon = 3570.0 * 1.08 * (std::sqrt(std::max(1.0, obs.cls->lookoutHeight)) + std::sqrt(std::max(5.0, alt)));
+        vr = std::min(vr, horizon);
+        // Flares light up low aircraft as well as ships.
+        if (r < vr && w.rng().chance(0.6)) {
+            AirMeasurement m;
+            m.observer = obs.id;
+            m.truth = f.entity;
+            m.sense = kSenseVisual;
+            m.pos = c + Vec2{w.rng().normal(), w.rng().normal()} * (0.03 * r);
+            m.sigma = 0.04 * r + 100.0;
+            m.altitude = alt * w.rng().uniform(0.8, 1.2);
+            m.count = std::max(1, int(std::lround(n * w.rng().uniform(0.8, 1.25))));
+            m.roleKnown = r < vr * 0.45;
+            m.role = role;
+            m.attacking = attacking;
+            m.hasVelocity = true;
+            m.velocity = vel;
+            pic.reportAir(m, now);
+        }
+    }
+}
+
 }  // namespace it::sim::sensors

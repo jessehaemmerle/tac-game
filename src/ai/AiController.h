@@ -56,6 +56,7 @@ struct GroupBrain {
     uint32_t torpTarget = 0;
     double launchRange = 0;  // range at which the group turned to launch; captains fire out to it
     int avoidSide = 0;       // withdrawing: side (+1 starboard of the danger bearing, -1 port) the route is turned to
+    double airAlertUntil = -1;  // under air attack: full speed until then
     double impactTime = -1;
     double turnAwayCourse = 0;
     int launches = 0;
@@ -76,11 +77,19 @@ struct CaptainBrain {
     double evadeCourse = 0;
     double zigOffset = 0, nextZig = 0;
     std::set<uint32_t> handledWarnings;
+    std::set<uint32_t> handledAirAttacks;
     std::map<uint32_t, double> torpedoedTracks;
     double lastLaunch = -1e9;
     double searchlightSince = -1;
     int lastHitCount = 0;
     double lastHitTime = -1e9;  // a ship being hit returns fire even while its group keeps the guns dark
+};
+
+/// The side's air commander keeps a little state per flight.
+struct AirBrain {
+    int flight = -1;
+    double nextThink = 0;
+    uint32_t target = 0;  // ship track it was sent against
 };
 
 struct AiSettings {
@@ -123,6 +132,10 @@ private:
     void runWithdraw(GroupBrain& g, sim::Group& grp, sim::Ship& guide);
     void assignTargets(GroupBrain& g);
     void runCaptain(CaptainBrain& c);
+    /// Air commander: launch strikes and fighter cover, vector searching flights onto reported ships.
+    void thinkAir();
+    /// AI-commanded groups under air attack: work up to full speed.
+    void airDefense(GroupBrain& g, sim::Group& grp);
     void captainWeapons(CaptainBrain& c, sim::Ship& s, GroupBrain* g, const Doctrine& d);
     void captainTorpedoes(CaptainBrain& c, sim::Ship& s, GroupBrain* g, const Doctrine& d);
     bool captainEvasion(CaptainBrain& c, sim::Ship& s, const Doctrine& d, double& course);
@@ -143,6 +156,9 @@ private:
     DecisionLog log_;
     std::map<int, GroupBrain> groups_;
     std::map<sim::EntityId, CaptainBrain> captains_;
+    std::map<int, AirBrain> air_;
+    double nextAirThink_ = 0;
+    double firstAirAttack_ = -1;  // when own ships were first attacked from the air
 };
 
 }  // namespace it::ai

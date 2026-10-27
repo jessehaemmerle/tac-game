@@ -22,6 +22,7 @@ struct SessionOptions {
 
 struct SideResult {
     int shipsLost = 0, shipsSunkOfEnemy = 0;
+    int aircraftLost = 0, aircraftDowned = 0;   // own aircraft lost; enemy aircraft shot down
     double tonnageLost = 0, tonnageSunk = 0;
     double damageTaken = 0;  // tonnage-weighted damage fraction
     double points = 0;
@@ -57,6 +58,8 @@ public:
     SideResult result(sim::Side s) const;
     /// Groups of the scenario mapped to world groups.
     int worldGroup(const std::string& scenarioGroupId) const;
+    /// Air groups of the scenario mapped to world flights (-1: not yet in play).
+    int worldFlight(const std::string& scenarioAirGroupId) const;
 
     // ---------------------------------------------------------------- player commands
     void orderGroupCourse(int group, double course, double speedKn);
@@ -69,12 +72,27 @@ public:
     void orderSearchlight(sim::EntityId ship, bool on, uint32_t track);
     void orderStarshells(sim::EntityId ship, bool on);
     bool orderFloatplane(sim::EntityId ship, bool flares, const Vec2& target);
+    /// Waypoints for a group's guide or a detached ship: replace the route or append to it.
+    void orderGroupRoute(int group, const std::vector<Vec2>& points, bool append);
+    void orderShipRoute(sim::EntityId ship, const std::vector<Vec2>& points, bool append);
+    /// Hand a group to its AI commander (true) or take it back under the player's command (false).
+    void delegateGroup(int group, bool toAi);
+    /// Order a player flight (launches it if at its base).
+    bool orderFlight(int flight, const sim::AirOrder& o, std::string* why = nullptr);
+    /// Take an own flight under the player's command (true) or leave it to the side's AI (false).
+    void commandFlight(int flight, bool player);
+    sim::Group* playerGroup(int group);
+    sim::Flight* playerFlight(int flight);
     sim::Ship* playerShip(sim::EntityId id);
 
 private:
     void spawnGroup(size_t index);
+    void spawnAirGroup(size_t index);
     void checkEnd();
     void trackObjectives(double dt);
+    /// Steer player groups and detached ships along their waypoints.
+    void steerRoutes();
+    void reportRouteDone(sim::EntityId ship, const std::string& name);
     /// The bridge repeats a player order (voice reply, engine telegraph).
     void acknowledge(sim::EntityId ship, const char* reply);
 
@@ -85,6 +103,8 @@ private:
     std::unique_ptr<sim::World> world_;
     std::array<std::unique_ptr<ai::AiController>, sim::kSideCount> ai_;
     std::vector<int> groupMap_;  // scenario group index -> world group id (-1 = not yet spawned)
+    std::vector<int> airBaseMap_;  // scenario air base index -> world base id
+    std::vector<int> flightMap_;   // scenario air group index -> world flight id (-1 = not yet in play)
     std::vector<sim::Event> pending_;
     std::vector<std::unique_ptr<sim::SensorMountDef>> sensorPool_;
     double accumulator_ = 0;

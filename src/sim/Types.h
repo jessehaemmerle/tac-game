@@ -43,4 +43,10 @@ SensorKind sensorKindFromString(const std::string& s);
 /// Weapon control status, as in modern naval games.
 enum class WeaponsStatus : uint8_t { Hold = 0, Tight = 1, Free = 2 };
 
+/// What an aircraft type is built and its crews trained for.
+enum class AirRole : uint8_t { Fighter, Torpedo, Dive, Level, Patrol, Recon };
+AirRole airRoleFromString(const std::string& s);
+const char* airRoleId(AirRole r);   // "torpedo"
+const char* airRoleKey(AirRole r);  // localisation key
+
 }  // namespace it::sim

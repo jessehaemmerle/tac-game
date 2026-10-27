@@ -79,6 +79,7 @@ public:
     /// Render the 3D scene into the back buffer (after which the UI is drawn on top).
     void render(const Camera& cam, const SceneOptions& opt);
     /// Render a preview of a ship class (unit reference) and return an ImGui texture id.
+    /// Also aircraft types (by aircraft id): the aeroplane in flight over the sea.
     uint64_t shipPreview(const std::string& classId, const PreviewParams& view, uint32_t w, uint32_t h);
     /// Hypsometric chart texture of the terrain for the tactical map (ImGui texture id, 0 if none).
     uint64_t chartTexture() const { return chart_.uiSrv != UINT32_MAX ? dev_->gpuHeap().gpu(chart_.uiSrv).ptr : 0; }
@@ -91,6 +92,7 @@ public:
     struct Impl;  // internal state (RendererImpl.h)
 
 private:
+    uint64_t aircraftPreview(const sim::AircraftDef& a, const PreviewParams& view, uint32_t w, uint32_t h);
     std::unique_ptr<Impl> p_;
     GpuDevice* dev_ = nullptr;
     ShaderLibrary* shaders_ = nullptr;

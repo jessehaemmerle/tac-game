@@ -157,7 +157,7 @@ void AiController::update() {
     for (auto& [id, g] : groups_) {
         sim::Group* grp = w_.group(id);
         if (!grp || g.exited) continue;
-        bool commanded = !(settings_.assistMode || grp->playerControlled);
+        bool commanded = !grp->playerControlled && (!settings_.assistMode || grp->aiDelegated);
         if (commanded && now >= g.nextThink) {
             g.nextThink = now + 12.0 + double(id % 5);
             thinkCommander(g);
@@ -185,6 +185,173 @@ void AiController::update() {
         c.nextThink = now + 1.0;
         runCaptain(c);
     }
+    if (now >= nextAirThink_) {
+        nextAirThink_ = now + 15.0;
+        thinkAir();
+        for (auto& [id, g] : groups_)
+            if (sim::Group* grp = w_.group(id); grp && !g.exited && !grp->playerControlled && (!settings_.assistMode || grp->aiDelegated))
+                airDefense(g, *grp);
+    }
+}
+
+// ============================================================================================== air
+namespace {
+double shipValue(sim::ShipType t) {
+    switch (t) {
+        case sim::ShipType::CV: return 10;
+        case sim::ShipType::BB: return 9;
+        case sim::ShipType::BC: return 8.5;
+        case sim::ShipType::CA: return 6;
+        case sim::ShipType::CL:
+        case sim::ShipType::CLAA: return 5;
+        case sim::ShipType::AP:
+        case sim::ShipType::AK:
+        case sim::ShipType::AO: return 4.5;
+        case sim::ShipType::DD: return 2.5;
+        default: return 3;
+    }
+}
+double trackValue(const sim::Track& t) {
+    if (t.typeGuess != sim::ShipType::Unknown) return shipValue(t.typeGuess);
+    return t.size == sim::SizeClass::Large ? 8.0 : t.size == sim::SizeClass::Medium ? 5.0 : 3.0;
+}
+}  // namespace
+
+void AiController::thinkAir() {
+    double now = w_.time();
+    // On the player's side only the flights the player has left to the AI are ordered here.
+    auto flights = view_.ownFlights();
+    if (flights.empty()) return;
+    // How many flights are already sent against each contact (spread the strikes, as Kanoya split
+    // between Prince of Wales and Repulse).
+    std::map<uint32_t, int> committed;
+    for (auto* f : flights)
+        if (f->airborne() && f->order.type == sim::AirOrderType::Attack && f->order.track) committed[f->order.track]++;
+    // Threats to own ships from the air.
+    auto ships = view_.ownShips();
+    int threatenedGroup = -1;
+    double worst = 1e18;
+    for (const auto& t : view_.airContacts()) {
+        if (t.lost || !view_.known(t)) continue;
+        for (auto* s : ships) {
+            double d = distance(s->pos, t.predict(now));
+            if (d < 60000.0 && d < worst) {
+                worst = d;
+                threatenedGroup = s->groupId;
+            }
+        }
+    }
+    // Ships keeping radio silence call for fighters only once they are actually attacked (Force Z).
+    int attackedGroup = -1;
+    for (auto& ah : view_.airAttacks())
+        if (sim::Ship* s = view_.own(ah.ship)) {
+            attackedGroup = threatenedGroup = s->groupId;
+            if (firstAirAttack_ < 0) firstAirAttack_ = ah.time;
+        }
+    double silence = 0.0;
+    if (attackedGroup >= 0)
+        if (GroupBrain* gb = brain(attackedGroup); gb && gb->doctrine) silence = gb->doctrine->airCoverDelay;
+    bool callForCover = firstAirAttack_ >= 0 && now - firstAirAttack_ >= silence;
+    for (sim::Flight* f : flights) {
+        if (!f->aiControlled || f->playerControlled) continue;
+        AirBrain& b = air_[f->id];
+        b.flight = f->id;
+        if (now < b.nextThink) continue;
+        b.nextThink = now + 20.0;
+        const sim::AircraftDef& d = *f->def;
+        bool armed = false;
+        for (sim::EntityId pid : f->planes)
+            if (const sim::Aircraft* a = w_.plane(pid); a && (a->flying() || a->fate == sim::Aircraft::Fate::Parked) && a->armed() && !a->aborted)
+                armed = true;
+        if (f->state == sim::FlightState::Returning || f->state == sim::FlightState::Rally || f->state == sim::FlightState::Rearming) continue;
+        double reach = d.enduranceH * 3600.0 * d.cruise() * 0.4;  // radius of action with a reserve
+        const sim::AirBase* base = w_.airBase(f->base);
+        Vec2 home = base ? base->pos : f->pos;
+        if (base && base->ship != sim::kNoEntity) continue;  // floatplanes: launched by their captains
+        if (d.role == sim::AirRole::Fighter) {
+            // Fighter cover for a group under (threat of) air attack.
+            if (f->state == sim::FlightState::Ready && threatenedGroup >= 0 && f->order.type == sim::AirOrderType::None) {
+                sim::Group* g = w_.group(threatenedGroup);
+                sim::Ship* gs = g ? view_.guide(*g) : nullptr;
+                bool distant = gs && distance(home, gs->pos) > 100000.0;
+                if (gs && distance(home, gs->pos) < reach && (!distant || callForCover)) {
+                    sim::AirOrder o;
+                    o.type = sim::AirOrderType::Cap;
+                    o.group = threatenedGroup;
+                    o.point = gs->pos;
+                    if (view_.orderFlight(*f, o))
+                        record(DecisionLevel::Commander, f->name, "ai.air.cap", "", {f->name, g->name});
+                }
+            }
+            continue;
+        }
+        // The best ship target the side knows of within reach, fewest strikes already sent.
+        const sim::Track* best = nullptr;
+        double bestScore = -1e18;
+        for (const auto& t : view_.contacts()) {
+            if (t.lost || !view_.known(t)) continue;
+            Vec2 p = t.predict(now);
+            double from = f->airborne() ? distance(f->pos, p) : distance(home, p);
+            if (from > reach) continue;
+            double score = trackValue(t) * 10.0 - from / 10000.0 - 25.0 * committed[t.id];
+            if (score > bestScore) {
+                bestScore = score;
+                best = &t;
+            }
+        }
+        if (!armed) {
+            // Scouts that find a valuable ship shadow it and keep reporting.
+            if (best && f->airborne() && f->order.type == sim::AirOrderType::Patrol && trackValue(*best) >= 6.0 &&
+                distance(f->pos, best->predict(now)) < 40000.0) {
+                sim::AirOrder o;
+                o.type = sim::AirOrderType::Spot;
+                o.track = best->id;
+                o.point = best->predict(now);
+                if (view_.orderFlight(*f, o)) record(DecisionLevel::Commander, f->name, "ai.air.shadow", "", {f->name});
+            }
+            continue;
+        }
+        if (!best) continue;
+        bool searching = f->airborne() && f->order.type == sim::AirOrderType::Patrol && f->order.strike;
+        bool idle = f->state == sim::FlightState::Ready && f->order.type == sim::AirOrderType::None;
+        bool lostTarget = f->airborne() && f->order.type == sim::AirOrderType::Attack && f->order.track && !view_.contact(f->order.track);
+        if (searching || idle || lostTarget) {
+            sim::AirOrder o;
+            o.type = sim::AirOrderType::Attack;
+            o.track = best->id;
+            o.point = best->predict(now);
+            if (view_.orderFlight(*f, o)) {
+                committed[best->id]++;
+                b.target = best->id;
+                record(DecisionLevel::Commander, f->name, idle ? "ai.air.strike" : "ai.air.vector", "", {f->name});
+            }
+        }
+    }
+}
+
+void AiController::airDefense(GroupBrain& g, sim::Group& grp) {
+    double now = w_.time();
+    auto mem = members(grp);
+    if (mem.empty()) return;
+    bool threat = false;
+    for (const auto& t : view_.airContacts()) {
+        if (t.lost || !view_.known(t)) continue;
+        // A shadowing floatplane or a flare dropper is no air attack; a strike or a raid on the plot is.
+        bool strike = t.roleKnown && t.role != sim::AirRole::Recon && t.role != sim::AirRole::Fighter;
+        for (auto* s : mem)
+            if (distance(s->pos, t.predict(now)) < 25000.0 && (t.attacking || strike || t.count >= 3)) threat = true;
+    }
+    for (auto& ah : view_.airAttacks())
+        for (auto* s : mem)
+            if (ah.ship == s->id) threat = true;
+    if (!threat) return;
+    double slowest = 99;
+    for (auto* m : mem) slowest = std::min(slowest, m->maxSpeedNow() / 0.514444);
+    if (g.airAlertUntil < now) record(DecisionLevel::Group, grp.name, "ai.g.air_defense", "", {grp.name});
+    g.airAlertUntil = now + 300.0;
+    // In a surface action the commander keeps the speed he has chosen.
+    if (!(g.last.nearest < 30000.0 && !g.last.threats.empty())) grp.speedKn = std::max(grp.speedKn, slowest - 1.0);
+    for (auto* s : mem) s->alert(now);
 }
 
 // ========================================================================================= commander
@@ -375,6 +542,8 @@ void AiController::runGroup(GroupBrain& g) {
             grp.speedKn = std::max(8.0, g.mission.speedKn * 0.6);
             break;
     }
+    // Under air attack every knot counts: the force works up to the speed of its slowest ship.
+    if (now < g.airAlertUntil) grp.speedKn = std::max(grp.speedKn, std::max(6.0, g.last.maxSpeedKn - 1.0));
     // Fire discipline: stay dark while the torpedoes run (IJN), and do not betray the force to minor
     // contacts while closing the real objective unless already discovered. A destroyer force keeps its
     // guns silent even under fire - muzzle flashes would give away every ship, not only the one being shot
@@ -737,6 +906,35 @@ bool AiController::captainEvasion(CaptainBrain& c, sim::Ship& s, const Doctrine&
         c.overrideUntil = now + t + 40.0;
         record(DecisionLevel::Captain, s.name, good ? "ai.d.comb_torpedo" : "ai.d.evade_torpedo", formatString("%.0f", choice),
                {s.name, fmt1(choice)});
+    }
+    // Air attacks: turn towards torpedo aircraft to comb their torpedoes (Repulse's Captain Tennant),
+    // put the helm hard over under dive bombers, swing away under a level-bombing run.
+    for (auto& aw : view_.airAttacks()) {
+        if (aw.ship != s.id || c.handledAirAttacks.count(aw.key)) continue;
+        double delay = reactionTime(s, d) * 0.5;
+        if (now < aw.time + delay) continue;
+        c.handledAirAttacks.insert(aw.key);
+        if (c.override == CaptainBrain::Override::Evading && now < c.overrideUntil && aw.kind == "torpedo") continue;
+        bool good = w_.rng().chance(clamp(d.evasionSkill * (0.5 + 0.5 * settings_.skill) * sim::crewFactor(s.crew) + 0.2, 0.1, 0.98));
+        double choice = s.heading;
+        double hold = 40.0;
+        if (aw.kind == "torpedo") {
+            choice = bearingTo(s.pos, aw.from);  // bow on to the aircraft: their torpedoes run parallel
+            hold = 80.0;
+        } else if (aw.kind == "dive") {
+            choice = wrap360(s.heading + (w_.rng().chance(0.5) ? 90.0 : -90.0));
+            hold = 30.0;
+        } else if (aw.kind == "level") {
+            choice = wrap360(s.heading + (w_.rng().chance(0.5) ? 70.0 : -70.0));
+            hold = 45.0;
+        } else {
+            continue;
+        }
+        if (!good) choice = wrap360(s.heading + (w_.rng().chance(0.5) ? 30.0 : -30.0));
+        c.override = CaptainBrain::Override::Evading;
+        c.evadeCourse = choice;
+        c.overrideUntil = now + hold;
+        record(DecisionLevel::Captain, s.name, "ai.d.evade_aircraft", formatString("%.0f", choice), {s.name, fmt1(choice)});
     }
     if (c.override == CaptainBrain::Override::Evading) {
         if (now < c.overrideUntil) {

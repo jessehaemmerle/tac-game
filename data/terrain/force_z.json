@@ -1,0 +1,16 @@
+{
+  "name": "Kuantan (Force Z)",
+  "center_lat": 3.7,
+  "center_lon": 104.075,
+  "width": 1223,
+  "height": 886,
+  "cell_size_m": 150.0,
+  "heights": "force_z.r16",
+  "bounds": {
+    "lat_min": 3.1,
+    "lat_max": 4.3,
+    "lon_min": 103.25,
+    "lon_max": 104.9
+  },
+  "attribution": "Terrain Tiles (Mapzen/Tilezen, AWS Open Data): SRTM, GMTED2010, ETOPO1 and others; see https://github.com/tilezen/joerd/blob/master/docs/attribution.md"
+}

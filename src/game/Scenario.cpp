@@ -144,6 +144,51 @@ bool loadScenario(const std::string& path, Scenario& sc, std::string* error) {
                 if (sc.groups[k].id == esc) g.mission.escortGroup = int(k);
         sc.groups.push_back(g);
     }
+    for (auto& bj : jarr(j, "air_bases")) {
+        ScenarioAirBase b;
+        b.id = jstr(bj, "id");
+        b.name = jstr(bj, "name", b.id);
+        b.side = sim::sideFromString(jstr(bj, "side", "allies"));
+        if (bj.contains("position")) b.pos = readPoint(bj["position"], lat0, lon0);
+        b.turnaround = jnum(bj, "turnaround_s", 2700);
+        b.launchInterval = jnum(bj, "launch_interval_s", 25);
+        sc.airBases.push_back(b);
+    }
+    for (auto& aj : jarr(j, "air_groups")) {
+        ScenarioAirGroup a;
+        a.id = jstr(aj, "id");
+        a.name = jstr(aj, "name", a.id);
+        a.side = sim::sideFromString(jstr(aj, "side", "allies"));
+        a.base = jstr(aj, "base");
+        a.aircraft = jstr(aj, "aircraft");
+        a.loadout = jstr(aj, "loadout");
+        a.count = std::max(1, jint(aj, "count", 3));
+        a.crew = sim::crewFromString(jstr(aj, "crew", "regular"));
+        a.playable = jbool(aj, "playable", true);
+        a.appearTime = jnum(aj, "appear_s", 0);
+        if (aj.contains("airborne")) {
+            const Json& p = aj["airborne"];
+            a.airborne = true;
+            a.pos = readPoint(jobj(p, "position"), lat0, lon0);
+            a.altitude = jnum(p, "altitude_m", -1);
+            a.heading = jnum(p, "heading", 0);
+        }
+        if (aj.contains("order")) {
+            const Json& oj = aj["order"];
+            a.hasOrder = true;
+            a.order.type = sim::airOrderFromString(jstr(oj, "type", "patrol"));
+            a.order.route = readPoints(jarr(oj, "route"), lat0, lon0);
+            if (oj.contains("point")) a.order.point = readPoint(oj["point"], lat0, lon0);
+            else if (!a.order.route.empty()) a.order.point = a.order.route.back();
+            a.order.radius = jnum(oj, "radius", 12000);
+            a.order.strike = jbool(oj, "strike", false);
+            a.order.altitude = jnum(oj, "altitude_m", -1);
+            a.order.startTime = jnum(oj, "start_s", a.airborne ? 0.0 : -1.0);
+            a.coverGroup = jstr(oj, "cover");
+            a.escortFlight = jstr(oj, "escort");
+        }
+        sc.airGroups.push_back(a);
+    }
     for (auto& oj : jarr(j, "objectives")) {
         Objective o;
         o.id = jstr(oj, "id");
@@ -171,7 +216,7 @@ Json scenarioToJson(const Scenario& sc) {
     j["location"] = {{"lat", sc.lat}, {"lon", sc.lon}};
     if (!sc.terrain.empty()) j["terrain"] = sc.terrain;
     j["date"] = {{"year", sc.date.year}, {"month", sc.date.month}, {"day", sc.date.day}, {"hour", sc.date.hour}, {"utc_offset", sc.date.utcOffset}};
-    j["weather"] = {{"cloud_cover", sc.weather.cloudCover}, {"visibility_km", sc.weather.visibilityKm}, {"sea_state", sc.weather.seaState},
+    j["weather"] = {{"cloud_cover", sc.weather.cloudCover}, {"cloud_base_m", sc.weather.cloudBaseM}, {"visibility_km", sc.weather.visibilityKm}, {"sea_state", sc.weather.seaState},
                     {"wind_dir", sc.weather.windDirDeg},    {"wind_kn", sc.weather.windSpeedKn},       {"squalls", sc.weather.squalls},
                     {"squall_intensity", sc.weather.squallIntensity}};
     j["time_limit_s"] = sc.timeLimit;
@@ -230,6 +275,41 @@ Json scenarioToJson(const Scenario& sc) {
         groups.push_back(gj);
     }
     j["groups"] = groups;
+    if (!sc.airBases.empty()) {
+        Json bases = Json::array();
+        for (auto& b : sc.airBases)
+            bases.push_back({{"id", b.id}, {"name", b.name}, {"side", sideId(b.side)}, {"position", point(b.pos)}, {"turnaround_s", b.turnaround},
+                             {"launch_interval_s", b.launchInterval}});
+        j["air_bases"] = bases;
+    }
+    if (!sc.airGroups.empty()) {
+        static const char* crews[] = {"green", "regular", "veteran", "elite"};
+        static const char* orders[] = {"none", "patrol", "attack", "cap", "escort", "flares", "spot", "return"};
+        Json air = Json::array();
+        for (auto& a : sc.airGroups) {
+            Json aj{{"id", a.id}, {"name", a.name}, {"side", sideId(a.side)}, {"base", a.base}, {"aircraft", a.aircraft}, {"loadout", a.loadout},
+                    {"count", a.count}, {"crew", crews[int(a.crew)]}};
+            if (!a.playable) aj["playable"] = false;
+            if (a.appearTime > 0) aj["appear_s"] = a.appearTime;
+            if (a.airborne) aj["airborne"] = {{"position", point(a.pos)}, {"altitude_m", a.altitude}, {"heading", a.heading}};
+            if (a.hasOrder) {
+                Json oj{{"type", orders[int(a.order.type)]}};
+                Json route = Json::array();
+                for (auto& p : a.order.route) route.push_back(point(p));
+                oj["route"] = route;
+                oj["point"] = point(a.order.point);
+                oj["radius"] = a.order.radius;
+                if (a.order.strike) oj["strike"] = true;
+                if (a.order.altitude > 0) oj["altitude_m"] = a.order.altitude;
+                if (a.order.startTime >= 0) oj["start_s"] = a.order.startTime;
+                if (!a.coverGroup.empty()) oj["cover"] = a.coverGroup;
+                if (!a.escortFlight.empty()) oj["escort"] = a.escortFlight;
+                aj["order"] = oj;
+            }
+            air.push_back(aj);
+        }
+        j["air_groups"] = air;
+    }
     Json objs = Json::array();
     for (auto& o : sc.objectives) {
         Json oj{{"id", o.id}, {"side", sideId(o.side)}, {"type", objectiveId(o.type)}, {"value", o.value}, {"points", o.points}, {"text", o.text}};

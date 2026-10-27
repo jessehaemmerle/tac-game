@@ -73,6 +73,8 @@ int main(int argc, char** argv) {
     // Main-battery gunnery (calibre >= 200 mm) and the range of its hits, kept apart from the light guns.
     int heavyFired[2] = {0, 0}, heavyHits[2] = {0, 0};
     double heavyHitRange[2] = {0, 0};
+    // Air: sorties flown, weapons dropped and hits by aircraft, aircraft lost (and to AA vs fighters).
+    int sorties[2] = {0, 0}, airTorps[2] = {0, 0}, airBombs[2] = {0, 0}, airHits[2] = {0, 0}, airLost[2] = {0, 0}, lostToAA[2] = {0, 0};
 
     for (int r = 0; r < runs; ++r) {
         game::Session session(db, lib);
@@ -116,7 +118,13 @@ int main(int argc, char** argv) {
                     }
                 }
                 if (showEvents) {
-                    auto name = [&](sim::EntityId id) { const sim::Ship* s = w.ship(id); return s ? s->name.c_str() : "?"; };
+                    auto name = [&](sim::EntityId id) -> const char* {
+                        if (const sim::Ship* s = w.ship(id)) return s->name.c_str();
+                        if (const sim::Aircraft* a = w.plane(id))
+                            if (const sim::Flight* f = w.flight(a->flight)) return f->name.c_str();
+                        return "?";
+                    };
+                    auto flightName = [&](double v) { const sim::Flight* f = w.flight(int(v)); return f ? f->name.c_str() : "?"; };
                     const char* side = e.side == sim::Side::Allies ? "ALL" : "AXIS";
                     switch (e.type) {
                         case sim::EventType::ContactNew:
@@ -137,8 +145,24 @@ int main(int argc, char** argv) {
                                         t ? t->dmg.totalFireIntensity() : 0.0);
                             break;
                         }
+                        case sim::EventType::AirContactNew:
+                            std::printf("  [%5.0fs] %s air contact A%u (%.0f aircraft)%s\n", e.time, side, e.track, e.value, e.value2 > 0.5 ? " (radar)" : "");
+                            break;
+                        case sim::EventType::FlightLaunched: std::printf("  [%5.0fs] %s %s takes off\n", e.time, side, flightName(e.value)); break;
+                        case sim::EventType::FlightReport:
+                            std::printf("  [%5.0fs] %s %s: %s\n", e.time, side, flightName(e.value), e.text.c_str());
+                            break;
+                        case sim::EventType::AirAttack: std::printf("  [%5.0fs] %s %s attack (%s) on %s\n", e.time, side, name(e.a), e.text.c_str(), name(e.b)); break;
+                        case sim::EventType::TorpedoDropped: std::printf("  [%5.0fs] %s drops a torpedo\n", e.time, name(e.a)); break;
+                        case sim::EventType::AircraftShotDown:
+                            std::printf("  [%5.0fs] %s aircraft of %s shot down by %s\n", e.time, side, flightName(e.value), name(e.b));
+                            break;
                         default: break;
                     }
+                }
+                if (int si = sim::sideIndex(e.side); si < 2 && e.type == sim::EventType::AircraftShotDown) {
+                    airLost[si]++;
+                    if (w.ship(e.b)) lostToAA[si]++;
                 }
                 if (e.type == sim::EventType::ShipSunk || e.type == sim::EventType::ShipCrippled) {
                     if (const sim::Ship* s = w.ship(e.a); s && e.type == sim::EventType::ShipCrippled && runs <= 3)
@@ -155,6 +179,14 @@ int main(int argc, char** argv) {
             agg[si].points += res.points;
             if (auto* a = session.ai(sim::Side(si)))
                 for (auto& d : a->log().records()) decisions[si][d.decision]++;
+        }
+        for (auto& f : w.flights()) {
+            int si = sim::sideIndex(f.side);
+            if (si > 1) continue;
+            sorties[si] += f.sorties > 0 ? int(f.planes.size()) * f.sorties : 0;
+            airTorps[si] += f.torpedoesDropped;
+            airBombs[si] += f.bombsDropped;
+            airHits[si] += f.hits;
         }
         for (auto& s : w.ships()) {
             int si = sim::sideIndex(s->side);
@@ -196,6 +228,9 @@ int main(int argc, char** argv) {
         if (heavyFired[si])
             std::printf("       heavy guns: %d fired / %d hits (%.1f%%), mean hit range %.1f km\n", heavyFired[si], heavyHits[si],
                         100.0 * heavyHits[si] / heavyFired[si], heavyHits[si] ? heavyHitRange[si] / heavyHits[si] / 1000.0 : 0.0);
+        if (sorties[si] > 0 || airLost[si] > 0)
+            std::printf("       air: %d sorties, %d torpedoes and %d bombs dropped, %d hits | %d aircraft lost (%d to AA)\n", sorties[si], airTorps[si],
+                        airBombs[si], airHits[si], airLost[si], lostToAA[si]);
         std::printf("       objectives met (runs):");
         for (auto& [o, c] : objectivesMet[si]) std::printf(" %s:%d", o.c_str() + o.rfind('.') + 1, c);
         std::printf("\n       ships lost (count over runs):");

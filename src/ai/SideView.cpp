@@ -46,7 +46,19 @@ void SideView::setSearchlight(sim::Ship& s, bool on, uint32_t track) {
 
 bool SideView::launchAircraft(sim::Ship& s, bool flares, const Vec2& target) {
     if (s.side != side_) return false;
-    return w_.launchAircraft(s, flares ? sim::AircraftMission::Kind::Flares : sim::AircraftMission::Kind::Recon, target);
+    return w_.launchAircraft(s, flares, target);
+}
+
+std::vector<sim::Flight*> SideView::ownFlights() const {
+    std::vector<sim::Flight*> out;
+    for (auto& f : w_.flights())
+        if (f.side == side_ && f.state != sim::FlightState::Lost) out.push_back(&f);
+    return out;
+}
+
+bool SideView::orderFlight(sim::Flight& f, const sim::AirOrder& o) {
+    if (f.side != side_) return false;
+    return w_.orderFlight(f.id, o);
 }
 
 void SideView::observe(const sim::Event& e) {
@@ -67,6 +79,9 @@ void SideView::observe(const sim::Event& e) {
         case EventType::ShellHit:
             if (sim::Ship* s = own(e.b)) hits_.push_back({s->id, e.time, false, e.pos.xy()});
             break;
+        case EventType::AirAttack:
+            if (sim::Ship* s = own(e.b)) airAttacks_.push_back({s->id, e.time, e.text, e.pos.xy(), ++airKey_});
+            break;
         case EventType::TorpedoHit:
         case EventType::TorpedoDud:
             if (sim::Ship* s = own(e.b)) hits_.push_back({s->id, e.time, true, e.pos.xy()});
@@ -81,6 +96,8 @@ void SideView::prune() {
                                           [&](const TorpedoWarning& t) { return now - t.time > 240.0; }),
                            torpedoWarnings_.end());
     hits_.erase(std::remove_if(hits_.begin(), hits_.end(), [&](const HitReport& h) { return now - h.time > 300.0; }), hits_.end());
+    airAttacks_.erase(std::remove_if(airAttacks_.begin(), airAttacks_.end(), [&](const AirAttackWarning& a) { return now - a.time > 120.0; }),
+                      airAttacks_.end());
 }
 
 }  // namespace it::ai

@@ -42,7 +42,7 @@
     "turret_roof": 152,
     "barbette": 324,
     "conning_tower": 102,
-    "torpedo_protection": 0.55
+    "torpedo_protection": 0.45
   },
   "mounts": [
     {
@@ -272,7 +272,7 @@
   "searchlight_cm": 112,
   "floatplanes": 2,
   "rcs": 3.3,
-  "reserve_buoyancy": 0.75,
+  "reserve_buoyancy": 0.7,
   "hull_strength": 2.4,
   "model": {
     "bow_rake": 0.04,

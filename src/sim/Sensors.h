@@ -33,6 +33,8 @@ void sweep(World& w, Ship& observer, SensorState& sensor);
 void gunFlash(World& w, const Ship& firer, double calibreMm);
 /// Lookouts search for torpedo tracks.
 void torpedoWatch(World& w, Ship& observer);
+/// Air search radars and lookouts look for aircraft formations (call every few seconds).
+void airWatch(World& w, Ship& observer, double interval);
 
 }  // namespace sensors
 }  // namespace it::sim

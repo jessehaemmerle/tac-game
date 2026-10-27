@@ -8,6 +8,7 @@
 #include "ai/AiController.h"
 #include "core/Json.h"
 #include "sim/Environment.h"
+#include "sim/Air.h"
 #include "sim/Group.h"
 
 namespace it::game {
@@ -44,6 +45,34 @@ struct ScenarioGroup {
     double lat = 0, lon = 0;
 };
 
+/// An airfield (or seaplane base) the scenario's flights operate from; it may lie far off the map.
+struct ScenarioAirBase {
+    std::string id, name;
+    sim::Side side = sim::Side::Allies;
+    Vec2 pos;
+    double turnaround = 2700;    // s to refuel and rearm
+    double launchInterval = 25;  // s between take-offs
+};
+
+/// A flight of aircraft: parked at its base (launched by its order's start time, by the AI or by the
+/// player) or already in the air at the start / at its appearance time.
+struct ScenarioAirGroup {
+    std::string id, name;
+    sim::Side side = sim::Side::Allies;
+    std::string base, aircraft, loadout;
+    int count = 3;
+    sim::CrewQuality crew = sim::CrewQuality::Regular;
+    bool playable = true;
+    bool airborne = false;
+    Vec2 pos;
+    double altitude = -1, heading = 0;
+    double appearTime = 0;
+    bool hasOrder = false;
+    sim::AirOrder order;
+    std::string coverGroup;      // CAP / spotting over this scenario group
+    std::string escortFlight;    // escort this air group
+};
+
 /// Bombard: ships of `group` spend `value` seconds within `radius` of `area` (a shore bombardment);
 /// PreventBombard: the enemy's `group` does not manage that.
 enum class ObjectiveType : uint8_t { DestroyTonnage, DestroyGroup, ProtectGroup, Preserve, ExitArea, Survive, Bombard, PreventBombard };
@@ -72,6 +101,8 @@ struct Scenario {
     sim::Side defaultPlayer = sim::Side::Allies;
     double timeLimit = 7200;
     std::vector<ScenarioGroup> groups;
+    std::vector<ScenarioAirBase> airBases;
+    std::vector<ScenarioAirGroup> airGroups;
     std::vector<Objective> objectives;
     std::string sourceFile;
     bool hidden = false;  // internal scenarios (menu backdrop) are not listed

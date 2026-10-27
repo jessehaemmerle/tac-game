@@ -50,6 +50,23 @@ void Ship::initFromClass(const ShipClassDef& c) {
         sensors.push_back(ss);
     }
     floatplanes = c.floatplanes;
+    aa.clear();
+    for (size_t i = 0; i < mounts.size(); ++i) {
+        const MountDef& m = *mounts[i].def;
+        if (!m.gun || !m.gun->dualPurpose || !m.aa || m.gun->aaKillRounds <= 0) continue;
+        AaBatteryState b;
+        b.mount = int(i);
+        b.local = {m.x, m.y, m.z};
+        aa.push_back(b);
+    }
+    for (auto& am : c.aaMounts) {
+        if (!am.def) continue;
+        AaBatteryState b;
+        b.def = am.def;
+        b.local = {am.x, am.y, am.z};
+        b.train = am.y > 0.5 ? 90.0 : (am.y < -0.5 ? -90.0 : 0.0);
+        aa.push_back(b);
+    }
     dmg = {};
 }
 

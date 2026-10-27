@@ -11,11 +11,6 @@ namespace it::render {
 
 namespace {
 
-Mat4f rotZ(float deg) { return Mat4f::rotation(Quatf::axisAngle({0, 0, 1}, float(deg * kDegToRad))); }
-Mat4f rotY(float deg) { return Mat4f::rotation(Quatf::axisAngle({0, 1, 0}, float(deg * kDegToRad))); }
-Mat4f rotX(float deg) { return Mat4f::rotation(Quatf::axisAngle({1, 0, 0}, float(deg * kDegToRad))); }
-Mat4f aboutPivot(const Vec3f& pivot, const Mat4f& r) { return Mat4f::translation(pivot) * r * Mat4f::translation(-pivot); }
-
 constexpr float kNaN = std::numeric_limits<float>::quiet_NaN();
 
 float stowedTrain(const sim::MountDef& m) {
@@ -120,12 +115,13 @@ ShipPose shipPose(Renderer::Impl& P, const sim::Ship& s, const sim::World& w, co
     p.propAngle = float(std::fmod(visualTime * rps * 360.0, 360.0));
     p.rudder = float(-s.rudder * 35.0);
     if (!mesh) return p;
-    // Light AA: follow the nearest enemy aircraft overhead; at action stations the crews sweep their sectors.
-    const sim::AircraftMission* threat = nullptr;
+    // Light AA: the simulated batteries point at the aircraft they engage; idle crews follow the nearest
+    // enemy aircraft overhead, and at action stations they sweep their sectors.
+    const sim::Aircraft* threat = nullptr;
     double best = 9000.0;
-    for (const auto& a : w.aircraft()) {
-        if (a.side == s.side || a.state == sim::AircraftMission::State::Launching || a.state == sim::AircraftMission::State::Done) continue;
-        double d = distance(a.pos, s.pos);
+    for (const auto& a : w.planes()) {
+        if (a.side == s.side || !a.flying()) continue;
+        double d = distance(a.pos.xy(), s.pos);
         if (d < best) {
             best = d;
             threat = &a;
@@ -135,14 +131,20 @@ ShipPose shipPose(Renderer::Impl& P, const sim::Ship& s, const sim::World& w, co
     if (anim)
         for (double f : anim->fired) action |= now - f < 180.0;
     action |= p.searchlightOn;
+    size_t heavy = 0;
+    while (heavy < s.aa.size() && s.aa[heavy].mount >= 0) ++heavy;
     for (size_t i = 0; i < mesh->aa.size(); ++i) {
         const auto& a = mesh->aa[i];
         float tr = a.baseTrain, el = 0.0f;
-        if (threat) {
-            double rel = s.relativeBearing(threat->pos);
+        const sim::AaBatteryState* b = heavy + i < s.aa.size() ? &s.aa[heavy + i] : nullptr;
+        if (b && b->target != sim::kNoEntity && s.operational()) {
+            tr = float(b->train);
+            el = float(b->elevation);
+        } else if (threat) {
+            double rel = s.relativeBearing(threat->pos.xy());
             if (std::fabs(wrap180(rel - a.baseTrain)) <= a.arc) {
                 tr = float(rel + 3.0 * std::sin(visualTime * 1.3 + double(i)));
-                el = float(std::atan2(threat->altitude, std::max(100.0, best)) * kRadToDeg + 2.0 * std::sin(visualTime * 0.9 + double(i)));
+                el = float(std::atan2(threat->pos.z, std::max(100.0, best)) * kRadToDeg + 2.0 * std::sin(visualTime * 0.9 + double(i)));
             }
         } else if (action && s.operational()) {
             tr = float(a.baseTrain + 30.0 * std::sin(visualTime * 0.18 + double(i) * 1.3));
@@ -156,14 +158,25 @@ ShipPose shipPose(Renderer::Impl& P, const sim::Ship& s, const sim::World& w, co
     int onCatapults = int(cats.size());
     p.aircraftTravel.assign(cats.size(), -1.0f);
     p.catapultTrain.assign(size_t(countKind(*mesh, procgen::PartKind::Catapult)), 0.0f);
-    int remaining = std::min(onCatapults, s.floatplanes);
+    int aboard = s.floatplanes;
+    double launchT = -1.0;
+    for (const auto& f : w.flights()) {
+        const sim::AirBase* base = w.airBase(f.base);
+        if (!base || base->ship != s.id) continue;
+        if (f.state == sim::FlightState::Launching && f.launched == 0) {
+            // Training out and warming up: the shot comes when the sim launches the aircraft.
+            launchT = procgen::anim::kLaunchShot - (f.nextLaunch - now) + lead;
+            ++aboard;  // still on the catapult
+        } else if (f.state == sim::FlightState::Launching && f.stateTime < procgen::anim::kLaunchShot + 30.0) {
+            launchT = f.stateTime + lead;
+        }
+    }
+    int remaining = std::min(onCatapults, aboard);
     for (int k = remaining; k < onCatapults; ++k) p.aircraftTravel[size_t(k)] = ShipPose::kGone;
-    for (const auto& a : w.aircraft()) {
-        if (a.parent != s.id || a.state != sim::AircraftMission::State::Launching) continue;
-        if (remaining >= onCatapults) break;  // a spare aircraft from the hangar
-        procgen::anim::Launch l = procgen::anim::catapultLaunch(a.stateTime + lead);
-        p.aircraftTravel[size_t(remaining)] = l.gone ? ShipPose::kGone : l.travel;
-        int cat = cats[size_t(remaining)];
+    if (launchT >= 0.0 && remaining > 0) {
+        procgen::anim::Launch l = procgen::anim::catapultLaunch(launchT);
+        p.aircraftTravel[size_t(remaining - 1)] = l.gone ? ShipPose::kGone : l.travel;
+        int cat = cats[size_t(remaining - 1)];
         if (cat >= 0 && size_t(cat) < p.catapultTrain.size()) p.catapultTrain[size_t(cat)] = l.catapultTrain;
     }
     return p;
@@ -348,30 +361,38 @@ void updateShipAnims(Renderer::Impl& P, const sim::World& w) {
 void drawFlyingAircraft(Renderer::Impl& P, GpuDevice& dev, const sim::World& w, const Camera& cam, double visualTime) {
     auto* cmd = dev.cmd();
     double lead = clamp(visualTime - w.time(), 0.0, 0.25);
-    for (const auto& a : w.aircraft()) {
-        if (a.state == sim::AircraftMission::State::Launching || a.state == sim::AircraftMission::State::Done) continue;
-        const sim::Ship* parent = w.ship(a.parent);
-        if (!parent || !parent->cls) continue;
-        auto it = P.meshes.find(parent->cls->id);
-        if (it == P.meshes.end()) continue;
-        const GpuMesh& mesh = *it->second;
-        const GpuMesh::Part* plane = nullptr;
-        for (const auto& part : mesh.parts)
-            if (part.kind == procgen::PartKind::Aircraft && part.sub == 0) plane = &part;
-        if (!plane || !plane->indexCount) continue;
-        Vec2 pos = a.pos + bearingVector(a.heading) * (a.speed * lead);
-        double alt = a.altitude;
-        if (a.state == sim::AircraftMission::State::Outbound) alt = std::min(alt, 30.0 + a.stateTime * 6.0);  // climbing out
-        Vec3 rel = Vec3{pos.x, alt, pos.y} - cam.pos;
-        if (length(rel) > 15000.0) continue;
-        float bank = a.state == sim::AircraftMission::State::OnStation ? 22.0f : 0.0f;
-        Mat4f world = Mat4f::translation({float(rel.x), float(rel.y), float(rel.z)}) * modelToRenderBasis(a.heading) * rotX(-bank) *
-                      Mat4f::translation(-plane->pivot);
-        ObjectConstants oc{world, {0, 0, 0, 0}, {float(a.id % 97), -1e4f, 10.0f, 2.0f}};
-        cmd->IASetVertexBuffers(0, 1, &mesh.vbv);
-        cmd->IASetIndexBuffer(&mesh.ibv);
-        cmd->SetGraphicsRootConstantBufferView(1, dev.constants(oc));
-        cmd->DrawIndexedInstanced(plane->indexCount, 1, plane->firstIndex, 0, 0);
+    for (const auto& a : w.planes()) {
+        bool wreck = a.fate == sim::Aircraft::Fate::Ditched || a.fate == sim::Aircraft::Fate::Destroyed;
+        if (!a.def || a.fate == sim::Aircraft::Fate::Parked || (wreck && a.fateTime > 90.0)) continue;
+        Vec3 pos = a.pos;
+        if (a.flying() || a.fate == sim::Aircraft::Fate::Falling) pos += Vec3{bearingVector(a.heading) * (a.speed * lead), 0.0};
+        // Wrecks settle into the sea.
+        double sink = wreck ? std::min(4.0, a.fateTime * (a.fate == sim::Aircraft::Fate::Destroyed ? 0.3 : 0.05)) : 0.0;
+        Vec3 rel = Vec3{pos.x, pos.z - sink, pos.y} - cam.pos;
+        double dist = length(rel);
+        if (dist > 20000.0) continue;
+        float radius = float(std::max(a.def->model.span, a.def->model.length));
+        if (!sphereVisible(P.fc.viewProj, {float(rel.x), float(rel.y), float(rel.z)}, radius)) continue;
+        const GpuMesh* mesh = aircraftMeshFor(P, dev, *a.def);
+        if (!mesh) continue;
+        float pitch = float(a.pitch), bank = float(a.bank);
+        if (wreck) pitch = 8.0f, bank = 12.0f * float(a.id % 3) - 12.0f;
+        Mat4f world = Mat4f::translation({float(rel.x), float(rel.y), float(rel.z)}) * modelToRenderBasis(a.heading) * rotY(-pitch) * rotX(-bank);
+        // Propellers: a fast blur of turning blades (stopped on wrecks).
+        float spin = wreck ? 0.0f : float(std::fmod(visualTime * 7.3 * 360.0 + a.id * 40.0, 360.0));
+        Vec4f tint{0.0f, 0.0f, float(clamp(a.smoke, 0.0, 1.0) * 0.6), 0.0f};
+        Vec4f params{float(a.id % 97), -1e4f, float(a.def->model.length), 2.0f};
+        cmd->IASetVertexBuffers(0, 1, &mesh->vbv);
+        cmd->IASetIndexBuffer(&mesh->ibv);
+        for (const auto& part : mesh->parts) {
+            if (!part.indexCount) continue;
+            Mat4f local;
+            if (part.kind == procgen::PartKind::Propeller) local = aboutPivot(part.pivot, rotX(part.sub == 1 ? -spin : spin));
+            if (part.kind == procgen::PartKind::Ordnance && ((part.sub == 0 && a.torpedoes <= 0) || (part.sub == 1 && a.bombs <= 0))) continue;
+            ObjectConstants oc{world * local, tint, params};
+            cmd->SetGraphicsRootConstantBufferView(1, dev.constants(oc));
+            cmd->DrawIndexedInstanced(part.indexCount, 1, part.firstIndex, 0, 0);
+        }
     }
 }
 

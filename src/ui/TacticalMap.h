@@ -12,6 +12,8 @@
 
 namespace it::ui {
 
+struct Pick;  // hit-test candidate (TacticalMap.cpp)
+
 struct MapMarker {
     int id = -1;
     Vec2 pos;
@@ -45,6 +47,10 @@ struct MapInput {
     double torpedoRange = 0;  // selected ship's torpedo range ring (m), 0 = none
     double gunRange = 0;      // selected ship's main battery range ring (m)
     std::vector<Vec2> plannedCourse;  // line from the selected ship along the ordered course
+    bool plannedIsRoute = false;      // plannedCourse is a waypoint route (vertices drawn)
+    int selectedFlight = -1;
+    uint32_t selectedAirTrack = 0;
+    bool targeting = false;           // a map order is pending: crosshair cursor
 };
 
 struct MapOutput {
@@ -54,8 +60,15 @@ struct MapOutput {
     uint32_t clickedTrack = 0;
     int clickedMarker = -1;
     bool clickedEmpty = false;
+    int clickedFlight = -1;
+    uint32_t clickedAirTrack = 0;
     bool rightClicked = false;
+    bool rightShift = false;          // shift held on the right click (append a waypoint)
     Vec2 rightClickPos;
+    // What lay under the cursor on the right click.
+    sim::EntityId rightShip = sim::kNoEntity;
+    uint32_t rightTrack = 0, rightAirTrack = 0;
+    int rightFlight = -1;
     int draggedMarker = -1;
     Vec2 dragPos;
     bool doubleClicked = false;
@@ -83,6 +96,8 @@ private:
     void sampleHistory(const MapInput& in);
     void drawGrid(ImDrawList* dl, const MapInput& in);
     void drawScale(ImDrawList* dl, const MapInput& in);
+    /// Own flights (all in the umpire view), the side's air picture and air bases.
+    void drawAir(ImDrawList* dl, const MapInput& in, std::vector<Pick>& picks);
 
     ImVec2 origin_, canvasMin_, canvasMax_;
     std::unordered_map<sim::EntityId, std::deque<Vec2>> history_;

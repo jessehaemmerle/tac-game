@@ -4,6 +4,7 @@
 #include "core/FileSystem.h"
 #include "core/Image.h"
 #include "core/Log.h"
+#include "procgen/AircraftModel.h"
 #include "procgen/GltfImport.h"
 #include "render/RendererImpl.h"
 
@@ -11,10 +12,10 @@ namespace it::render {
 
 namespace {
 
-Mat4f rotY(float deg) { return Mat4f::rotation(Quatf::axisAngle({0, 1, 0}, float(deg * kDegToRad))); }
-Mat4f rotX(float deg) { return Mat4f::rotation(Quatf::axisAngle({1, 0, 0}, float(deg * kDegToRad))); }
-
 uint8_t toByte(double v) { return uint8_t(clamp(v, 0.0, 1.0) * 255.0 + 0.5); }
+
+
+}  // namespace
 
 /// Sphere vs. view frustum (camera-relative centre) using the rows of the view-projection matrix.
 bool sphereVisible(const Mat4f& vp, const Vec3f& c, float r) {
@@ -30,8 +31,6 @@ bool sphereVisible(const Mat4f& vp, const Vec3f& c, float r) {
     }
     return true;
 }
-
-}  // namespace
 
 Mat4f modelToRenderBasis(double headingDeg) {
     float s = float(std::sin(headingDeg * kDegToRad)), c = float(std::cos(headingDeg * kDegToRad));
@@ -193,17 +192,9 @@ void bindShipTextures(Renderer::Impl& P, GpuDevice& dev) {
 }
 
 // --------------------------------------------------------------------------------------------- ships
-const GpuMesh* shipMeshFor(Renderer::Impl& P, GpuDevice& dev, const sim::ShipClassDef& c) {
-    auto it = P.meshes.find(c.id);
-    if (it != P.meshes.end()) return it->second.get();
-    procgen::Model model;
-    bool imported = false;
-    if (!c.model.gltf.empty()) {
-        std::string err;
-        imported = procgen::importGltf(fs::dataPath("models/" + c.model.gltf).string(), c, c.model.gltfScale, model, &err);
-        if (!imported) IT_LOG_WARN("glTF model for %s not used: %s", c.id.c_str(), err.c_str());
-    }
-    if (!imported) model = procgen::buildShipModel(c);
+namespace {
+/// Upload a model's parts into one vertex and index buffer.
+std::unique_ptr<GpuMesh> uploadModel(GpuDevice& dev, procgen::Model& model, const std::string& name) {
     auto mesh = std::make_unique<GpuMesh>();
     std::vector<procgen::Vertex> verts;
     std::vector<uint32_t> idx;
@@ -229,16 +220,46 @@ const GpuMesh* shipMeshFor(Renderer::Impl& P, GpuDevice& dev, const sim::ShipCla
     mesh->aa = model.aa;
     if (verts.empty() || idx.empty()) return nullptr;
     size_t vb = verts.size() * sizeof(procgen::Vertex), ib = idx.size() * 4;
-    if (!dev.createBuffer(mesh->vb, vb, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, c.id.c_str()) ||
+    if (!dev.createBuffer(mesh->vb, vb, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, name.c_str()) ||
         !dev.uploadBuffer(mesh->vb, verts.data(), vb, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER) ||
-        !dev.createBuffer(mesh->ib, ib, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, c.id.c_str()) ||
+        !dev.createBuffer(mesh->ib, ib, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, name.c_str()) ||
         !dev.uploadBuffer(mesh->ib, idx.data(), ib, D3D12_RESOURCE_STATE_INDEX_BUFFER))
         return nullptr;
     mesh->vbv = {mesh->vb.get()->GetGPUVirtualAddress(), UINT(vb), UINT(sizeof(procgen::Vertex))};
     mesh->ibv = {mesh->ib.get()->GetGPUVirtualAddress(), UINT(ib), DXGI_FORMAT_R32_UINT};
-    IT_LOG_INFO("Ship mesh %s: %zu triangles, %zu parts%s", c.id.c_str(), idx.size() / 3, mesh->parts.size(), imported ? " (glTF)" : "");
+    return mesh;
+}
+}  // namespace
+
+const GpuMesh* shipMeshFor(Renderer::Impl& P, GpuDevice& dev, const sim::ShipClassDef& c) {
+    auto it = P.meshes.find(c.id);
+    if (it != P.meshes.end()) return it->second.get();
+    procgen::Model model;
+    bool imported = false;
+    if (!c.model.gltf.empty()) {
+        std::string err;
+        imported = procgen::importGltf(fs::dataPath("models/" + c.model.gltf).string(), c, c.model.gltfScale, model, &err);
+        if (!imported) IT_LOG_WARN("glTF model for %s not used: %s", c.id.c_str(), err.c_str());
+    }
+    if (!imported) model = procgen::buildShipModel(c);
+    auto mesh = uploadModel(dev, model, c.id);
+    if (!mesh) return nullptr;
+    IT_LOG_INFO("Ship mesh %s: %zu triangles, %zu parts%s", c.id.c_str(), model.triangleCount(), mesh->parts.size(), imported ? " (glTF)" : "");
     const GpuMesh* out = mesh.get();
     P.meshes[c.id] = std::move(mesh);
+    return out;
+}
+
+const GpuMesh* aircraftMeshFor(Renderer::Impl& P, GpuDevice& dev, const sim::AircraftDef& a) {
+    std::string key = "aircraft:" + a.id;
+    auto it = P.meshes.find(key);
+    if (it != P.meshes.end()) return it->second.get();
+    procgen::Model model = procgen::buildAircraftModel(a);
+    auto mesh = uploadModel(dev, model, key);
+    if (!mesh) return nullptr;
+    IT_LOG_INFO("Aircraft mesh %s: %zu triangles", a.id.c_str(), model.triangleCount());
+    const GpuMesh* out = mesh.get();
+    P.meshes[key] = std::move(mesh);
     return out;
 }
 

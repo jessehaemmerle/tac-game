@@ -91,6 +91,15 @@ double ShipClassDef::broadsideWeight() const {
     return w;
 }
 
+const AircraftLoadout* AircraftDef::loadout(const std::string& lid) const {
+    for (auto& l : loadouts)
+        if (l.id == lid) return &l;
+    return loadouts.empty() ? nullptr : &loadouts.front();
+}
+double AircraftDef::cruise() const { return units::knotsToMs(cruiseKn); }
+double AircraftDef::maxSpeed() const { return units::knotsToMs(maxKn); }
+double AircraftDef::attackSpeed() const { return units::knotsToMs(attackKn); }
+
 int ShipClassDef::torpedoTubes() const {
     int n = 0;
     for (auto& t : torpedoMounts) n += t.tubes;
@@ -116,6 +125,8 @@ void parseGun(const Json& j, GunDef& g) {
     g.maxRangeElevationDeg = jnum(j, "max_range_elev", g.maxElevationDeg);
     g.dispersion = jnum(j, "dispersion", 0.006);
     g.dualPurpose = jbool(j, "dual_purpose");
+    g.aaKillRounds = jnum(j, "aa_kill_rounds", 0);
+    g.aaRangeM = jnum(j, "aa_range_m", 0);
     for (auto& s : jarr(j, "shells")) {
         ShellDef sd;
         sd.kind = shellKindFromString(jstr(s, "kind", "AP"));
@@ -140,6 +151,10 @@ void parseTorpedo(const Json& j, TorpedoDef& t) {
     t.deepRunChance = jnum(j, "deep_run", 0.0);
     t.erraticChance = jnum(j, "erratic", 0.02);
     t.wanderFraction = jnum(j, "wander", 0.025);
+    t.aerial = jbool(j, "aerial");
+    t.dropKn = jnum(j, "drop_kn", 150);
+    t.dropAltM = jnum(j, "drop_alt_m", 50);
+    t.armM = jnum(j, "arm_m", t.aerial ? 250 : 250);
     for (auto& s : jarr(j, "settings")) t.settings.push_back({jnum(s, "speed_kn"), jnum(s, "range_m")});
     std::sort(t.settings.begin(), t.settings.end(), [](auto& a, auto& b) { return a.speedKn > b.speedKn; });
 }
@@ -159,9 +174,109 @@ void parseSensor(const Json& j, SensorDef& s) {
     s.fireControl = jbool(j, "fire_control");
     s.surfaceSearch = jbool(j, "surface", true);
     s.airSearch = jbool(j, "air", false);
+    s.rangeAir = jnum(j, "range_air_m", 0);
     s.introducedYear = jint(j, "year", 1940);
     s.magnification = jnum(j, "magnification", 7);
     s.nightFactor = jnum(j, "night_factor", 1.0);
+}
+
+void parseBomb(const Json& j, BombDef& b) {
+    b.id = jstr(j, "id");
+    b.name = jstr(j, "name", b.id);
+    b.nation = nationFromString(jstr(j, "nation"));
+    b.massKg = jnum(j, "mass_kg", 250);
+    b.bursterKg = jnum(j, "burster_kg", 100);
+    b.caliberMm = jnum(j, "caliber_mm", 300);
+    b.kind = shellKindFromString(jstr(j, "kind", "HE"));
+    GunDef& g = b.ballistic;
+    g.id = "bomb." + b.id;
+    g.name = b.name;
+    g.nation = b.nation;
+    g.caliberMm = b.caliberMm;
+    ShellDef sd;
+    sd.kind = b.kind;
+    sd.name = b.name;
+    sd.massKg = b.massKg;
+    sd.bursterKg = b.bursterKg;
+    sd.muzzleVelocity = 0;
+    sd.formFactor = 1.6;  // fins and a blunt nose: more drag than a shell of the same calibre
+    g.shells.push_back(sd);
+}
+
+void parseAaWeapon(const Json& j, AaWeaponDef& a) {
+    a.id = jstr(j, "id");
+    a.name = jstr(j, "name", a.id);
+    a.nation = nationFromString(jstr(j, "nation"));
+    a.caliberMm = jnum(j, "caliber_mm", 20);
+    a.barrels = jint(j, "barrels", 1);
+    a.rofRpm = jnum(j, "rof_rpm", 300);
+    a.rangeM = jnum(j, "range_m", 1500);
+    a.ceilingM = jnum(j, "ceiling_m", a.rangeM);
+    a.killRounds = jnum(j, "kill_rounds", 5000);
+}
+
+Vec3 rgb(const Json& j, const char* key, Vec3 def) {
+    const Json& a = jarr(j, key);
+    if (a.size() != 3) return def;
+    return {a[0].get<double>(), a[1].get<double>(), a[2].get<double>()};
+}
+
+void parseAircraft(const Json& j, AircraftDef& a) {
+    a.id = jstr(j, "id");
+    a.name = jstr(j, "name", a.id);
+    a.nation = nationFromString(jstr(j, "nation"));
+    a.role = airRoleFromString(jstr(j, "role", "recon"));
+    a.year = jint(j, "year", 1940);
+    a.crew = jint(j, "crew", 2);
+    a.cruiseKn = jnum(j, "cruise_kn", 150);
+    a.maxKn = jnum(j, "max_kn", a.cruiseKn * 1.4);
+    a.attackKn = jnum(j, "attack_kn", a.cruiseKn);
+    a.climbMps = jnum(j, "climb_mps", 7);
+    a.ceilingM = jnum(j, "ceiling_m", 8000);
+    a.enduranceH = jnum(j, "endurance_h", 5);
+    a.bombAltM = jnum(j, "bomb_alt_m", 0);
+    a.durability = jnum(j, "durability", 1.0);
+    a.defense = jnum(j, "defense", 0.0);
+    a.firepower = jnum(j, "firepower", 0.0);
+    a.agility = jnum(j, "agility", 0.4);
+    a.gunSeconds = jnum(j, "gun_seconds", a.firepower > 0 ? (a.role == AirRole::Fighter ? 18.0 : 10.0) : 0.0);
+    a.night = jbool(j, "night");
+    a.radar = jbool(j, "radar");
+    a.flares = jint(j, "flares", 0);
+    a.catapultStyle = jstr(j, "catapult_style");
+    a.historyKey = jstr(j, "history", "history." + a.id);
+    for (auto& l : jarr(j, "loadouts")) {
+        AircraftLoadout lo;
+        lo.id = jstr(l, "id");
+        lo.torpedoId = jstr(l, "torpedo");
+        lo.bombId = jstr(l, "bomb");
+        lo.bomb2Id = jstr(l, "bomb2");
+        lo.count = jint(l, "count", lo.torpedoId.empty() && lo.bombId.empty() ? 0 : 1);
+        lo.count2 = jint(l, "count2", 0);
+        a.loadouts.push_back(lo);
+    }
+    const Json& m = jobj(j, "model");
+    AircraftModelDesc& d = a.model;
+    d.layout = jstr(m, "layout", "mono");
+    d.style = jstr(m, "style");
+    d.span = jnum(m, "span", 12);
+    d.length = jnum(m, "length", 10);
+    d.fuselage = jnum(m, "fuselage", d.length * 0.13);
+    d.engines = jint(m, "engines", 1);
+    d.engine = jstr(m, "engine", "radial");
+    d.wing = jstr(m, "wing", "low");
+    d.chord = jnum(m, "chord", d.span * 0.2);
+    d.taper = jnum(m, "taper", 0.5);
+    d.tail = jstr(m, "tail", "single");
+    d.canopy = jstr(m, "canopy", "long");
+    d.nose = jstr(m, "nose", "solid");
+    d.gear = jstr(m, "gear", "retract");
+    d.floats = jstr(m, "floats", "none");
+    d.dorsal = jbool(m, "dorsal");
+    d.tailGun = jbool(m, "tail_gun");
+    d.upper = rgb(m, "upper", d.upper);
+    d.lower = rgb(m, "lower", d.upper);
+    d.cowl = rgb(m, "cowl", {-1, -1, -1});
 }
 
 }  // namespace
@@ -263,6 +378,7 @@ void Database::parseShipClass(const Json& j, ShipClassDef& c) {
         mt.armorFace = jnum(m, "armor", c.armor.turretFace);
         mt.director = jstr(m, "director", "main");
         mt.style = jstr(m, "style", mt.barrels >= 4 ? "turret4" : (mt.barrels == 3 ? "turret3" : (mt.barrels == 2 ? "turret2" : "shield")));
+        mt.aa = jbool(m, "aa", true);
         const Json& ammo = jobj(m, "ammo");
         for (auto it = ammo.begin(); it != ammo.end(); ++it) mt.ammo[shellKindFromString(it.key())] = it->get<int>();
         c.mounts.push_back(mt);
@@ -304,6 +420,16 @@ void Database::parseShipClass(const Json& j, ShipClassDef& c) {
     c.searchlights = jint(j, "searchlights", 2);
     c.searchlightCm = jnum(j, "searchlight_cm", 90);
     c.floatplanes = jint(j, "floatplanes", 0);
+    for (const auto& p : c.model.parts) {
+        if (p.type == "aircraft" && c.floatplaneStyle.empty()) c.floatplaneStyle = p.style;
+        if (p.type != "aa") continue;
+        AaMountDef am;
+        am.style = p.style;
+        am.x = (0.5 - p.f) * c.length;
+        am.y = p.y;
+        am.z = c.model.deckHeightAt(p.f) + p.z + 1.5;
+        c.aaMounts.push_back(am);
+    }
     c.depthCharges = jint(j, "depth_charges", 0);
     c.radarCrossSection = jnum(j, "rcs", c.displacementStd / 10000.0);
     c.reserveBuoyancy = jnum(j, "reserve_buoyancy", 0.6);
@@ -356,6 +482,29 @@ bool Database::loadFromDirectory(const std::string& dbDir, std::string* error) {
             nations_.push_back(n);
         }))
         return false;
+    // Air units (optional files: a database without them simply has no aircraft).
+    auto loadOptional = [&](const char* file, auto&& fn) {
+        if (!std::filesystem::exists(dir / file)) return true;
+        return loadArray(file, fn);
+    };
+    if (!loadOptional("bombs.json", [&](const Json& e) {
+            auto b = std::make_unique<BombDef>();
+            parseBomb(e, *b);
+            bombs_.push_back(std::move(b));
+        }))
+        return false;
+    if (!loadOptional("aa.json", [&](const Json& e) {
+            auto a = std::make_unique<AaWeaponDef>();
+            parseAaWeapon(e, *a);
+            aaWeapons_.push_back(std::move(a));
+        }))
+        return false;
+    if (!loadOptional("aircraft.json", [&](const Json& e) {
+            auto a = std::make_unique<AircraftDef>();
+            parseAircraft(e, *a);
+            aircraft_.push_back(std::move(a));
+        }))
+        return false;
     for (auto& p : fs::listFiles(dir / "ships", ".json")) {
         std::string err;
         auto j = loadJsonFile(p, &err);
@@ -368,8 +517,8 @@ bool Database::loadFromDirectory(const std::string& dbDir, std::string* error) {
         classes_.push_back(std::move(c));
     }
     link();
-    IT_LOG_INFO("Database: %zu guns, %zu torpedoes, %zu sensors, %zu ship classes", guns_.size(), torpedoes_.size(),
-                sensors_.size(), classes_.size());
+    IT_LOG_INFO("Database: %zu guns, %zu torpedoes, %zu sensors, %zu ship classes, %zu aircraft types", guns_.size(), torpedoes_.size(),
+                sensors_.size(), classes_.size(), aircraft_.size());
     return true;
 }
 
@@ -381,7 +530,19 @@ void Database::link() {
         for (auto& t : c->torpedoMounts) t.torpedo = torpedo(t.weapon);
         for (auto& s : c->sensors) s.def = sensor(s.sensor);
         for (auto& d : c->directors) d.radarDef = d.radar.empty() ? nullptr : sensor(d.radar);
+        for (auto& a : c->aaMounts) a.def = aaWeapon(a.style);
     }
+    for (auto& b : bombs_)
+        if (b->ballistic.table.empty()) {
+            // Bombs only need the drag parameters; no range table.
+            b->ballistic.maxRange = 1;
+        }
+    for (auto& a : aircraft_)
+        for (auto& l : a->loadouts) {
+            l.torpedo = l.torpedoId.empty() ? nullptr : torpedo(l.torpedoId);
+            l.bomb = l.bombId.empty() ? nullptr : bomb(l.bombId);
+            l.bomb2 = l.bomb2Id.empty() ? nullptr : bomb(l.bomb2Id);
+        }
 }
 
 std::vector<std::string> Database::validate() const {
@@ -410,6 +571,20 @@ std::vector<std::string> Database::validate() const {
         for (auto& d : c->directors)
             if (!d.radar.empty() && !d.radarDef) problems.push_back("class " + c->id + " director radar " + d.radar + " unknown");
         if (c->length <= c->beam) problems.push_back("class " + c->id + " implausible dimensions");
+        for (auto& a : c->aaMounts)
+            if (!a.def) problems.push_back("class " + c->id + " unknown light AA style " + a.style);
+        if (c->floatplanes > 0 && !catapultAircraft(c->floatplaneStyle, c->nation))
+            problems.push_back("class " + c->id + " has no aircraft type for floatplane style '" + c->floatplaneStyle + "'");
+    }
+    for (auto& a : aircraft_) {
+        if (a->nation == Nation::Unknown) problems.push_back("aircraft " + a->id + " has unknown nation");
+        if (a->loadouts.empty()) problems.push_back("aircraft " + a->id + " has no loadouts");
+        for (auto& l : a->loadouts) {
+            if (!l.torpedoId.empty() && (!l.torpedo || !l.torpedo->aerial)) problems.push_back("aircraft " + a->id + " loadout " + l.id + ": no aerial torpedo " + l.torpedoId);
+            if (!l.bombId.empty() && !l.bomb) problems.push_back("aircraft " + a->id + " loadout " + l.id + ": unknown bomb " + l.bombId);
+            if (!l.bomb2Id.empty() && !l.bomb2) problems.push_back("aircraft " + a->id + " loadout " + l.id + ": unknown bomb " + l.bomb2Id);
+        }
+        if (a->maxKn < a->cruiseKn) problems.push_back("aircraft " + a->id + " cruises faster than its maximum speed");
     }
     return problems;
 }
@@ -432,6 +607,33 @@ const SensorDef* Database::sensor(const std::string& id) const {
 const ShipClassDef* Database::shipClass(const std::string& id) const {
     for (auto& c : classes_)
         if (c->id == id) return c.get();
+    return nullptr;
+}
+const AircraftDef* Database::aircraft(const std::string& id) const {
+    for (auto& a : aircraft_)
+        if (a->id == id) return a.get();
+    return nullptr;
+}
+const AircraftDef* Database::catapultAircraft(const std::string& style, Nation n) const {
+    // The navy's own floatplane of that style, else any of its floatplanes, else the style elsewhere.
+    auto sameNavy = [&](const AircraftDef& a) { return a.nation == n || (n == Nation::RAN && a.nation == Nation::RN); };
+    const AircraftDef *navy = nullptr, *styled = nullptr;
+    for (auto& a : aircraft_) {
+        if (a->catapultStyle.empty()) continue;
+        if (a->catapultStyle == style && sameNavy(*a)) return a.get();
+        if (!navy && sameNavy(*a)) navy = a.get();
+        if (!styled && a->catapultStyle == style) styled = a.get();
+    }
+    return navy ? navy : styled;
+}
+const BombDef* Database::bomb(const std::string& id) const {
+    for (auto& b : bombs_)
+        if (b->id == id) return b.get();
+    return nullptr;
+}
+const AaWeaponDef* Database::aaWeapon(const std::string& id) const {
+    for (auto& a : aaWeapons_)
+        if (a->id == id) return a.get();
     return nullptr;
 }
 const NationDef* Database::nation(Nation n) const {

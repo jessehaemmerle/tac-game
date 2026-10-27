@@ -1,6 +1,8 @@
 // Torpedoes. Sources: navweaps.com (WTJAP_WWII, WTJAP_PreWWII, WTUS_WWII, WTBR_WWII, WTIT_WWII, WTGER_WWII).
 // wake: visibility of the track (1 = air/steam torpedo, Type 93 oxygen torpedo is nearly wakeless).
 // dud/deep_run reflect 1942 reliability (US Mark 15 exploder and depth-keeping problems).
+// Aerial torpedoes ("aerial": true) are dropped by aircraft below drop_kn and drop_alt_m; they arm
+// after arm_m of run (dropped too close, they pass under the target unexploded).
 [
   { "id": "ijn_type93", "name": "Type 93 (61 cm, oxygen)", "nation": "ijn", "diameter_mm": 610, "mass_kg": 2700,
     "warhead_kg": 490, "wake": 0.12, "dud": 0.04, "deep_run": 0.02, "erratic": 0.02, "wander": 0.025,
@@ -25,5 +27,25 @@
     "settings": [ { "speed_kn": 50, "range_m": 4000 }, { "speed_kn": 38, "range_m": 8000 }, { "speed_kn": 30, "range_m": 12000 } ] },
   { "id": "km_g7a", "name": "G7a (T1, 53.3 cm)", "nation": "km", "diameter_mm": 533, "mass_kg": 1528,
     "warhead_kg": 280, "wake": 1.0, "dud": 0.08, "deep_run": 0.05, "erratic": 0.03, "wander": 0.025,
-    "settings": [ { "speed_kn": 44, "range_m": 6000 }, { "speed_kn": 40, "range_m": 7500 }, { "speed_kn": 30, "range_m": 12500 } ] }
+    "settings": [ { "speed_kn": 44, "range_m": 6000 }, { "speed_kn": 40, "range_m": 7500 }, { "speed_kn": 30, "range_m": 12500 } ] },
+  { "id": "ijn_type91_air", "name": "Type 91 Mod 2 (45 cm aerial)", "nation": "ijn", "diameter_mm": 450, "mass_kg": 838,
+    "warhead_kg": 204, "wake": 0.9, "dud": 0.04, "deep_run": 0.03, "erratic": 0.03, "wander": 0.03,
+    "aerial": true, "drop_kn": 180, "drop_alt_m": 100, "arm_m": 200,
+    "settings": [ { "speed_kn": 42, "range_m": 2000 } ] },
+  { "id": "usn_mk13", "name": "Mark 13 Mod 1 (22.4 in aerial)", "nation": "usn", "diameter_mm": 569, "mass_kg": 1005,
+    "warhead_kg": 182, "wake": 1.0, "dud": 0.25, "deep_run": 0.2, "erratic": 0.12, "wander": 0.04,
+    "aerial": true, "drop_kn": 110, "drop_alt_m": 25, "arm_m": 300,
+    "settings": [ { "speed_kn": 33.5, "range_m": 5700 } ] },
+  { "id": "rn_18in_mk12", "name": "18 in Mark XII (aerial)", "nation": "rn", "diameter_mm": 450, "mass_kg": 702,
+    "warhead_kg": 176, "wake": 1.0, "dud": 0.06, "deep_run": 0.04, "erratic": 0.03, "wander": 0.03,
+    "aerial": true, "drop_kn": 150, "drop_alt_m": 30, "arm_m": 250,
+    "settings": [ { "speed_kn": 40, "range_m": 1370 }, { "speed_kn": 37, "range_m": 2740 } ] },
+  { "id": "km_f5b", "name": "LT F5b (45 cm aerial)", "nation": "km", "diameter_mm": 450, "mass_kg": 812,
+    "warhead_kg": 200, "wake": 1.0, "dud": 0.08, "deep_run": 0.06, "erratic": 0.04, "wander": 0.03,
+    "aerial": true, "drop_kn": 140, "drop_alt_m": 40, "arm_m": 250,
+    "settings": [ { "speed_kn": 33, "range_m": 2000 } ] },
+  { "id": "rm_w200", "name": "Whitehead W200/450 x 5.46 (aerial)", "nation": "rm", "diameter_mm": 450, "mass_kg": 905,
+    "warhead_kg": 200, "wake": 1.0, "dud": 0.06, "deep_run": 0.04, "erratic": 0.03, "wander": 0.03,
+    "aerial": true, "drop_kn": 160, "drop_alt_m": 100, "arm_m": 250,
+    "settings": [ { "speed_kn": 40, "range_m": 3000 } ] }
 ]

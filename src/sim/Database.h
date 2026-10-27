@@ -39,6 +39,8 @@ struct GunDef {
     double maxRangeElevationDeg = 40;
     double dispersion = 0.006;      // salvo range dispersion (1 sigma) as fraction of range
     bool dualPurpose = false;
+    double aaKillRounds = 0;        // dual-purpose guns: rounds per aircraft destroyed at reference conditions
+    double aaRangeM = 0;            // effective anti-aircraft slant range
     std::vector<ShellDef> shells;
     std::vector<BallisticSample> table;  // computed range table (index = elevation step)
 
@@ -64,7 +66,82 @@ struct TorpedoDef {
     double deepRunChance = 0.0;   // runs under target
     double erraticChance = 0.02;  // circular/erratic run
     double wanderFraction = 0.025;  // lateral wander as fraction of run distance
+    bool aerial = false;            // dropped by aircraft
+    double dropKn = 150, dropAltM = 50;  // release limits (speed, height) of an aerial torpedo
+    double armM = 250;              // run before the warhead arms
     std::vector<TorpedoSetting> settings;  // ordered fast→slow
+};
+
+/// Aircraft bomb. It falls as a Shell of the embedded pseudo-gun, so penetration, hits, near misses
+/// and splashes follow the same rules as gunfire.
+struct BombDef {
+    std::string id, name;
+    Nation nation = Nation::Unknown;
+    double massKg = 250, bursterKg = 100, caliberMm = 300;
+    ShellKind kind = ShellKind::HE;
+    GunDef ballistic;  // caliber and one shell: what the simulation's shell code needs
+};
+
+/// Light anti-aircraft weapon (the "aa" parts of the ship models), or a dual-purpose gun in its AA role.
+struct AaWeaponDef {
+    std::string id, name;
+    Nation nation = Nation::Unknown;
+    double caliberMm = 20;
+    int barrels = 1;
+    double rofRpm = 300;      // practical, per barrel
+    double rangeM = 1500;     // effective slant range
+    double ceilingM = 1500;
+    double killRounds = 5000; // rounds per aircraft destroyed at reference conditions
+    bool heavy = false;       // dual-purpose gun with a director (timed fuzes)
+};
+
+struct AircraftLoadout {
+    std::string id;           // "torpedo", "bomb500", "guns", "recon"
+    std::string torpedoId, bombId, bomb2Id;
+    const TorpedoDef* torpedo = nullptr;
+    const BombDef* bomb = nullptr;
+    const BombDef* bomb2 = nullptr;
+    int count = 0, count2 = 0;
+    bool armed() const { return torpedo || bomb; }
+};
+
+/// Procedural aircraft model parameters.
+struct AircraftModelDesc {
+    std::string layout = "mono";  // mono | bi | float (ship floatplane style) | boat (flying boat)
+    std::string style;            // floatplane style for layout "float"
+    double span = 12, length = 10, fuselage = 1.3;
+    int engines = 1;
+    std::string engine = "radial";  // radial | inline
+    std::string wing = "low";       // low | mid | high | parasol | invgull
+    double chord = 2.5, taper = 0.5;
+    std::string tail = "single";    // single | twin
+    std::string canopy = "long";    // fighter | long | cockpit | open | none
+    std::string nose = "solid";     // solid | glazed
+    std::string gear = "retract";   // retract | fixed | spats
+    std::string floats = "none";    // none | twin | tips | struts
+    bool dorsal = false, tailGun = false;
+    Vec3 upper{100, 105, 100}, lower{175, 175, 175}, cowl{-1, -1, -1};  // sRGB 0..255; cowl.x < 0: as upper
+};
+
+struct AircraftDef {
+    std::string id, name;
+    Nation nation = Nation::Unknown;
+    AirRole role = AirRole::Recon;
+    int year = 1940, crew = 2;
+    double cruiseKn = 150, maxKn = 220, attackKn = 150, climbMps = 7, ceilingM = 8000, enduranceH = 5;
+    double bombAltM = 0;       // preferred bombing altitude of level bombers (0: by role)
+    double durability = 1.0, defense = 0.0, firepower = 0.0, agility = 0.4;
+    double gunSeconds = 0;     // seconds of fire carried for the forward guns
+    bool night = false, radar = false;
+    int flares = 0;
+    std::string catapultStyle;
+    std::vector<AircraftLoadout> loadouts;
+    AircraftModelDesc model;
+    std::string historyKey;
+    const AircraftLoadout* loadout(const std::string& id) const;
+    double cruise() const;  // m/s
+    double maxSpeed() const;
+    double attackSpeed() const;
 };
 
 struct SensorDef {
@@ -79,6 +156,7 @@ struct SensorDef {
     double sweepPeriod = 5;         // s
     double landClutter = 0.5;       // 0 = immune, 1 = blind near land
     double reliability = 0.98;      // probability per minute to be working (operator/equipment issues)
+    double rangeAir = 0;            // m vs. a bomber formation at 3,000 m (air search and AA fire control)
     bool fireControl = false;
     bool surfaceSearch = true;
     bool airSearch = false;
@@ -100,6 +178,7 @@ struct MountDef {
     std::string director;  // director id controlling this mount
     bool superfiring = false;
     std::string style;     // procedural model style: "turret4", "turret3", "turret2", "dd_turret", "dp_twin", "casemate", "shield"
+    bool aa = true;        // a dual-purpose gun on this mounting can fire at aircraft (low-angle mountings: false)
     std::map<ShellKind, int> ammo;  // rounds per barrel
 };
 
@@ -130,6 +209,13 @@ struct SensorMountDef {
     const SensorDef* def = nullptr;
     double height = 30;
     double x = 0;
+};
+
+/// Light AA position from the model ("aa" parts), linked to its weapon.
+struct AaMountDef {
+    std::string style;
+    const AaWeaponDef* def = nullptr;
+    double x = 0, y = 0, z = 6;  // ship-local position
 };
 
 struct ArmorDef {
@@ -195,9 +281,11 @@ struct ShipClassDef {
     std::vector<TorpedoMountDef> torpedoMounts;
     std::vector<DirectorDef> directors;
     std::vector<SensorMountDef> sensors;
+    std::vector<AaMountDef> aaMounts;
     int searchlights = 2;
     double searchlightCm = 90;
     int floatplanes = 0;
+    std::string floatplaneStyle;     // style of the model's aircraft parts (the catapult floatplane type)
     int depthCharges = 0;
     double mastHeight = 30;     // highest point above waterline (lookouts & silhouette)
     double lookoutHeight = 20;
@@ -243,11 +331,19 @@ public:
     const SensorDef* sensor(const std::string& id) const;
     const ShipClassDef* shipClass(const std::string& id) const;
     const NationDef* nation(Nation n) const;
+    const AircraftDef* aircraft(const std::string& id) const;
+    /// The floatplane type flown from catapults by ships whose model shows `style` aircraft.
+    const AircraftDef* catapultAircraft(const std::string& style, Nation nation) const;
+    const BombDef* bomb(const std::string& id) const;
+    const AaWeaponDef* aaWeapon(const std::string& id) const;
 
     const std::vector<std::unique_ptr<ShipClassDef>>& shipClasses() const { return classes_; }
     const std::vector<std::unique_ptr<GunDef>>& guns() const { return guns_; }
     const std::vector<std::unique_ptr<TorpedoDef>>& torpedoes() const { return torpedoes_; }
     const std::vector<std::unique_ptr<SensorDef>>& sensors() const { return sensors_; }
+    const std::vector<std::unique_ptr<AircraftDef>>& aircraftTypes() const { return aircraft_; }
+    const std::vector<std::unique_ptr<BombDef>>& bombs() const { return bombs_; }
+    const std::vector<std::unique_ptr<AaWeaponDef>>& aaWeapons() const { return aaWeapons_; }
 
     // Programmatic insertion (tests).
     GunDef& addGun(std::unique_ptr<GunDef> g);
@@ -264,6 +360,9 @@ private:
     std::vector<std::unique_ptr<TorpedoDef>> torpedoes_;
     std::vector<std::unique_ptr<SensorDef>> sensors_;
     std::vector<std::unique_ptr<ShipClassDef>> classes_;
+    std::vector<std::unique_ptr<AircraftDef>> aircraft_;
+    std::vector<std::unique_ptr<BombDef>> bombs_;
+    std::vector<std::unique_ptr<AaWeaponDef>> aaWeapons_;
     std::vector<NationDef> nations_;
 };
 

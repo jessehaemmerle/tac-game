@@ -240,6 +240,10 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
     for (size_t mi = 0; mi < s.mounts.size(); ++mi) {
         MountState& m = s.mounts[mi];
         if (m.def->director != did || !m.operational() || !m.def->gun) continue;
+        if (now < m.aaUntil) {
+            m.bears = m.onTarget = false;  // engaging aircraft
+            continue;
+        }
         bool star = d.illuminate && m.ammo.count(ShellKind::Starshell) && m.ammo[ShellKind::Starshell] > 0;
         Aim aim;
         if (!computeAim(w, s, d, m, aim, star) || aim.range > m.def->gun->effectiveMaxRange() * 0.97) {
@@ -291,6 +295,7 @@ void updateDirector(World& w, Ship& s, size_t di, double dt) {
                 if (n > 0 && k != ShellKind::Starshell) kind = k;
         }
         fireMount(w, s, d, m, aim, sv.id, tgt->id, star, kind, se);
+        m.lastSurface = now;
         maxCal = std::max(maxCal, m.def->gun->caliberMm);
         Event e;
         e.type = EventType::GunFired;
@@ -393,6 +398,12 @@ void salvoLanded(World& w, Salvo& sv) {
     double blind = d.radarRanging && !d.opticalLayer ? smoothstep(4000.0, 16000.0, range) : 0.0;
     double pObserve = d.radarRanging ? 0.9 * (1.0 - 0.65 * blind) : clamp(std::pow(clamp(light, 0.0, 1.0), 0.4) * 1.6, 0.05, 1.0);
     if (sv.hits > 0) pObserve = std::max(pObserve, 0.8);
+    // An own aircraft over the target spots the fall of shot (Chokai's floatplanes, Warspite's Swordfish).
+    bool airSpot = w.aircraftSpotting(firer->side, tgt->id);
+    if (airSpot) {
+        pObserve = std::max(pObserve, 0.85);
+        blind *= 0.4;
+    }
     if (!w.rng().chance(pObserve * clamp(crew, 0.4, 1.0))) return;
     double meanR = sv.sumRangeErr / sv.landed, meanD = sv.sumDeflErr / sv.landed;
     double noise = (d.radarRanging ? 30.0 : 60.0) + (0.004 + 0.012 * blind) * range;

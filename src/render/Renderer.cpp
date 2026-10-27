@@ -896,6 +896,8 @@ uint64_t Renderer::shipPreview(const std::string& classId, const PreviewParams& 
     auto& P = *p_;
     auto& dev = *dev_;
     auto* cmd = dev.cmd();
+    if (!db_->shipClass(classId))
+        if (const sim::AircraftDef* a = db_->aircraft(classId)) return aircraftPreview(*a, view, w, h);
     const GpuMesh* mesh = shipMesh(classId);
     const sim::ShipClassDef* cls = db_->shipClass(classId);
     if (!mesh || !cls) return 0;
@@ -1029,6 +1031,137 @@ uint64_t Renderer::shipPreview(const std::string& classId, const PreviewParams& 
     return dev.gpuHeap().gpu(pv.ldr.uiSrv).ptr;
 }
 
+uint64_t Renderer::aircraftPreview(const sim::AircraftDef& a, const PreviewParams& view, uint32_t w, uint32_t h) {
+    auto& P = *p_;
+    auto& dev = *dev_;
+    auto* cmd = dev.cmd();
+    const GpuMesh* mesh = aircraftMeshFor(P, dev, a);
+    if (!mesh) return 0;
+    auto& pv = P.preview;
+    if (pv.w != w || pv.h != h) {
+        dev.flush();
+        createColorTarget(dev, pv.hdrMS, DXGI_FORMAT_R16G16B16A16_FLOAT, w, h, P.msaa, "previewMS");
+        createDepthTarget(dev, pv.depthMS, w, h, P.msaa, "previewDepth");
+        createColorTarget(dev, pv.hdr, DXGI_FORMAT_R16G16B16A16_FLOAT, w, h, 1, "previewHdr");
+        createColorTarget(dev, pv.ldr, DXGI_FORMAT_R8G8B8A8_UNORM, w, h, 1, "previewLdr");
+        dev.makeUiSrv(pv.ldr);
+        pv.w = w;
+        pv.h = h;
+    }
+    cmd->SetGraphicsRootSignature(P.root.get());
+    cmd->SetComputeRootSignature(P.root.get());
+    clearUavsOnce(P, dev);
+
+    // In flight a little above the sea, far from any map; the camera circles it.
+    const bool night = view.night;
+    const double altitude = a.model.layout == "float" || a.model.layout == "boat" ? 25.0 : 40.0;
+    const Vec3 origin{200000.0, altitude, 200000.0};
+    Aabb b = mesh->bounds;
+    Vec3f ext = b.extent();
+    Camera cam;
+    cam.fovY = 30;
+    double aspect = double(w) / double(h);
+    double tanY = std::tan(cam.fovY * 0.5 * kDegToRad), tanX = tanY * aspect;
+    double size = std::max({double(ext.x), double(ext.y), double(ext.z)});
+    double dist = std::max(size * 0.75 / tanX, size * 0.6 / tanY) + size * 0.5;
+    dist = std::max(2.0, dist / std::clamp(double(view.zoom), 0.5, 40.0));
+    Vec3 target = origin + Vec3{0.0, double(view.lift) * 0.2, double(view.focus) * a.model.length};
+    double cp = std::cos(view.pitch * kDegToRad), sp = std::sin(view.pitch * kDegToRad);
+    Vec3 dir{std::sin(view.yaw * kDegToRad) * cp, sp, std::cos(view.yaw * kDegToRad) * cp};
+    cam.pos = target - dir * dist;
+    cam.pos.y = std::max(cam.pos.y, 1.5);
+    Vec3 look = target - cam.pos;
+    cam.yaw = bearingOf({look.x, look.z});
+    cam.pitch = std::atan2(look.y, std::sqrt(look.x * look.x + look.z * look.z)) * kRadToDeg;
+    cam.nearZ = std::min(0.3, dist * 0.02);
+
+    FrameSetup fs;
+    fs.camPos = cam.pos;
+    fs.light = night ? computeLighting(-30, 0, 40, view.yaw + 140, 0.9, 0.2, 30, 2, 120, 8, 0)
+                     : computeLighting(38, view.yaw + 135, -20, 0, 0.35, 0.25, 40, 2, 120, 8, 0);
+    fs.shadowCenter = origin;
+    fs.shadowSize = float(size * 3.0);
+    fs.shadows = true;
+    ensureOcean(P, dev, fs.light);
+    auto savedLights = std::move(P.lights);
+    P.lights.clear();
+    bool savedTerrain = P.hasTerrain;
+    P.hasTerrain = false;
+
+    Vec3 rel = origin - cam.pos;
+    // A gentle bank in the demonstration, level otherwise.
+    float bank = view.animate ? float(18.0 * std::sin(P.oceanTime * 0.6)) : 0.0f;
+    Mat4f world = Mat4f::translation({float(rel.x), float(rel.y), float(rel.z)}) * modelToRenderBasis(0.0) * rotX(-bank);
+    fillFrameConstants(P, cam, float(w), float(h), fs, P.oceanTime, 1.0 / 60.0, dev.frameCounter(), 0.0f, 0.0f, P.shadow.width);
+    D3D12_GPU_VIRTUAL_ADDRESS fcAddr = dev.constants(P.fc);
+    cmd->SetGraphicsRootConstantBufferView(0, fcAddr);
+    cmd->SetComputeRootConstantBufferView(0, fcAddr);
+    ShipPose still;
+    renderShadowMap(P, dev, nullptr, cam, 0.0, true, mesh, &world, &still);
+
+    dev.transition(pv.hdrMS, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    dev.transition(pv.depthMS, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    auto rtv = dev.rtvHeap().cpu(pv.hdrMS.rtv);
+    auto dsv = dev.dsvHeap().cpu(pv.depthMS.dsv);
+    cmd->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
+    const float black[4] = {0, 0, 0, 1};
+    cmd->ClearRenderTargetView(rtv, black, 0, nullptr);
+    cmd->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 0.0f, 0, 0, nullptr);
+    viewport(cmd, w, h);
+    cmd->SetGraphicsRootDescriptorTable(3, globalTable(P, dev, false, true));
+    cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    cmd->SetPipelineState(P.pso.ship.get());
+    bindShipTextures(P, dev);
+    // The load of the type's first loadout hangs under it; the propellers turn.
+    const sim::AircraftLoadout* load = a.loadouts.empty() ? nullptr : &a.loadouts.front();
+    bool torpedo = load && load->torpedo, bombs = load && load->bomb && !load->torpedo;
+    float spin = float(std::fmod(P.oceanTime * 7.3 * 360.0, 360.0));
+    Vec4f params{float(std::hash<std::string>{}(a.id) % 97), -1e4f, float(a.model.length), 2.0f};
+    cmd->IASetVertexBuffers(0, 1, &mesh->vbv);
+    cmd->IASetIndexBuffer(&mesh->ibv);
+    for (const auto& part : mesh->parts) {
+        if (!part.indexCount) continue;
+        Mat4f local;
+        if (part.kind == procgen::PartKind::Propeller) local = aboutPivot(part.pivot, rotX(part.sub == 1 ? -spin : spin));
+        if (part.kind == procgen::PartKind::Ordnance && ((part.sub == 0 && !torpedo) || (part.sub == 1 && !bombs))) continue;
+        ObjectConstants oc{world * local, {0, 0, 0, 0}, params};
+        cmd->SetGraphicsRootConstantBufferView(1, dev.constants(oc));
+        cmd->DrawIndexedInstanced(part.indexCount, 1, part.firstIndex, 0, 0);
+    }
+    cmd->SetPipelineState(P.pso.ocean.get());
+    drawOcean(P, dev);
+    cmd->SetPipelineState(P.pso.sky.get());
+    cmd->DrawInstanced(3, 1, 0, 0);
+
+    if (P.msaa > 1) {
+        dev.transition(pv.hdrMS, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+        dev.transition(pv.hdr, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+        cmd->ResolveSubresource(pv.hdr.get(), 0, pv.hdrMS.get(), 0, DXGI_FORMAT_R16G16B16A16_FLOAT);
+    } else {
+        dev.transition(pv.hdrMS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+        dev.transition(pv.hdr, D3D12_RESOURCE_STATE_COPY_DEST);
+        cmd->CopyResource(pv.hdr.get(), pv.hdrMS.get());
+    }
+    dev.transition(pv.hdr, kSrvState);
+    dev.transition(pv.ldr, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    auto lrtv = dev.rtvHeap().cpu(pv.ldr.rtv);
+    cmd->OMSetRenderTargets(1, &lrtv, FALSE, nullptr);
+    PostPass pp{};
+    pp.expo = {0, 0, 0, night ? 9.0f : 0.85f};
+    cmd->SetGraphicsRootConstantBufferView(2, dev.constants(pp));
+    TableBuilder t(dev, 8);
+    for (uint32_t i = 0; i < 8; ++i) t.srv(i, P.nullTex2D);
+    t.srv(0, pv.hdr.srv);
+    cmd->SetGraphicsRootDescriptorTable(4, t.handle());
+    cmd->SetPipelineState(P.pso.tonemapPreview.get());
+    cmd->DrawInstanced(3, 1, 0, 0);
+    dev.transition(pv.ldr, kSrvState);
+
+    P.lights = std::move(savedLights);
+    P.hasTerrain = savedTerrain;
+    return dev.gpuHeap().gpu(pv.ldr.uiSrv).ptr;
+}
+
 // --------------------------------------------------------------------------------------------- picking
 sim::EntityId Renderer::pick(const Camera& cam, float sx, float sy) const {
     if (!world_ || !dev_) return sim::kNoEntity;
@@ -1064,6 +1197,19 @@ sim::EntityId Renderer::pick(const Camera& cam, float sx, float sy) const {
         if (!miss && t0 < best) {
             best = t0;
             hit = s.id;
+        }
+    }
+    // Aircraft: a sphere around each airframe, never smaller than a few pixels' worth at its distance.
+    for (const auto& a : world_->planes()) {
+        if (!a.flying() || !a.def) continue;
+        Vec3 c{a.pos.x, a.pos.z, a.pos.y};
+        Vec3 oc = c - origin;
+        double t = dot(oc, dir);
+        if (t <= 0.0 || t >= best) continue;
+        double r = std::max(a.def->model.span * 0.7, t * 0.012);
+        if (lengthSq(oc - dir * t) < r * r) {
+            best = t;
+            hit = a.id;
         }
     }
     return hit;
